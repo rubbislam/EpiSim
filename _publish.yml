@@ -1,0 +1,4 @@
+- source: project
+  quarto-pub:
+    - id: 81aadaec-cd23-48dd-b2d9-850dcfb14f8b
+      url: 'https://rubbislam.quarto.pub/episim'
