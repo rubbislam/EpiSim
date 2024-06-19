@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Qianying (Ruby) Lin">
 
-<title>Iterated – EpiSim</title>
+<title>Maximum likelihood estimation and iterated filtering – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -39,6 +74,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.js"></script>
+<link href="site_libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -66,7 +103,54 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -105,12 +189,13 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./likelihood.html"> 
-<span class="menu-text">Likelihood</span></a>
+    <span class="nav-link">
+<span class="menu-text">likelihood.qmd</span>
+    </span>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./iterated.html" aria-current="page"> 
-<span class="menu-text">Iterated</span></a>
+<span class="menu-text">Maximum likelihood estimation and iterated filtering</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./influenza.html"> 
@@ -131,21 +216,49 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#goal-estimating-the-parameters" id="toc-goal-estimating-the-parameters" class="nav-link" data-scroll-target="#goal-estimating-the-parameters">Goal: estimating the parameters</a></li>
+  <li><a href="#an-iterated-filtering-algorithm-if2" id="toc-an-iterated-filtering-algorithm-if2" class="nav-link" data-scroll-target="#an-iterated-filtering-algorithm-if2">An iterated filtering algorithm (IF2)</a>
+  <ul class="collapse">
+  <li><a href="#analogy-with-evolutiion-by-natural-selection" id="toc-analogy-with-evolutiion-by-natural-selection" class="nav-link" data-scroll-target="#analogy-with-evolutiion-by-natural-selection">Analogy with evolutiion by natural selection</a></li>
+  <li><a href="#if2-pseudocode" id="toc-if2-pseudocode" class="nav-link" data-scroll-target="#if2-pseudocode">IF2 pseudocode</a></li>
+  <li><a href="#particle-filter-in-pomp-for-the-consett-measles-outbreak" id="toc-particle-filter-in-pomp-for-the-consett-measles-outbreak" class="nav-link" data-scroll-target="#particle-filter-in-pomp-for-the-consett-measles-outbreak">Particle filter in <code>pomp</code> for the Consett measles outbreak</a></li>
+  </ul></li>
+  <li><a href="#local-search-of-the-likelihood-surface" id="toc-local-search-of-the-likelihood-surface" class="nav-link" data-scroll-target="#local-search-of-the-likelihood-surface">Local search of the likelihood surface</a>
+  <ul class="collapse">
+  <li><a href="#iterated-filtering-diagnostics" id="toc-iterated-filtering-diagnostics" class="nav-link" data-scroll-target="#iterated-filtering-diagnostics">Iterated filtering diagnostics</a></li>
+  <li><a href="#estimating-the-likelihood" id="toc-estimating-the-likelihood" class="nav-link" data-scroll-target="#estimating-the-likelihood">Estimating the likelihood</a></li>
+  </ul></li>
+  <li><a href="#global-search-and-mle" id="toc-global-search-and-mle" class="nav-link" data-scroll-target="#global-search-and-mle">Global Search and MLE</a>
+  <ul class="collapse">
+  <li><a href="#a-poo-rmans-profile" id="toc-a-poo-rmans-profile" class="nav-link" data-scroll-target="#a-poo-rmans-profile">a poo rman’s profile</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Iterated</h1>
+<h1 class="title">Maximum likelihood estimation and iterated filtering</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Qianying (Ruby) Lin </p>
+          </div>
+  </div>
     
   
     
@@ -156,8 +269,411 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<ul>
+<li><p>Model implementation in <code>pomp</code></p></li>
+<li><p>Creating a <code>pomp</code> object with different componenets</p></li>
+<li><p>Computing likelihood using <code>pfilter</code></p></li>
+</ul>
+</section>
+<section id="goal-estimating-the-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="goal-estimating-the-parameters">Goal: estimating the parameters</h2>
+<p>We are interested in estimating the parameters <span class="math inline">\(\theta = (\beta, \gamma, \rho, k, S_0, I_0, R_0)\)</span> of the SIR model, given the weekly reported cases. The likelihood-based inference is to find the set of parameters that maximize the likelihood of the data, i.e., the probability of observing the data given the parameters. Now we break down this problem into two steps:</p>
+<ul>
+<li><p>compute the likelihood of the data given the parameters;</p></li>
+<li><p>find the set of parameters that maximize the likelihood.</p></li>
+</ul>
+<p>This session will focus on the second step and we will use the <code>mif2</code> function in <code>pomp</code> to compute the maximum likelihood estimate (MLE) of the parameters.</p>
+</section>
+<section id="an-iterated-filtering-algorithm-if2" class="level2">
+<h2 class="anchored" data-anchor-id="an-iterated-filtering-algorithm-if2">An iterated filtering algorithm (IF2)</h2>
+<p>Since we already learn how to compute the likelihood of the data given the parameters using Sequential Monte Carlo (SMC) method, implemented in <code>pfilter</code> function in <code>pomp</code>, now we would like to explore the space of parameters to find the set of parameters that maximize the likelihood.</p>
+<p>The iterated filtering algorithm (IF2) consists of multiple rounds of iterations, call it <span class="math inline">\(M\)</span>. In each round of iteration, we have <span class="math inline">\(J\)</span> particles, carrying out with the parameter vector. Assume that we have data <span class="math inline">\(y^\ast_{1:W}\)</span>.</p>
+<p>We can consider this procedure as a two-layer process:</p>
+<ol type="1">
+<li><strong>Outer loop</strong>: run through <span class="math inline">\(M\)</span> rounds of iterations:</li>
+</ol>
+<ul>
+<li><p>at the beginning of each round <span class="math inline">\(m\)</span>, the particles resulted in the last time step from the previous round <span class="math inline">\(m-1\)</span> are recycled, with a random walk perturbation;</p></li>
+<li><p>the particles run through the inner loop to update the weights and the parameters are updated based on the likelihood of the data given the parameters.</p></li>
+</ul>
+<ol start="2" type="1">
+<li><strong>Inner loop</strong>: run through <span class="math inline">\(W\)</span> time steps:</li>
+</ol>
+<ul>
+<li><p>at the beginning of each time step <span class="math inline">\(w\)</span>, the particles are sampled from those in the last time step <span class="math inline">\(w-1\)</span>, with a random walk perturbation;</p></li>
+<li><p>the current state at time <span class="math inline">\(w\)</span> are updated based on the stochastic compartmental model (e.g., SIR model);</p></li>
+<li><p>the weights are updated based on the likelihood of the data given the parameters;</p></li>
+<li><p>the particles are resampled based on the weights.</p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="if2.png" class="img-fluid figure-img" width="500"></p>
+<figcaption><strong>Iterated filtering diagram</strong>.</figcaption>
+</figure>
+</div>
+<section id="analogy-with-evolutiion-by-natural-selection" class="level3">
+<h3 class="anchored" data-anchor-id="analogy-with-evolutiion-by-natural-selection">Analogy with evolutiion by natural selection</h3>
+<ul>
+<li><p>The parameters characterize the <em>genotype</em>.</p></li>
+<li><p>The swarm of particles is a <em>population</em>.</p></li>
+<li><p>The likelihood, a measure of the compatibility between the parameters and the data, is the analogue of <em>fitness</em>.</p></li>
+<li><p>Each successive observation is a new <em>generation</em>.</p></li>
+<li><p>Since particles reproduce in each generation in proportion to their likelihood, the particle filter acts like <em>natural selection</em>.</p></li>
+<li><p>The artificial perturbations augment the “genetic” variance and therefore correspond to <em>mutation</em>.</p></li>
+<li><p>IF2 increases the <em>fitness</em> of the population of particles.</p></li>
+<li><p>However, because our scientific interest focuses on the model without the artificial perturbations, we decrease the intensity of the latter with successive iterations.</p></li>
+</ul>
+</section>
+<section id="if2-pseudocode" class="level3">
+<h3 class="anchored" data-anchor-id="if2-pseudocode">IF2 pseudocode</h3>
+<p><strong>Input</strong>:</p>
+<ul>
+<li><p>simulators for <span class="math inline">\(f_{X_0}(x_0;\theta)\)</span> and <span class="math inline">\(f_{X_w\vert X_{w-1}}(x_w\vert x_{w-1};\theta)\)</span>;</p></li>
+<li><p>evaluator for <span class="math inline">\(f_{Y_w\vert X_w}(y_w\vert x_w;\theta)\)</span>;</p></li>
+<li><p>data, <span class="math inline">\(y^\ast_{1:W}\)</span>;</p></li>
+</ul>
+<p><strong>Algorithm parameters and <code>mif2</code> arguments</strong></p>
+<ul>
+<li><p>number of iterations, <code>Nmif</code>=<span class="math inline">\(M\)</span></p></li>
+<li><p>number of particles, <code>Np</code>=<span class="math inline">\(J\)</span></p></li>
+<li><p>initial parameter vector swarm, <code>params</code>=<span class="math inline">\(\left\{\Theta_j^0, j=1,\dots,J\right\}\)</span></p></li>
+<li><p>random walk standard deviation for each parameter within the vector, <code>rw.sd</code>, such that a diagonal variance matrix <span class="math inline">\(V_w\)</span> can be constructed</p></li>
+<li><p>cooling fraction every 50 iterations, <code>cooling.fraction.50</code> = <span class="math inline">\(a\)</span></p></li>
+</ul>
+<p><strong>Output</strong></p>
+<ul>
+<li>final parameter vector swarm after <span class="math inline">\(M\)</span> iterations, <span class="math inline">\(\left\{\Theta_j^M, j=1,\dots,J\right\}\)</span></li>
+</ul>
+<p><strong>Procedure</strong></p>
+<div class="pseudocode-container quarto-float" data-indent-size="1.2em" data-comment-delimiter="//" data-pseudocode-number="1" data-caption-prefix="Algorithm" data-line-number-punc=":" data-no-end="false" data-line-number="true">
+<div class="pseudocode">
+\begin{algorithm} \caption{Iterated filtering algorithm (IF2)} \begin{algorithmic} \For{$m=1$ to $M$} \State $\Theta_{0,j}^{F,m} \sim \mathrm{Normal}(\Theta_j^{m-1}, V_0\,a^{2m/50})$ for $j=1$ to $J$ \State $X_{0,j}^{F,m} \sim f_{X_0}(x_0;\Theta_{0,j}^{F,m})$ for $j=1$ to $J$ \For{$w=1$ to $W$} \State $\Theta_{w,j}^{P,m} \sim \mathrm{Normal}(\Theta_{w-1,j}^{F,m}, V_n\, a^{2m/50})$ for $j=1$ to $J$ \State $X_{n,j}^{P,m} \sim f_{X_w\vert X_{w-1}}(x_w\vert X_{w-1}^{F,m};\Theta_{w,j}^{P,m})$ for $j=1$ to $J$ \State $\omega_{n,j}^{P,m} = f_{Y_w\vert X_w}(y_w^\ast\vert X_{w,j}^{P,m};\Theta_{w,j}^{P,m})$ for $j=1$ to $J$ \State Draw $k_{1:J}$ with $P[k_j=i]=\omega_{w,j}^m/\sum_{u=1}^J\,\omega_{w,u}$ \State $\Theta_{w,j}^{F,m} = \Theta_{w,k_j}^{P,m}$ and $X_{w,j}^{F,m}=X_{w,k_j}^{P,m}$ for $j=1$ to $J$ \EndFor \State Set $\Theta_j^m = \Theta_{W,j}^{F,m}$ for $j=1$ to $J$ \EndFor \end{algorithmic} \end{algorithm}
+</div>
+</div>
+</section>
+<section id="particle-filter-in-pomp-for-the-consett-measles-outbreak" class="level3">
+<h3 class="anchored" data-anchor-id="particle-filter-in-pomp-for-the-consett-measles-outbreak">Particle filter in <code>pomp</code> for the Consett measles outbreak</h3>
+<ul>
+<li>Recap one wave of the Consett measles outbreak:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 53 Columns: 2
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (2): week, cases
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dat_meas <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>week, <span class="at">y=</span>reports)) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/recap-data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Test the particle filter with pre-specified parameters:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sird_measle <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pfilter</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">params =</span>  <span class="fu">c</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">Beta =</span> <span class="dv">15</span>, <span class="at">gamma =</span> .<span class="dv">5</span>, <span class="at">rho =</span> .<span class="dv">5</span>, <span class="at">k =</span> <span class="dv">10</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">S0 =</span> <span class="dv">2280</span>, <span class="at">I0 =</span> <span class="dv">1</span>, <span class="at">R0 =</span> <span class="dv">35720</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Np=</span><span class="dv">1000</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> pf</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/test-pfilter-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The above plot shows the data (<code>reports</code>), along with the <em>effective sample size</em> (ESS) of the particle filter (<code>ess</code>) and the log-likelihood of each observation conditional on the preceding ones (<code>cond.logLik</code>). The ESS is the equivalent number of independent particles. In this case, the ESS appears to be everywhere adequate.</p>
+<ul>
+<li>setting up the estimation problem</li>
+</ul>
+<p>Assume the initial population sizes are known, that is <span class="math inline">\(S_0=2280, I_0 = 1, R_0 = 35720\)</span>. We also assume that the infectious period is 2 weeks, i.e., <span class="math inline">\(\gamma = 0.5\)</span>. We would also like to fix the over-dispersion parameter <span class="math inline">\(k=10\)</span>. We can relax these assumptions later. By fixing these parameters, we can constrain the parameter space and try our best to avoid un-identifiability. We can then proceed to estimate the transmission rate <span class="math inline">\(\beta\)</span> and the reporting ratio <span class="math inline">\(\rho\)</span>, with initial guesses <span class="math inline">\(\beta=15\)</span> and <span class="math inline">\(\rho=0.5\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fixed_params <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">S0 =</span> <span class="dv">2280</span>, <span class="at">I0 =</span> <span class="dv">1</span>, <span class="at">R0 =</span> <span class="dv">35720</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">gamma =</span> .<span class="dv">5</span>, <span class="at">k =</span> <span class="dv">10</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(sird_measle, <span class="fu">names</span>(fixed_params)) <span class="ot">&lt;-</span> fixed_params</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: in 'coef&lt;-': names of 'value' are being discarded.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(foreach)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: iterators</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: parallel</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoParallel</span>(<span class="at">cores=</span><span class="fu">detectCores</span>()<span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="at">.combine=</span>c, <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="cn">TRUE</span>)) <span class="sc">%dopar%</span> {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  sird_measle <span class="sc">|&gt;</span> <span class="fu">pfilter</span>(<span class="at">Np=</span><span class="dv">5000</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> pf</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>pf <span class="sc">|&gt;</span> <span class="fu">logLik</span>() <span class="sc">|&gt;</span> <span class="fu">logmeanexp</span>(<span class="at">se=</span><span class="cn">TRUE</span>) <span class="ot">-&gt;</span> L_pf</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>L_pf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        est          se 
+-131.880413    1.645576 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pf[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">coef</span>() <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="at">loglik=</span>L_pf[<span class="dv">1</span>],<span class="at">loglik.se=</span>L_pf[<span class="dv">2</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="st">"measles_params.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="local-search-of-the-likelihood-surface" class="level2">
+<h2 class="anchored" data-anchor-id="local-search-of-the-likelihood-surface">Local search of the likelihood surface</h2>
+<p>A “local search” means that we are looking for the maximum likelihood estimate (MLE) starting from ONE initial guess. Afterwards, by applying “local search” to a number of different initial guesses covering the reasonable parameter space, we can explore the likelihood surface and find the global MLE.</p>
+<p>A few parameters for iterated filtering need to be specified:</p>
+<ul>
+<li><p>the random walk standard deviation, <code>rw.sd</code> for each parameter to be estimated</p></li>
+<li><p>the cooling fraction every 50 iterations, <code>cooling.fraction.50</code></p></li>
+<li><p>the transmission rate <span class="math inline">\(\beta\)</span> will estimated in log scale (since <span class="math inline">\(\beta &gt; 0\)</span>) and the reporting ratio <span class="math inline">\(\rho\)</span> in logistic scale (since <span class="math inline">\(0 &lt; \rho &lt; 1\)</span>)</p></li>
+<li><p>the perturbation for <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\rho\)</span> are both <span class="math inline">\(0.02\)</span> (a very common and efficient choice from experience)</p></li>
+<li><p>fix <code>cooling.fraction.50=0.5</code>, such that after 50 <code>mif2</code> iterations, the perturbation are reduced to half their original magnitudes</p></li>
+</ul>
+<p>Now we can repeat the <code>mif2</code> algorithm for 20 times with the same initial guesses:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,<span class="at">.combine=</span>c) <span class="sc">%dopar%</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  sird_measle <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mif2</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">Np=</span><span class="dv">2000</span>, <span class="at">Nmif=</span><span class="dv">50</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">cooling.fraction.50=</span><span class="fl">0.5</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">rw.sd=</span><span class="fu">rw_sd</span>(<span class="at">Beta=</span><span class="fl">0.02</span>, <span class="at">rho=</span><span class="fl">0.02</span>),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">partrans=</span><span class="fu">parameter_trans</span>(<span class="at">log=</span><span class="st">"Beta"</span>,<span class="at">logit=</span><span class="st">"rho"</span>),</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"rho"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> mifs_local</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="iterated-filtering-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="iterated-filtering-diagnostics">Iterated filtering diagnostics</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mifs_local <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">traces</span>() <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">melt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>iteration,<span class="at">y=</span>value,<span class="at">group=</span>.L1,<span class="at">color=</span><span class="fu">factor</span>(.L1)))<span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">color=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>name,<span class="at">scales=</span><span class="st">"free_y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/mif2-diagnostics-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From the traces of the parameters, we can see that the iterated filtering algorithm has converged to a stable region after about 10 iterations. We can conclude that:</p>
+<ul>
+<li><p>our initial guesses are reasonable;</p></li>
+<li><p>this Monte Carlo algorithm is stochastic and the results may vary from run to run.</p></li>
+</ul>
+</section>
+<section id="estimating-the-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-likelihood">Estimating the likelihood</h3>
+<p>The diagnostic plot shows that the 20 replications of the iterated filtering algorithm have converged to a stable region after 50 iterations, and now we can compute the likelihood of the data given these 20 converged parameter vectors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bake</span>(<span class="st">"results_local.rds"</span>, {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">foreach</span>(<span class="at">mf=</span>mifs_local,<span class="at">.combine=</span>rbind) <span class="sc">%dopar%</span> {</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    evals <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10</span>, <span class="fu">logLik</span>(<span class="fu">pfilter</span>(mf,<span class="at">Np=</span><span class="dv">5000</span>)))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    ll <span class="ot">&lt;-</span> <span class="fu">logmeanexp</span>(evals,<span class="at">se=</span><span class="cn">TRUE</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    mf <span class="sc">|&gt;</span> <span class="fu">coef</span>() <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bind_cols</span>(<span class="at">loglik=</span>ll[<span class="dv">1</span>],<span class="at">loglik.se=</span>ll[<span class="dv">2</span>])</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  } <span class="ot">-&gt;</span> results_local</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>}) <span class="ot">-&gt;</span> results_local</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="sc">~</span>loglik<span class="sc">+</span>Beta<span class="sc">+</span>rho,<span class="at">data=</span>results_local,<span class="at">pch=</span><span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/mif2-likelihood-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The scatter plot shows a hint of a “ridge” in the likelihood surface. However, the sampling is as yet too sparse to give a clear picture. There are things that we can try next:</p>
+<ul>
+<li><p>Increase the number of iterations, <code>Nmif</code>, to confirm the convergence</p></li>
+<li><p>Increase the number of particles, <code>Np</code>, to improve the accuracy of the estimates</p></li>
+<li><p>Try different initial guesses to explore the likelihood surface</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(results_local) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>loglik) <span class="sc">|&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="st">"measles_params.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (9): Beta, gamma, rho, k, S0, I0, R0, loglik, loglik.se
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="global-search-and-mle" class="level2">
+<h2 class="anchored" data-anchor-id="global-search-and-mle">Global Search and MLE</h2>
+<p>To avoid confusion, we have the following terminology:</p>
+<ul>
+<li><p>initial guess: the initial parameter vector <span class="math inline">\(\Theta^0_j\)</span></p></li>
+<li><p>initial state: the initial state of population model <span class="math inline">\(X_{0,j}\)</span> at time <span class="math inline">\(t_0\)</span></p></li>
+</ul>
+<p>For our measles model, a box containing reasonable parameter values might be <span class="math inline">\(\beta\in(5,80)\)</span> and <span class="math inline">\(\rho\in(0.2,0.9)\)</span>. Now we can build a group of 400 initial guesses to cover this box:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2062379496</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">runif_design</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">5</span>,<span class="at">rho=</span><span class="fl">0.2</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">80</span>,<span class="at">rho=</span><span class="fl">0.9</span>),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nseq=</span><span class="dv">400</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>) <span class="ot">-&gt;</span> guesses</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>mf1 <span class="ot">&lt;-</span> mifs_local[[<span class="dv">1</span>]]  <span class="co"># retrieve the local search as the model template</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>With the group of 400 initial guesses, we can now apply the iterated filtering algorithm to find the global MLE:</p>
+<ul>
+<li><p>the codes run ONE local search for each of 400 initial guesses</p></li>
+<li><p>each local search consists of two runs: the first run with 50 iterations, followed by the second with 100 iterations</p></li>
+<li><p>a general <code>pomp</code> behavior:</p>
+<ul>
+<li><p>re-running a command on an object (i.e., <code>mif2</code> on <code>mf1</code>) created by the same command perserves the algorithmic arguments</p></li>
+<li><p>running <code>mif2</code> on the results of a <code>mif2</code> computation re-runs IF2 from the endpoint of the first run</p></li>
+<li><p>the second/subsequent run will preserve all the algorithmic parameters from the previous run by default; here we overrode the default choice of <code>Nmif</code> from 50 to 100</p></li>
+</ul></li>
+<li><p>following the local search, the particle filter is used to evaluate the likelihood as the previous session</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bake</span>(<span class="st">"results_global.rds"</span>, {</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind) <span class="sc">%dopar%</span> {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># run the iterated filtering algorithm</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    mf1 <span class="sc">|&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mif2</span>(<span class="at">params=</span><span class="fu">c</span>(guess,fixed_params)) <span class="sc">|&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mif2</span>(<span class="at">Nmif=</span><span class="dv">100</span>) <span class="ot">-&gt;</span> mf</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute the likelihood and se from 10 replications</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">replicate</span>(</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      <span class="dv">10</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      mf <span class="sc">|&gt;</span> <span class="fu">pfilter</span>(<span class="at">Np=</span><span class="dv">5000</span>) <span class="sc">|&gt;</span> <span class="fu">logLik</span>()</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">logmeanexp</span>(<span class="at">se=</span><span class="cn">TRUE</span>) <span class="ot">-&gt;</span> ll</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># store the results</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    mf <span class="sc">|&gt;</span> <span class="fu">coef</span>() <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">bind_cols</span>(<span class="at">loglik=</span>ll[<span class="dv">1</span>],<span class="at">loglik.se=</span>ll[<span class="dv">2</span>])</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  } <span class="ot">-&gt;</span> results_global</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>}) <span class="ot">-&gt;</span> results_global</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>results_global <span class="sc">|&gt;</span> <span class="fu">filter</span>(loglik <span class="sc">==</span> <span class="fu">max</span>(loglik))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 9
+   Beta   rho    S0    I0    R0 gamma     k loglik loglik.se
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+1  17.6 0.265  2280     1 35720   0.5    10  -106.    0.0272</code></pre>
+</div>
+</div>
+<p>The best result of this search had a likelihood of -105.704 with a standard error of ~0.027. Now we can update the database:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(results_global) <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>loglik) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="st">"measles_params.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 421 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (9): Beta, gamma, rho, k, S0, I0, R0, loglik, loglik.se
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>We attempt to visualize the global geometry of the likelihood surface using a scatterplot matrix. In particular, here we plot both the initial guesses (grey) and the IF2 estimates (red).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(guesses) <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type=</span><span class="fu">if_else</span>(<span class="fu">is.na</span>(loglik),<span class="st">"guess"</span>,<span class="st">"result"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(type) <span class="ot">-&gt;</span> all</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 821 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (9): Beta, gamma, rho, k, S0, I0, R0, loglik, loglik.se
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="sc">~</span>loglik<span class="sc">+</span>Beta<span class="sc">+</span>rho, <span class="at">data=</span>all, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">cex=</span><span class="fl">0.3</span>, <span class="at">col=</span><span class="fu">ifelse</span>(all<span class="sc">$</span>type<span class="sc">==</span><span class="st">"guess"</span>,<span class="fu">grey</span>(.<span class="dv">5</span>),<span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/view-results_global-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="a-poo-rmans-profile" class="level3">
+<h3 class="anchored" data-anchor-id="a-poo-rmans-profile">a poo rman’s profile</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>all <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(type<span class="sc">==</span><span class="st">"result"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Beta,<span class="at">y=</span>loglik))<span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="fu">expression</span>(Beta),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"poor man’s profile likelihood"</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="iterated_files/figure-html/poorman-profile-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -252,7 +768,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -581,6 +1097,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+    <script type="text/javascript">
+    (function(d) {
+      d.querySelectorAll(".pseudocode-container").forEach(function(el) {
+        let pseudocodeOptions = {
+          indentSize: el.dataset.indentSize || "1.2em",
+          commentDelimiter: el.dataset.commentDelimiter || "//",
+          lineNumber: el.dataset.lineNumber === "true" ? true : false,
+          lineNumberPunc: el.dataset.lineNumberPunc || ":",
+          noEnd: el.dataset.noEnd === "true" ? true : false,
+          titlePrefix: el.dataset.captionPrefix || "Algorithm"
+        };
+        pseudocode.renderElement(el.querySelector(".pseudocode"), pseudocodeOptions);
+      });
+    })(document);
+    (function(d) {
+      d.querySelectorAll(".pseudocode-container").forEach(function(el) {
+        let captionSpan = el.querySelector(".ps-root > .ps-algorithm > .ps-line > .ps-keyword")
+        if (captionSpan !== null) {
+          let captionPrefix = el.dataset.captionPrefix + " ";
+          let captionNumber = "";
+          if (el.dataset.pseudocodeNumber) {
+            captionNumber = el.dataset.pseudocodeNumber + " ";
+            if (el.dataset.chapterLevel) {
+              captionNumber = el.dataset.chapterLevel + "." + captionNumber;
+            }
+          }
+          captionSpan.innerHTML = captionPrefix + captionNumber;
+        }
+      });
+    })(document);
+    </script>
+  
 
 
 
