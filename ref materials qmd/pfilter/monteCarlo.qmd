@@ -1,46 +1,35 @@
-\documentclass[11pt,reqno,pdftex]{amsart}
-\input{header}
+---
+title: "Monte Carlo methods"
+subtitle: "Monte Carlo methods"
+author:
+  - name: "Aaron A. King"
+    affiliation: "Department of Ecology & Evolutionary Biology, Center for the Study of Complex Systems, University of Michigan, Ann Arbor, MI 48109 USA"
+    email: "kingaa@umich.edu"
+  - name: "Edward L. Ionides"
+format: pdf
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+fontsize: 11pt
+papersize: letter
+number-sections: false
+geometry: margin=1in
+include-in-header: "../_includes/header.tex"
+---
 
-\title[Monte Carlo methods]{Monte Carlo methods}
-\author[A.~A.~King, E.~L.~Ionides]{Aaron~A.~King, Edward~L.~Ionides}
-\address{
-  A.~A.~King,
-  Department of Ecology \& Evolutionary Biology,
-  Center for the Study of Complex Systems,
-  University of Michigan,
-  Ann Arbor, MI 48109 USA
-}
-\email{kingaa@umich.edu}
-\date{\today}
 
-\setcounter{secnumdepth}{0}
-
-\usepackage{amsthm}
-\theoremstyle{definition}
-\newtheorem{thm}{Theorem}
-\newtheorem{exercise}{Exercise}
-\newtheorem{challenge}{Challenge}
-
-\begin{document}
-
-\maketitle
-
-\tableofcontents
-
-<<prefix,include=FALSE,cache=FALSE,purl=FALSE>>=
+```{r prefix,include=FALSE,cache=FALSE,purl=FALSE}
 params <- list(prefix="mc")
-@
-<<knitr_opts,include=FALSE,cache=FALSE,purl=FALSE>>=
+```
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
-@
-<<packages,include=FALSE,cache=FALSE,purl=TRUE>>=
+```
+```{r packages,include=FALSE,cache=FALSE,purl=TRUE}
 library(tidyverse)
 library(cowplot)
 library(pomp)
 set.seed(97849913)
-@ 
+``` 
 
-\section{Context: Monte Carlo methods for POMP models}
+# Context: Monte Carlo methods for POMP models
 
 Let's consider a general POMP model.
 As before, let ${y^*_{1:N}}$ be the data, and let the model consist of a latent process $X_{0:N}$ and an observable process $Y_{1:N}$.
@@ -57,11 +46,11 @@ Then the likelihood function is
 i.e., computation of the likelihood requires integrating over all possible values of the unobserved latent process at each time point.
 This is very hard to do, in general.
 
-Let's examine some \emph{Monte Carlo} approaches for evaluating this and other difficult integrals.
-An excellent technical reference on Monte Carlo techniques is \citet{Robert2004}.
+Let's examine some *Monte Carlo* approaches for evaluating this and other difficult integrals.
+An excellent technical reference on Monte Carlo techniques is @Robert2004.
 
 
-\section{The fundamental theorem of Monte Carlo integration}
+# The fundamental theorem of Monte Carlo integration
 
 The basic insight of Monte Carlo methods is that we can get a numerical approximation to a challenging integral,
 \begin{equation*}
@@ -106,29 +95,31 @@ From the central limit theorem, the error is approximately normally distributed:
     \int_{-1}^1\!\frac{\dd{x}}{1+x^4}.
   \end{equation*}
   Take $J$ large enough so that your estimate is accurate to 3 decimal places.
-  <<include=FALSE,purl=FALSE>>=
+  
+```{r include=FALSE,purl=FALSE}
   h <- function (x) {1/(1+x^4)}
   u <- runif(n=1000000,min=-1,max=1)
   f <- dunif(x=u,min=-1,max=1)
   c(mean(h(u)/f),sd(h(u)/f)/sqrt(length(u)))
   (pi+log((sqrt(2)+1)/(sqrt(2)-1)))/2/sqrt(2)  
-  @ 
-  <<include=FALSE,purl=FALSE>>=
+```
+  
+```{r include=FALSE,purl=FALSE}
   h <- function (x) {1/(1+x^4)}
   u <- rcauchy(n=1000000)
   f <- dcauchy(x=u)
   c(mean(h(u)/f),sd(h(u)/f)/sqrt(length(u)))
   pi/sqrt(2)
-  @ 
+``` 
 \end{exercise}
 
 The fundamental theorem of Monte Carlo inspires us to give further thought to the problem of simulating from a desired density function $f$, which can itself be a challenging problem.
 However, we first consider a useful generalization of the fundamental theorem.
 
-\section{Importance sampling}
+# Importance sampling
 
 Sometimes it is difficult to sample directly from the distribution of $X$.
-In this case, we can often make use of \emph{importance sampling}, in which we generate random samples from another distribution (easier to simulate) and make the appropriate correction.
+In this case, we can often make use of *importance sampling*, in which we generate random samples from another distribution (easier to simulate) and make the appropriate correction.
 Specifically, suppose we wish to compute $\expect{h(X)}$, where $X\sim f$, but it is  difficult or impossible to draw random samples from $f$.
 Suppose $g$ is a probability distribution from which it is relatively easy to draw samples and let $Y_{1:J}\stackrel{iid}{\sim}g$.
 
@@ -136,17 +127,17 @@ The observation that
 \begin{equation*}
   \expect{h(X)} = \int\!h(x)\,f(x)\,\dd{x} = \int\!h(x)\,\frac{f(x)}{g(x)}\,g(x)\,\dd{x}.
 \end{equation*}
-allows us to generalize the Monte Carlo integration theorem to give the \textbf{Monte Carlo importance sampling theorem}:
+allows us to generalize the Monte Carlo integration theorem to give the **Monte Carlo importance sampling theorem**:
 \begin{equation*}
   \expect{h(X)} \approx \frac{1}{J}\,\sum_{j=1}^{J} h(Y_j)\,\frac{f(Y_j)}{g(Y_j)}.
 \end{equation*}
 
-If we call $w_j=f(Y_j)/g(Y_j)$ the \emph{importance weights}, we can write
+If we call $w_j=f(Y_j)/g(Y_j)$ the *importance weights*, we can write
 \begin{equation*}
   \expect{h(X)} \approx \frac{1}{J}\,\sum_{j=1}^{J} w_j\,h(Y_j).
 \end{equation*}
 
-Since $\expect{w_j} = \expect{f(Y)/g(Y)}=1$, we can modify this formula to give a \emph{self-normalized importance sampling} estimate,
+Since $\expect{w_j} = \expect{f(Y)/g(Y)}=1$, we can modify this formula to give a *self-normalized importance sampling* estimate,
 \begin{equation*}
   \expect{h(X)} \approx \frac{\sum w_j\,h(Y_j)}{\sum w_j}.
 \end{equation*}
@@ -161,7 +152,7 @@ The Monte Carlo variance associated with this estimate is
 Obtaining accurate estimates requires some thought to the importance distribution $g$.
 Specifically, if the tails of $g$ are lighter than those of $f$, the Monte Carlo variance will be inflated and the estimates can be unusable.
 
-\section{Simulation techniques for general distributions}
+# Simulation techniques for general distributions
 
 Simulation refers to the generation of random variables.
 The general problem of simulation is:
@@ -169,15 +160,15 @@ given a probability distribution $f$, find a procedure that generates random dra
 This is a very important problem in scientific computing and much thought and effort has gone into producing reliable simulators for many basic random variables.
 
 There are two basic ways of solving this problem: 
-\begin{enumerate}[(1)]
-\item the transformation method.
-\item the rejection method.
-\end{enumerate}
 
-\subsection{The transformation method}
+1.  the transformation method.
+2.  the rejection method.
+
+
+# The transformation method
 
 This method works for discrete or continuous scalar random variables.
-Let $f$ be the probability distribution function we seek to draw from (known as the \emph{target distribution}) and $F$ be the corresponding cumulative distribution function, i.e., $F(x) = \int_{-\infty}^x f(v)\, dv$.
+Let $f$ be the probability distribution function we seek to draw from (known as the *target distribution*) and $F$ be the corresponding cumulative distribution function, i.e., $F(x) = \int_{-\infty}^x f(v)\, dv$.
 
 Let $F^{-1}(u) = \inf\{x: F(x)\,\ge\,u\}$ be the inverse of $F$.
 
@@ -191,20 +182,21 @@ A basic fact is that, if $X\sim f$, then $F(X)\sim\dist{Uniform}{0,1}$.
 \end{proof}
 
 This suggests that, if we can compute $F^{-1}$, we use the following algorithm to generate $X\sim f$:
-\begin{enumerate}[(a)]
-\item Draw $U\sim\dist{Uniform}{0,1}$.
-\item Let $X = F^{-1}(U)$.
-\end{enumerate}
+
+1.  Draw $U\sim\dist{Uniform}{0,1}$.
+2.  Let $X = F^{-1}(U)$.
 
 
-\subsection{The rejection method}
+
+# The rejection method
 
 The transformation method is very efficient in that we are guaranteed to obtain a valid $X$ from the density $f$ for every $U\sim\dist{Uniform}{0,1}$ we generate.
 Sometimes, however, we cannot compute the inverse of the cumulative distribution function, as required by the transformation method.
 Under such circumstances, the rejection method offers a less efficient, but more flexible, alternative.
 
-\begin{figure}[t]
-  <<region-diagram,echo=FALSE,purl=FALSE,fig.dim=c(3,2),out.width="50%">>=
+
+
+```{r region-diagram,echo=FALSE,purl=FALSE,fig.dim=c(3,2),out.width="50%"}
   op <- par(mar=c(0,1,0,1),mgp=c(2,1,0),font=4,family="sans")
   plot(c(0,1),c(0,1),type='n',ann=F,bty='o',tcl=0)
   t <- seq(0,1,by=0.001)
@@ -234,16 +226,16 @@ Under such circumstances, the rejection method offers a less efficient, but more
   text(x=c(0.05,0.5,0.9),y=c(0.95,0.75,0.1),labels=c("U","D","A"))
   arrows(0.88,0.1,0.44,0.28,lwd=1.5,length=0.02)
   par(op)
-  @
-  \caption{
-    \textbf{Rejection method.}
+```
+
+  **Rejection method.**
     If it is difficult to sample a point from $D$ directly, we can propose uniform draws $X$ from a larger set $U$, and accept the proposals only if $X\in{D}$.
-    \label{fig:rejection}
-  }
-\end{figure}
+    {#fig:rejection}
+
+
 
 We'll see how and why this method works in a simple case.
-Suppose a random variable $X$ is \emph{uniformly distributed} over a region $D\subset\mathbb{R}^{d}$.
+Suppose a random variable $X$ is *uniformly distributed* over a region $D\subset\mathbb{R}^{d}$.
 This means that, for any ${A}\subset{D}$, 
 \begin{equation*}
   \prob{X\in{A}}=\frac{m(A)}{m(D)},
@@ -259,12 +251,12 @@ Since for any $A\subset{D}$,
   \prob{X\in A} = \prob{Y\in A\vert Y\in D} = \frac{m(A)}{m(U)}\Big{/}\frac{m(D)}{m(U)} = \frac{m(A)}{m(D)},
 \end{equation*}
 it follows that $Y\sim\dist{Uniform}{D}$.
-Fig.~\ref{fig:rejection} illustrates.
+Fig.~\@ref(fig:rejection) illustrates.
 
 Consider an analogy to throwing darts. If the darts are thrown in such a way as to be equally likely to land anywhere in $U$, then those that do land in $D$ are equally likely to land anywhere in $D$.
 
 A useful little fact allows us to extend the rejection method from uniform distributions to arbitrary densities. 
-\citet{Robert2004} refer to this as the \emph{fundamental theorem of simulation}.
+@Robert2004 refer to this as the *fundamental theorem of simulation*.
 
 \begin{thm}[Fundamental theorem of simulation]
   Let $\mathbb{X}\subset\mathbb{R}^d$ and suppose $f:\mathbb{X}\to\mathbb{R}_+$ satisfies $\int\!f(x)\dd{x}=1$.
@@ -282,18 +274,18 @@ A useful little fact allows us to extend the rejection method from uniform distr
   \end{equation*}
 \end{proof}
 
-This suggests the following rejection method for simulating an arbitrary random variable, illustrated in Fig.~\ref{fig:sim}.
+This suggests the following rejection method for simulating an arbitrary random variable, illustrated in Fig.~\@ref(fig:sim).
 Let $f$ be the target distribution and $g$ be another density from which it is easy to simulate.
 Choose $M$ so large that $M\,g(x) \ge f(x)$ for all $x$.
 Then the following procedure simulates $X\!\sim\!f$:
-\begin{enumerate}[(1)]
-\item Draw $Y\!\sim\!g$ and $U\!\sim\!\dist{Uniform}{0,M}$.
-  This is the \emph{proposal}.
-\item If $U \le \frac{f(Y)}{g(Y)}$, \emph{accept} the proposal, i.e., let $X=Y$, else repeat step 1.
-\end{enumerate}
 
-\begin{figure}[t]
-  <<rejection-method-diagram,echo=FALSE,purl=FALSE,fig.dim=c(3,2),out.width="50%">>=
+1.  Draw $Y\!\sim\!g$ and $U\!\sim\!\dist{Uniform}{0,M}$.
+  This is the *proposal*.
+2.  If $U \le \frac{f(Y)}{g(Y)}$, *accept* the proposal, i.e., let $X=Y$, else repeat step 1.
+
+
+
+```{r rejection-method-diagram,echo=FALSE,purl=FALSE,fig.dim=c(3,2),out.width="50%"}
   op <- par(mar=c(0,1,0,1),mgp=c(2,1,0),font=4,family="sans")
   x <- seq(-5,10,by=0.01)
   F <- function (x) {
@@ -325,16 +317,15 @@ Then the following procedure simulates $X\!\sim\!f$:
   rug(X,ticksize=0.03)
   rug(Y,ticksize=0.06)
   par(op)
-  @
-  \caption{
-    \textbf{The rejection method for simulating an arbitrary random variable.}
+```
+
+**The rejection method for simulating an arbitrary random variable.**
     The target density is $f$.
     We propose samples $X\sim g$ and accept the proposal only if $U\sim\dist{Uniform}{0,M}$ satisfies $U\le f(X)/g(X)$.
     The short ticks at bottom show the proposals $X$.
     The longer ticks show the accepted proposals, which are samples drawn from $f$.
-    \label{fig:sim}
-  }
-\end{figure}
+
+
 
 \begin{exercise}
   Use the rejection method to generate samples from the distribution with density
@@ -346,7 +337,7 @@ Then the following procedure simulates $X\!\sim\!f$:
     g(x)=\frac{1}{\pi}\,\frac{1}{1+x^2}.
   \end{equation*}
   Use a histogram to verify that your samples are indeed drawn from the correct distribution.
-  <<include=FALSE,purl=FALSE,fig.dim=c(6,3)>>=
+```{r include=FALSE,purl=FALSE,fig.dim=c(6,3)}
   library(tidyverse)
   library(cowplot)
   set.seed(581429505)
@@ -379,10 +370,9 @@ Then the following procedure simulates $X\!\sim\!f$:
       color="red")+
     labs(y="density") -> pl2
   plot_grid(pl1,pl2,ncol=1)
-  @ 
+``` 
 \end{exercise}
 
-\bibliographystyle{jss}
-\bibliography{sbied}
 
-\end{document}
+
+
