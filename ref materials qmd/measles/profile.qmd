@@ -1,0 +1,335 @@
+---
+title: Measles profile computation
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    toc_float:
+      collapsed: TRUE
+      smooth_scroll: TRUE
+    highlight: haddock
+    code_folding: show
+    number_sections: FALSE
+    df_print: paged
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+---
+
+--------------------
+
+[**R** codes for this document](./profile.R)  
+
+```{r knitr-opts}
+#| purl: false
+#| include: false
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+```{r read_chunks}
+#| purl: false
+#| include: false
+#| cache: false
+read_chunk("codes.R")
+```
+
+## Build the `pomp` object
+
+### Preliminaries
+
+```{r mpi-setup}
+#| include: false
+#| cache: false
+if (file.exists("CLUSTER.R")) {
+  source("CLUSTER.R")
+} else {
+  library(doFuture)
+  plan(multisession)
+}
+```
+
+We begin by loading the packages we'll need and setting the random seed, to allow reproducibility.
+
+```{r prelims}
+#| cache: false
+set.seed(594709947L)
+library(tidyverse)
+library(pomp)
+theme_set(theme_bw())
+```
+
+### Data and covariates
+
+Now we'll load the data and covariates.
+The data are measles reports from 20 cities in England and Wales.
+We also have information on the population sizes and birth-rates in these cities;
+we'll treat these variables as covariates.
+
+```{r load-data}
+```
+```{r london-data}
+```
+```{r prep-covariates}
+```
+
+### The (unobserved) process model
+
+The following implements a simulator.
+
+```{r rproc}
+```
+
+We complete the process model definition by specifying the distribution of initial unobserved states.
+The following codes assume that the fraction of the population in each of the four compartments is known.
+
+```{r rinit}
+```
+
+### The measurement model
+
+We'll model both under-reporting and measurement error.
+We want $\mathbb{E}[\text{cases}|C] = \rho\,C$, where $C$ is the true incidence and $0<\rho<1$ is the reporting efficiency.
+We'll also assume that $\mathrm{Var}[\text{cases}|C] = \rho\,(1-\rho)\,C + (\psi\,\rho\,C)^2$, where $\psi$ quantifies overdispersion.
+Note that when $\psi=0$, the variance-mean relation is that of the binomial distribution.
+To be specific, we'll choose
+$\text{cases|C} \sim f(\cdot|\rho,\psi,C)$,
+where $$f(c|\rho,\psi,C) = \Phi(c+\tfrac{1}{2},\rho\,C,\rho\,(1-\rho)\,C+(\psi\,\rho\,C)^2)-\Phi(c-\tfrac{1}{2},\rho\,C,\rho\,(1-\rho)\,C+(\psi\,\rho\,C)^2),$$
+where $\Phi(x,\mu,\sigma^2)$ is the c.d.f. of the normal distribution with mean $\mu$ and variance $\sigma^2$.
+
+The following computes $\mathbb{P}[\text{cases}|C]$.
+
+```{r dmeasure}
+```
+
+The following codes simulate $\text{cases} | C$.
+
+```{r rmeasure}
+```
+
+### Parameter transformations
+
+The parameters are constrained to be positive, and some of them are constrained to lie between $0$ and $1$.
+We can turn the likelihood maximization problem into an unconstrained maximization problem by transforming the parameters.
+The following Csnippets implement such a transformation and its inverse.
+
+```{r transforms}
+```
+
+### ML point estimates
+
+@He2010 estimated the parameters of this model.
+The full set is included in the *R* code accompanying this document, where they are read into a data frame called `mles`.
+
+```{r mles}
+#| include: false
+```
+```{r mle}
+```
+
+### Construct and verify the `pomp` object
+
+```{r pomp-construct}
+dat |> 
+  pomp(t0=with(dat,2*time[1]-time[2]),
+    time="time",
+    params=theta,
+    rprocess=euler(rproc,delta.t=1/365.25),
+    rinit=rinit,
+    dmeasure=dmeas,
+    rmeasure=rmeas,
+    partrans=pt,
+    covar=covariate_table(covar,times="time"),
+    accumvars=c("C","W"),
+    statenames=c("S","E","I","R","C","W"),
+    paramnames=c("R0","mu","sigma","gamma","alpha","iota",
+      "rho","sigmaSE","psi","cohort","amplitude",
+      "S_0","E_0","I_0","R_0")
+  ) -> m1
+```
+```{r plotsim}
+#| purl: false
+plot(simulate(m1))
+```
+
+## Profile over $\sigma_{SE}$
+
+### Initial set of mifs
+
+To compute a likelihood profile over a given parameter (or set of parameters) across some range, we first construct a grid of points spanning that range.
+At each point in the grid, we fix the focal parameter (or set of parameters) at that value and maximize the likelihood over the remaining parameters.
+To ensure that this optimization is global, we initiate multiple optimizers at a variety of points across the space.
+The **pomp** function `profile_design` is useful in constructing such a set of starting points for the optimization.
+
+The following code constructs a data frame, each row of which is a starting point for an optimization.
+We will be profiling over $\sigma_SE$ (`sigmaSE` in the code), fixing $\mu=0.02$ and $\alpha=1$.
+To simplify the calculation still further, we will hold $\rho$ and $\iota$ at their ML point estimates.
+
+```{r sigmaSE-prof-design}
+estpars <- setdiff(names(theta),c("sigmaSE","mu","alpha","rho","iota"))
+
+theta["alpha"] <- 1
+
+theta.t <- partrans(m1,theta,"toEst")
+
+theta.t.hi <- theta.t.lo <- theta.t
+theta.t.lo[estpars] <- theta.t[estpars]-log(2)
+theta.t.hi[estpars] <- theta.t[estpars]+log(2)
+
+profile_design(
+  sigmaSE=seq(from=log(0.02),to=log(0.2),length=20),
+  lower=theta.t.lo,
+  upper=theta.t.hi,
+  nprof=40
+) -> pd
+
+dim(pd)
+
+pd <- as.data.frame(t(partrans(m1,t(pd),"fromEst")))
+
+pairs(~sigmaSE+R0+mu+sigma+gamma+S_0+E_0,data=pd)
+```
+
+**pomp** provides two functions, `bake` and `stew`, that save the results of expensive computations.
+We'll run the profile computations in parallel.
+Note that again, care must be taken with the parallel random number generator.
+
+```{r sigmaSE-prof-round1}
+#| cache: false
+bake("sigmaSE-profile1.rds",{
+
+  foreach (
+    p=iter(pd,"row"),
+    .combine=bind_rows, .errorhandling="remove",
+    .options.future=list(seed=1598260027L)
+  ) %dofuture% {
+    
+    tic <- Sys.time()
+    
+    m1 |> 
+      mif2(
+        params=p,
+        Nmif = 50, 
+        rw.sd = rw_sd(
+          R0=0.02,sigma=0.02,gamma=0.02,psi=0.02,cohort=0.02,amplitude=0.02,
+          S_0=ivp(0.02),E_0=ivp(0.02),I_0=ivp(0.02),R_0=ivp(0.02)),
+        Np = 1000,
+        cooling.type = "geometric",
+        cooling.fraction.50 = 0.1
+      ) |>
+      mif2() -> mf
+    
+    ## Runs 10 particle filters to assess Monte Carlo error in likelihood
+    pf <- replicate(10, pfilter(mf, Np = 2000))
+    ll <- sapply(pf,logLik)
+    ll <- logmeanexp(ll, se = TRUE)
+    
+    toc <- Sys.time()
+    etime <- toc-tic
+    units(etime) <- "hours"
+    
+    data.frame(
+      as.list(coef(mf)),
+      loglik = ll[1],
+      loglik.se = ll[2],
+      etime = as.numeric(etime)
+    )
+  }
+}) |>
+  filter(is.finite(loglik)) -> sigmaSE_prof
+```
+
+The preceding calculations took `r round(sum(sigmaSE_prof$etime),1)`&nbsp;cpu&nbsp;hr, or about `r mysignif(mean(sigmaSE_prof$etime)*3600/120,2)`&nbsp;cpu&nbsp;sec per iteration per 1000 particles.
+Let's examine the results.
+
+```{r round1-plot}
+#| purl: false
+pairs(~loglik+sigmaSE+R0+I(1/gamma)+I(1/sigma)+psi+log(cohort),
+  data=sigmaSE_prof,subset=loglik>max(loglik)-100)
+```
+
+### Refining the estimates
+
+Next, we'll skim off the top 20 likelihoods for each value of the $\sigma_{SE}$ parameter.
+We'll put these through another round of miffing.
+
+```{r sigmaSE-prof-round2}
+#| cache: false
+sigmaSE_prof |>
+  mutate(sigmaSE=exp(signif(log(sigmaSE),5))) |>
+  group_by(sigmaSE) |>
+  filter(rank(-loglik)<=20) |>
+  ungroup() -> pd
+
+bake("sigmaSE-profile2.rds",{
+  
+  foreach (p=iter(pd,"row"),
+    .combine=rbind, .errorhandling="remove",
+    .options.future=list(seed=915963734L)
+  ) %dofuture% {
+    
+    tic <- Sys.time()
+    
+    m1 |> 
+      mif2(
+        params = p,
+        Nmif = 50, 
+        rw.sd = rw_sd(
+          R0=0.02,sigma=0.02,gamma=0.02,psi=0.02,cohort=0.02,amplitude=0.02,
+          S_0=ivp(0.02),E_0=ivp(0.02),I_0=ivp(0.02),R_0=ivp(0.02)),
+        Np = 5000,
+        cooling.fraction.50 = 0.1
+      ) |>
+      mif2() -> mf
+
+    pf <- replicate(10, pfilter(mf, Np = 5000))
+    ll <- sapply(pf,logLik)
+    ll <- logmeanexp(ll, se = TRUE)
+    
+    toc <- Sys.time()
+    etime <- toc-tic
+    units(etime) <- "hours"
+    
+    data.frame(
+      as.list(coef(mf)),
+      loglik = ll[1],
+      loglik.se = ll[2],
+      etime = as.numeric(etime))
+  }
+}) -> sigmaSE_prof
+```
+
+The preceding calculations took `r round(sum(sigmaSE_prof$etime),1)`&nbsp;cpu&nbsp;hr, or about `r mysignif(mean(sigmaSE_prof$etime)/550*3600,2)`&nbsp;cpu&nbsp;sec per iteration per 1000 particles.
+
+```{r plot-sigmaSE-profile}
+#| purl: false
+sigmaSE_prof |>
+  mutate(sigmaSE=exp(signif(log(sigmaSE),5))) |>
+  group_by(sigmaSE) |>
+  filter(rank(-loglik)<=2) |>
+  ungroup() -> sigmaSE_prof
+
+sigmaSE_prof |>
+  ggplot(aes(x=sigmaSE,y=loglik))+
+  geom_point()+
+  geom_smooth(method="loess")
+```
+
+It is useful to plot profile traces, which show how the other parameters vary along the profile.
+In this case, these display clear relationships between intensity of extra-demographic stochasticity, $R_0$, and durations of the infectious and latent periods.
+
+```{r profile-traces}
+#| purl: false
+pairs(~loglik+sigmaSE+R0+I(1/gamma)+I(1/sigma),
+  data=sigmaSE_prof)
+```
+
+----------------------
+
+Produced in **R** version `r getRversion()` using **pomp** version `r packageVersion("pomp")`.
+
+----------------------
+
+## References

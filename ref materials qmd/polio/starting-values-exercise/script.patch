@@ -1,0 +1,25 @@
+*** ../main.R	2021-07-19 15:55:26.067594164 -0400
+--- main.R	2021-07-19 15:56:40.355091180 -0400
+***************
+*** 279,287 ****
+  idx <- which(colnames(box)!="rho")
+  profile_design(
+    rho=seq(0.01,0.025,length=profile_pts),
+!   lower=box["min",idx],upper=box["max",idx],
+    nprof=profile_Nreps
+! ) -> starts
+  
+  profile_rw_sd <- eval(substitute(rw_sd(
+    rho=0,b1=rwr,b2=rwr,b3=rwr,b4=rwr,b5=rwr,b6=rwr,
+--- 279,289 ----
+  idx <- which(colnames(box)!="rho")
+  profile_design(
+    rho=seq(0.01,0.025,length=profile_pts),
+!   lower=partrans(polio,box["min",],dir="toEst")[idx],
+!   upper=partrans(polio,box["max",],dir="toEst")[idx],
+    nprof=profile_Nreps
+! ) -> trans_starts
+! starts <- data.frame(t(partrans(polio,t(trans_starts),dir="fromEst")))
+  
+  profile_rw_sd <- eval(substitute(rw_sd(
+    rho=0,b1=rwr,b2=rwr,b3=rwr,b4=rwr,b5=rwr,b6=rwr,

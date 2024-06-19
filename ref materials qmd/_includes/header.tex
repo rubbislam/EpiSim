@@ -1,0 +1,89 @@
+%\usepackage[round,authoryear]{natbib}
+\usepackage{paralist}
+\usepackage{pgfpages}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xspace}        
+\usepackage{graphicx}
+
+\bibliographystyle{jss}
+
+\newcommand\prob[1]{\mathbb{P}\left[{#1}\right]}
+\newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
+\newcommand\lik{\mathcal{L}}
+\newcommand\loglik{\ell}
+\newcommand\R{\mathbb{R}}
+\newcommand\Rzero{\mathfrak{R}_0}
+\newcommand\argmax{\mathop{\mathrm{argmax}}}
+\newcommand\argmin{\mathop{\mathrm{argmin}}}
+
+\newcommand\code[1]{\texttt{#1}}
+\newcommand\pkg[1]{\textbf{#1}}
+
+\newcommand\link[2]{\href{#1}{#2}}
+\newcommand{\doi}[1]{\link{https://doi.org/#1}{\texttt{doi:~{#1}}}}
+
+\newcommand{\scinot}[2]{#1{\times}10^{#2}}
+\newcommand{\dd}[1]{\mathrm{d}{#1}}
+\newcommand{\pd}[3][]{%
+  \def\ord{#1} \ifx\ord\empty%
+  \frac{\partial{#2}}{\partial{#3}}%
+  \else \frac{\partial^{#1}{#2}}{\partial{#3}^{#1}}%
+  \fi
+}
+\newcommand{\deriv}[3][]{%
+  \def\ord{#1} \ifx\ord\empty%
+  \frac{\dd{#2}}{\dd{#3}}%
+  \else \frac{\dd^{#1}{#2}}{\dd{#3}^{#1}}%
+  \fi
+}
+
+\newcommand\Rlanguage{\textsf{R}\xspace}
+
+\newcounter{Ecounter}
+\newcommand\myexercise{{\stepcounter{Ecounter} Exercise \CHAPTER.\theEcounter}}
+
+\newcommand\myexample{{\bf Example}}
+\newcommand\mydot{{\,\cdot\,}}
+\newcommand\myref[1]{\m{#1}}
+
+\newcommand\Rspace{\mathcal{R}}
+
+\renewcommand\vec[1]{\boldsymbol{\mathrm{#1}}}
+\newcommand\vect[1]{\vec{#1}}
+\newcommand\mat[1]{\mathbb{#1}}
+\newcommand\pr{\mathbb{P}}
+\newcommand\E{\mathbb{E}}
+
+\newcommand\profileloglik[1]{\ell^\mathrm{profile}_#1}
+\newcommand\Real{\mathbb{R}}
+
+\newcommand\bi{\begin{itemize}}
+\newcommand\ei{\end{itemize}}
+
+\newcommand\normal{\mathrm{Normal}}
+
+\newcommand\iid{\mathrm{iid}}
+\newcommand\MVN{\mathrm{MVN}}
+\newcommand\SE{\mathrm{SE}}
+
+\newcommand\pval{\mathrm{pval}}
+% \newcommand\var{\mathrm{Var}}
+\newcommand\sd{\mathrm{SD}}
+\newcommand\sdSample{\mathrm{sd}}
+\newcommand\varSample{\mathrm{var}}
+\newcommand\cov{\mathrm{Cov}}
+\newcommand\covSample{\mathrm{cov}}
+\newcommand\corSample{\mathrm{cor}}
+\newcommand\cor{\mathrm{Cor}}
+\newcommand\given{{\, | \,}}
+\newcommand\param{\,;}
+\newcommand\params{\param}
+\newcommand\equals{{ \, = \, }}
+\newcommand\myemph[1]{{\textbf{#1}}}
+
+\setlength{\parskip}{0mm}
+\setlength{\parindent}{0mm}

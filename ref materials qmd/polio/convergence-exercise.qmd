@@ -1,0 +1,56 @@
+---
+title: Diagnosing filtering and maximization convergence for the polio case study
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+---
+
+-----------------------------------
+
+```{r knitr-opts,include=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+\newcommand\prob[1]{\mathbb{P}\left[{#1}\right]}
+\newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}
+\newcommand\cov[2]{\mathrm{Cov}\left[{#1},{#2}\right]}
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
+\newcommand\dd[1]{d{#1}}
+\newcommand\lik{\mathcal{L}}
+\newcommand\loglik{\ell}
+\newcommand\R{\mathbb{R}}
+\newcommand\data[1]{#1^*}
+\newcommand\params{\, ; \,}
+\newcommand\transpose{\scriptsize{T}}
+\newcommand\eqspace{\quad\quad\quad}
+\newcommand\profileloglik[1]{\ell^\mathrm{profile}_#1}
+
+
+### Exercise
+
+Are there outliers in the data (i.e., observations that do not fit well with our model)? Are we using unnecessarily large amounts of computer time to get our results? Are there indications that we would should run our computations for longer? Or maybe with different choices of algorithmic settings?
+Interpret the diagnostic plots below, and suggest things to try that might lead to a more effective search.
+
+---------
+
+### Solution
+
+The effective sample size decreases to around 10 at several points later in the time series. at least 100 is more comfortable. If this issue is not resolved later in the search, more particles may be needed. 
+
+The log likelihood is trending upwards, suggesting that continuing the search longer is worthwhile. 
+
+The convergence plots do not show stabilization to the point where each search has become localized. Increasing the number of iterations, allowing for further decrease in the temperature, may allow the trajectories to level out. 
+
+Although the searches are investigating differing regions of parameter space, their likelihood are fairly comparable, up to Monte Carlo uncertainty, so that is not a major concern. There may be some weakly identified combination of parameters, or just considerable Monte Carlo error. In such situations, the search results should be considered a collection of points with likelihood near the MLE rather than precise estimates of the exact MLE.
+
+-----------------------------------
+
+This version produced in R `r getRversion()` on `r format(Sys.Date(), "%B %d, %Y")`.

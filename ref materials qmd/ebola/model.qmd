@@ -1,0 +1,121 @@
+---
+title: "Ebola case study: model codes"
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    toc_float:
+      collapsed: TRUE
+      smooth_scroll: TRUE
+    highlight: haddock
+    code_folding: show
+    number_sections: FALSE
+    df_print: paged
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+---
+
+\newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
+
+------------------------------------
+
+[**R** codes for this document](./codes.R)  
+
+This document is derived from @King2015 and the [data supplement archived on datadryad.org](https://dx.doi.org/10.5061/dryad.r5f30).
+
+Produced in **R** version `r getRversion()` using **pomp** version `r packageVersion("pomp")`.
+
+------------------------------------
+
+
+```{r knitr-opts,include=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r load_chunks,include=FALSE}
+read_chunk("codes.R")
+```
+
+```{r prelims,include=FALSE}
+```
+
+## Objectives
+
+1. To present the **pomp** codes used in the Ebola case study.
+1. To enable reproducibility of the case study and re-application of these codes in other situations.
+
+All codes needed to reproduce the results of the original @King2015 paper are available on [datadryad.org](https://dx.doi.org/10.5061/dryad.r5f30).
+
+
+## Data and model
+
+### Situation-report data
+
+Download the data from the WHO Situation Report of 1 October 2014:
+
+```{r get-data}
+```
+
+Supplementing these data are population estimates for the three countries.
+These are census figures from 2014.
+
+```{r popsizes}
+```
+
+```{r plot-data}
+```
+
+
+### An SEIR model with gamma-distributed latent and infectious periods
+
+Many of the early modeling efforts used variants on the simple SEIR model.
+Here, we'll focus on a variant that attempts a more careful description of the duration of the latent period.
+Specifically, this model assumes that the amount of time an infection remains latent is
+$$\mathrm{LP} \sim \dist{Gamma}{m,\frac{1}{m\,\alpha}},$$
+where $m$ is an integer.
+This means that the latent period has expectation $1/\alpha$ and variance $1/(m\,\alpha)$.
+In this document, we'll fix $m=3$.
+
+We implement Gamma distributions using the so-called *linear chain trick*.
+
+![Model flow diagram.](./model_diagram.png)
+
+### Process model simulator
+
+```{r rproc}
+```
+
+
+### Deterministic skeleton
+
+The deterministic skeleton is a vectorfield (i.e., a system of ordinary differential equations).
+The following C snippet computes the components of this vectorfield as functions of the state variables and parameters.
+
+```{r skel}
+```
+
+###  Measurement model: overdispersed count data
+
+$C_t | H_t$ is negative binomial with $\expect{C_t|H_t} = \rho\,H_t$ and $\var{C_t|H_t} = \rho\,H_t\,(1+k\,\rho\,H_t)$.
+
+```{r measmodel}
+```
+
+### Pomp construction
+
+The following function constructs a `pomp` object to hold the data for any one of the countries.
+It demonstrates one level of abstraction above the basic `pomp` constructor.
+
+```{r pomp-construction}
+```
+
+--------------------------
+
+## References

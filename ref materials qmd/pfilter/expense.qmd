@@ -1,0 +1,139 @@
+---
+pagetitle: Solution to Exercise 3.2
+title: |
+  Worked solution to exercise 3.2:
+  Computational complexity of the particle filter
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+params:
+  prefix: expense
+---
+
+\newcommand\prob[1]{\mathbb{P}\left[{#1}\right]}
+\newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
+\newcommand\dd[1]{d{#1}}
+\newcommand\lik{\mathcal{L}}
+\newcommand\loglik{\ell}
+
+-----------------------------------
+
+Produced in R version `r getRversion()`.
+
+-----------------------------------
+
+```{r knitr-opts,include=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+Load packages:
+```{r cache=FALSE}
+library(tidyverse)
+library(pomp)
+library(iterators)
+library(doFuture)
+```
+
+Construct the pomp object for the Consett measles example
+
+```{r model-construct}
+source("https://kingaa.github.io/sbied/pfilter/model.R")
+```
+
+Now run particle filters of several sizes, measuring the amount of time elapses for each one.
+
+```{r comp,eval=FALSE,purl=FALSE}
+expand_grid(
+  Np=ceiling(10^seq(1,5,by=0.2))
+) -> design
+
+plan(multisession)
+foreach (
+  expt=iter(design,"row"),
+  .combine=bind_rows,
+  .options.future=list(seed=TRUE)
+) %dofuture% {
+  system.time(measSIR |> pfilter(Np=expt$Np))[3] -> expt$time
+  expt
+} -> resultA
+```
+
+```{r comp_eval,include=FALSE}
+stew(file="expense1.rda",{
+  <<comp>>
+})
+```
+
+Plot the results and fit a line.
+
+```{r}
+resultA |>
+  ggplot(aes(x=Np,y=time))+
+  geom_point()+
+  geom_smooth(method="lm",formula=y~x)+
+  expand_limits(x=0,y=0)
+
+lm(time~Np,data=resultA) -> fit
+summary(fit)
+```
+
+The computational expense scales linearly with the number of particles.
+In this case, we require about `r mysignif(coef(fit)["Np"]*1e6,2)`&nbsp;&mu;s per 1000 particles.
+
+How does the computation scale with the length of the time series?
+
+```{r comp2,eval=FALSE,purl=FALSE}
+measSIR |>
+  window(end=21) -> shortMeasSIR
+
+plan(multisession)
+foreach (
+  expt=iter(design,"row"),
+  .combine=bind_rows,
+  .options.future=list(seed=TRUE)
+) %dofuture% {
+  system.time(shortMeasSIR |> pfilter(Np=expt$Np))[3] -> expt$time
+  expt
+} -> resultB
+
+bind_rows(
+  long=resultA,
+  short=resultB,
+  .id="length"
+) |>
+  mutate(
+    n=case_when(
+      length=="short"~length(time(shortMeasSIR)),
+      length=="long"~length(time(measSIR))
+    )
+  ) -> result
+```
+```{r comp2_eval,include=FALSE}
+stew(file="expense2.rda",{
+  <<comp2>>
+})
+```
+
+```{r}
+result |>
+  ggplot(aes(x=Np,y=time,group=n,color=factor(n)))+
+  geom_point()+
+  labs(color="n")+
+  geom_smooth(method="lm",formula=y~x)+
+  expand_limits(x=0,y=0)
+
+lm(time~n*Np,data=result) -> fit
+summary(fit)
+```
+
+The marginal cost is about `r predict(fit,newdata=data.frame(n=c(41,42),Np=1000000)) |> diff() |> mysignif(2)`&nbsp;&mu;s per 1000 particles per data-point.

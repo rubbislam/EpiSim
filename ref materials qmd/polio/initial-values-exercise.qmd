@@ -1,0 +1,110 @@
+---
+title: "Exercise: initial values for the polio model"
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+---
+
+
+-----------------------------------
+
+```{r knitr-opts,include=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+```{r prelims,include=FALSE,cache=FALSE}
+library(pomp)
+set.seed(594709947L)
+```
+
+
+### Exercise
+
+Discuss issues in specifying and inferring initial conditions, with particular reference to the polio example. 
+
+Suggest a possible improvement in the treatment of initial conditions here, code it up and make some preliminary assessment of its effectiveness. How will you decide if it is a substantial improvement? 
+
+---------
+
+### Solution
+
+Changing the initial conditions involves trying a new specification of `rinit`. 
+
+After changing `rinit` (or any other model component) we can re-run the entire analysis and see whether anything is substantially different. 
+
+If the new specification involves additional parameters, we must also add transformations for them, if appropriate, and random walk specifications.
+We may also want to add them to the scatterplots. Nothing else in the code needs to be changed.
+
+A simplifying approximation in the original `rinit` is to ignore initially infected babies, setting initial susceptibles to equal births and initial infected babies to zero.
+
+Since the initial level of infection is low, and individuals do not stay long in the baby classes, this seems a reasonable approximation. 
+Nevertheless, it is a testable one.
+
+An alternative modeling approach is that babies might, to a first approximation, have the same prevalence as other individuals. `IO_0/SO_0` is the current infection proportion for susceptible adults. If we suppose babies are exposed to this infection rate each month of their infancy, we can replace the previous `rinit` accordingly. In practice, we use a more numerically stable alternative `IO_0/(IO_0+SO_0)` which is practically equivalent in the anticipated situation with low prevalence, but is guaranteed not to exceed unity in pathological situations that might arise during maximization.
+Specifically, we replace
+
+```{r}
+polio_rinit <- Csnippet("
+  SB1 = SB1_0;
+  SB2 = SB2_0;
+  SB3 = SB3_0;
+  SB4 = SB4_0;
+  SB5 = SB5_0;
+  SB6 = SB6_0;
+  IB = 0;
+  IO = IO_0 * P;
+  SO = SO_0 * P;
+")
+```
+
+by
+
+```{r}
+polio_rinit <- Csnippet("
+  double p=IO_0/(IO_0+SO_0);
+  SB1 = SB1_0 * pow(1-p,1);
+  SB2 = SB2_0 * pow(1-p,2);
+  SB3 = SB3_0 * pow(1-p,3);
+  SB4 = SB4_0 * pow(1-p,4);
+  SB5 = SB5_0 * pow(1-p,5);
+  SB6 = SB6_0 * pow(1-p,6);
+  IB = (SB1+SB2+SB3+SB4+SB5+SB6) * p/(1-p);
+  IO = IO_0 * P;
+  SO = SO_0 * P;
+")
+```
+
+```{r include=FALSE}
+library(tidyverse)
+read_csv("params.csv") |>
+  filter(logLik_se < 1) |>
+  filter(logLik==max(logLik)) |>
+  distinct() -> mle1
+read_csv("initial-values-exercise/params.csv") |>
+  filter(logLik_se < 1) |>
+  filter(logLik==max(logLik)) |>
+  distinct() -> mle2
+```
+ 
+Here, there are no new parameters. We can just put the new `rinit` into the [**R** script](./main.R) and re-run it.
+The results are shown at [initial-values-exercise/main.Rout.save](initial-values-exercise/main.Rout.save).
+The key outcome is the maximized log likelihood.
+The search found a maximum of $`r round(mle2$logLik,1)`$ for the modified model, whereas an identical search found $`r round(mle1$logLik,1)`$ for the original model.
+The modification is certainly not a substantial improvement.
+`r if (mle2$logLik-mle1$logLik>1) "**The last statement is a lie!**."`
+
+```{r profile_rho_plot1,echo=FALSE,fig.width=6,fig.height=6,out.width="70%"}
+read_csv("initial-values-exercise/params.csv") |>
+  filter(logLik>max(logLik)-10) -> ests
+pairs(~logLik+psi+rho+tau+sigma_dem+sigma_env,data=subset(ests,logLik>max(logLik)-10))
+```
+
+----------------------------------
+
+This version produced in R `r getRversion()` on `r format(Sys.Date(), "%B %d, %Y")`.

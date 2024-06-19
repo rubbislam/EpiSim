@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.555">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aaron A. King">
+<meta name="author" content="Edward L. Ionides">
+
+<title>Lesson 8: Case study: Sexual contacts panel data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="main_files/libs/clipboard/clipboard.min.js"></script>
+<script src="main_files/libs/quarto-html/quarto.js"></script>
+<script src="main_files/libs/quarto-html/popper.min.js"></script>
+<script src="main_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="main_files/libs/quarto-html/anchor.min.js"></script>
+<link href="main_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="main_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="main_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="main_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="main_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>Beamer</a></li><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lesson 8: Case study: Sexual contacts panel data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aaron A. King </p>
+             <p>Edward L. Ionides </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="section" class="level1">
+<h1></h1>
+<section id="objectives" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="objectives">Objectives</h2>
+<ol type="1">
+<li><p>Discuss the use of partially observed Markov process (POMP) methods for panel data, also known as longitudinal data.</p></li>
+<li><p>See how POMP methods can be used to understand the outcomes of a longitudinal behavioral survey on sexual contact rates.</p></li>
+<li><p>Introduce the <code>R</code> package panelPomp that extends pomp to panel data.</p></li>
+</ol>
+</section>
+</section>
+<section id="panel-data" class="level1">
+<h1>Panel data</h1>
+<section id="introduction-to-panel-data" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="introduction-to-panel-data">Introduction to panel data</h2>
+<ul>
+<li><p>Panel data consist of a collection of time series having no dynamic coupling.</p></li>
+<li><p>Each time series is called a <em>unit</em></p></li>
+<li><p>If each unit contain insufficient information to estimate model parameters, we infer <em>shared parameters</em> by pooling across the whole panel.</p></li>
+<li><p>We may have <em>unit-specific parameters</em>, taking distinct values for each unit.</p></li>
+<li><p>The goals of developing, fitting and criticizing mechanistic models for panel data are similar to analysis of a single time series.</p></li>
+</ul>
+</section>
+</section>
+<section id="heterogeneity-in-sexual-contact-rates" class="level1">
+<h1>Heterogeneity in sexual contact rates</h1>
+<section id="heterogeneities-in-sexual-contacts" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="heterogeneities-in-sexual-contacts">Heterogeneities in sexual contacts</h2>
+<ul>
+<li><p>Basic epidemiological models suppose equal contact rates for all individuals in a population.</p></li>
+<li><p>Sometimes these models are extended to permit rate heterogeneity between individuals.</p></li>
+<li><p>Rate heterogeneity within individuals, i.e., dynamic behavioral change, has rarely been considered.</p></li>
+<li><p>There have been some indications that rate heterogeneity plays a substantial role in the HIV epidemic.</p></li>
+</ul>
+</section>
+<section id="data-from-a-prospective-study" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="data-from-a-prospective-study">Data from a prospective study</h2>
+<ul>
+<li><p><span class="citation" data-cites="Romero-Severson2015">E. O. Romero-Severson et al. (<a href="#ref-Romero-Severson2015" role="doc-biblioref">2015</a>)</span> investigated whether dynamic variation in sexual contact rates are a real and measurable phenomenon.</p></li>
+<li><p>They analyzed a large cohort study of HIV-negative gay men in 3 cities <span class="citation" data-cites="Vittinghoff1999">(<a href="#ref-Vittinghoff1999" role="doc-biblioref">Vittinghoff et al. 1999</a>)</span>.</p></li>
+<li><p>In a simple model for HIV, with a fully mixing population of susceptible and infected individuals, the fitted variation found by <span class="citation" data-cites="Romero-Severson2015">E. O. Romero-Severson et al. (<a href="#ref-Romero-Severson2015" role="doc-biblioref">2015</a>)</span> can explain the observed prevalence history in the US despite the low per-contact infectivity of HIV.</p></li>
+<li><p>Here, we consider the longitudinal data from <span class="citation" data-cites="Vittinghoff1999">Vittinghoff et al. (<a href="#ref-Vittinghoff1999" role="doc-biblioref">1999</a>)</span> on total sexual contacts over four consecutive 6-month periods, for the 882 men having no missing observations.</p></li>
+<li><p>Plotted is a sample of 15 time series from <a href="./contacts.csv">contacts.csv</a>.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  contact_data <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="at">file=</span><span class="st">"contacts.csv"</span>,<span class="at">header=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matplot</span>(<span class="fu">t</span>(contact_data[<span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylab=</span><span class="st">"total sexual contacts"</span>,<span class="at">xlab=</span><span class="st">"6-month intervals"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">type=</span><span class="st">"l"</span>,<span class="at">xaxp=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/data_plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:10cm" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="types-of-contact-rate-heterogeneity" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="types-of-contact-rate-heterogeneity">Types of contact rate heterogeneity</h2>
+<p>We want a model that can describe all sources of variability in the data:</p>
+<ol type="1">
+<li><p>Differences between individuals</p></li>
+<li><p>Differences within individuals over time</p></li>
+<li><p>Over-dispersion: variances exceeding that of a Poisson model</p></li>
+</ol>
+</section>
+<section id="a-model-for-dynamic-variation-in-sexual-contact-rates" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="a-model-for-dynamic-variation-in-sexual-contact-rates">A model for dynamic variation in sexual contact rates</h2>
+<ul>
+<li><p>We use the model of <span class="citation" data-cites="Romero-Severson2015">E. O. Romero-Severson et al. (<a href="#ref-Romero-Severson2015" role="doc-biblioref">2015</a>)</span>, with each individual making contacts at a latent rate <span class="math inline">\(X_i(t)\)</span>.</p></li>
+<li><p>Each data point, <span class="math inline">\(y_{ij}\)</span>, is the number of reported contacts for individual <span class="math inline">\(i\)</span> between time <span class="math inline">\(t_{j-1}\)</span> and <span class="math inline">\(t_j\)</span>, where <span class="math inline">\(i=1,\dots,882\)</span> and <span class="math inline">\(j=1,\dots,4\)</span>.</p></li>
+<li><p>The unobserved process <span class="math inline">\(\{X_i(t)\}\)</span> is connected to the data through the expected number of contacts for individual <span class="math inline">\(i\)</span> in reporting interval <span class="math inline">\(j\)</span>, which we write as <span class="math display">\[C_{ij}= \alpha^{j-1}\int_{t_{j-1}}^{t_j} X_i(t)\, dt,\]</span> where <span class="math inline">\(\alpha\)</span> is an additional secular trend that accounts for the observed decline in reported contacts.</p></li>
+</ul>
+</section>
+<section id="overdispersion-relative-to-poisson-variation" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="overdispersion-relative-to-poisson-variation">Overdispersion relative to Poisson variation</h2>
+<ul>
+<li><p>A basic stochastic model for homogeneous count data models <span class="math inline">\(y_{ij}\)</span> as a Poisson random variable with mean and variance equal to <span class="math inline">\(C_{ij}\)</span> <span class="citation" data-cites="Keeling2009">(<a href="#ref-Keeling2009" role="doc-biblioref">Keeling and Rohani 2009</a>)</span>.</p></li>
+<li><p>However, the variance in the data are much higher than the mean of the data <span class="citation" data-cites="Romero-Severson2012">(<a href="#ref-Romero-Severson2012" role="doc-biblioref">Ethan O. Romero-Severson et al. 2012</a>)</span>.</p></li>
+<li><p>Therefore, we model the data as negative binomial, a generalization of a Poisson distribution that permits variance larger than the mean: <span class="math display">\[y_{ij}\sim \mathrm{NegBin}\, \left(C_{ij},D_{i}\right),\]</span> with mean <span class="math inline">\(C_{ij}\)</span> and variance <span class="math inline">\(C_{ij}+C_{ij}^2/D_i\)</span>.</p></li>
+<li><p>Here, <span class="math inline">\(D_i\)</span> is called the dispersion parameter, with the Poisson model being recovered in the limit as <span class="math inline">\(D_i\)</span> becomes large.</p></li>
+<li><p>The dispersion, <span class="math inline">\(D_i\)</span>, can model increased variance (compared to Poisson variation) for individual contacts, but cannot explain observed autocorrelation between measurements on an individual over time.</p></li>
+</ul>
+</section>
+<section id="autocorrelation-and-individual-level-effects" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="autocorrelation-and-individual-level-effects">Autocorrelation and individual-level effects</h2>
+<ul>
+<li><p>To model autocorrelation, we suppose that individual <span class="math inline">\(i\)</span> has behavioral episodes within which <span class="math inline">\(X_i(t)\)</span> is constant, but the individual enters new behavioral episodes at rate <span class="math inline">\(R_i\)</span>. At the start of each episode, <span class="math inline">\(X_i(t)\)</span> takes a new value drawn from a Gamma distribution with mean <span class="math inline">\(\mu_X\)</span> and variance <span class="math inline">\(\sigma_X\)</span>, <span class="math display">\[X_i(t)\sim \mbox{Gamma}(\mu_X, \sigma_X).\]</span></p></li>
+<li><p>To complete the model, we also assume Gamma distributions for <span class="math inline">\(D_i\)</span> and <span class="math inline">\(R_i\)</span>, <span class="math display">\[D_i \sim \mbox{Gamma}(\mu_D, \sigma_D),\]</span> <span class="math display">\[R_i \sim \mbox{Gamma}(\mu_R, \sigma_R).\]</span> The parameters, <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\sigma_D\)</span> and <span class="math inline">\(\sigma_R\)</span> control individual-level differences in behavioral parameters allowing the model to encompass a wide range of sexual contact patterns.</p></li>
+</ul>
+</section>
+<section id="parameter-interpretation-and-identifiability" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="parameter-interpretation-and-identifiability">Parameter interpretation and identifiability</h2>
+<ul>
+<li><p>The distinction between the effects of the rate at which new behavioral episodes begin, <span class="math inline">\(R_i\)</span>, and the dispersion parameter, <span class="math inline">\(D_i\)</span>, is subtle since both model within-individual variability.</p></li>
+<li><p>The signal in the data about distinct behavioral episodes could be overwhelmed by a high variance in number of reported contacts resulting from a low value of <span class="math inline">\(D_i\)</span>.</p></li>
+<li><p>Whether the data are sufficient to identify both <span class="math inline">\(R_i\)</span> and <span class="math inline">\(D_i\)</span> is an empirical question.</p></li>
+</ul>
+</section>
+</section>
+<section id="simulation-based-investigation-of-the-fitted-model" class="level1">
+<h1>Simulation-based investigation of the fitted model</h1>
+<section id="consequences-of-dynamic-behavior-in-an-si-model-for-hiv" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="consequences-of-dynamic-behavior-in-an-si-model-for-hiv">Consequences of dynamic behavior in an SI model for HIV</h2>
+<ul>
+<li><p>3 cases where contact rates are either (a) constant; (b) vary only between individuals; (c) vary both between and within individuals.</p></li>
+<li><p>In each case, parameterize the model by fitting the behavioral model above, and supplying per-contact infection rates from the literature.</p></li>
+<li><p>This simple model shows a potential role for dynamic variation.</p></li>
+</ul>
+<ul>
+<li><p><code>Homogeneous</code> (dashed line): the epidemic was simulated where <span class="math inline">\(\mu_X\)</span> is estimated by the sample mean (1.53 <span class="math inline">\(\mathrm{month}^{-1}\)</span>) without any sources of between-individual or within-individual heterogeneity.</p></li>
+<li><p><code>Between Heterogeneity</code> (dotted line): the epidemic was simulated where <span class="math inline">\(\mu_X\)</span> is estimated by the sample mean (1.53 <span class="math inline">\(\mathrm{month}^{-1}\)</span>) and <span class="math inline">\(\sigma_X\)</span> is estimated by the sample standard deviation (3.28 <span class="math inline">\(\mathrm{month}^{-1}\)</span>)</p></li>
+<li><p><code>Within+Between Heterogeneity</code> (solid line): the epidemic was simulated where each parameter is set to the estimated maximum likelihood estimate for total contacts.</p></li>
+<li><p>For all situations, the per contact probability of transmission was set to 1/120, the average length of infection was set to 10 years, and the infection-free equilibrium population size was set to 3000. The per contact probability was selected such that the basic reproduction number in the the <code>Homogeneous</code> case was 1.53. In the <code>Homogeneous</code>, <code>Between Heterogeneity</code>, <code>Within+Between Heterogeneity</code> cases respectively 239/500 and 172/500, 95/500 simulations died out before the 100 year mark.</p></li>
+</ul>
+</section>
+</section>
+<section id="panelpomp-models-and-the-panelpomp-package" class="level1">
+<h1>PanelPOMP models and the panelPomp package</h1>
+<section id="panelpomp-models-as-an-extension-of-pomp-models" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="panelpomp-models-as-an-extension-of-pomp-models">PanelPOMP models as an extension of POMP models</h2>
+<ul>
+<li><p>A PanelPOMP model consists of independent POMP models for a collection of <em>units</em>.</p></li>
+<li><p>The POMP models are tied together by shared parameters.</p></li>
+<li><p>Here, the units are individuals in the longitudinal survey.</p></li>
+<li><p>In general, some parameters may be <em>unit-specific</em> (different for each individual) whereas others are <em>shared</em> (common to all individuals).</p></li>
+<li><p>Here, we only have shared parameters. The heterogeneities between individuals are modeled as <em>random effects</em> with distribution determined by these shared parameters.</p></li>
+<li><p>Iterated filtering for POMP models was extended to PanelPOMPs by <span class="citation" data-cites="Breto2020">Bretó, Ionides, and King (<a href="#ref-Breto2020" role="doc-biblioref">2020</a>)</span>.</p></li>
+</ul>
+</section>
+<section id="using-the-panelpomp-r-package" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="using-the-panelpomp-r-package">Using the panelPomp R package</h2>
+<ul>
+<li><p>The main task of panelPomp beyond pomp is to handle the additional book-keeping necessitated by the unit structure.</p></li>
+<li><p>PanelPOMP models also motivate methodological developments to deal with large datasets and the high dimensional parameter vectors that can result from unit-specific parameters.</p></li>
+<li><p>A <code>panelPomp</code> object for the above contact data and model is provided by <code>contacts</code> in panelPomp.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(panelPomp)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  contacts <span class="ot">&lt;-</span> <span class="fu">contacts</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>The implementation of the above model equations in <code>contacts</code> can be found in the <a href="https://github.com/cbreto/panelPomp/blob/master/R/contacts.R"><code>panelPomp source code on github</code></a>.</li>
+</ul>
+<p></p>
+<ul>
+<li>Let’s start by exploring the <code>contacts</code> object</li>
+</ul>
+<p></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>(contacts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "panelPomp"
+attr(,"package")
+[1] "panelPomp"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slotNames</span>(contacts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "unit.objects" "shared"       "specific"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>(<span class="fu">unitobjects</span>(contacts)[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "pomp"
+attr(,"package")
+[1] "pomp"</code></pre>
+</div>
+</div>
+<p></p>
+<ul>
+<li><p>We see that an object of class <code>panelPomp</code> is a list of <code>pomp</code> objects together with a parameter specification permitting shared and/or unit-specific parameters.</p></li>
+<li><p>The POMP models comprising the PanelPOMP model do not need to have the same observation times for each unit.</p></li>
+</ul>
+</section>
+<section id="a-panelpomp-with-all-parameters-unit-specific" class="level2">
+<h2 class="anchored" data-anchor-id="a-panelpomp-with-all-parameters-unit-specific">A PanelPOMP with all parameters unit-specific</h2>
+<p>Suppose a PanelPOMP model has all its parameters unit-specific. Is there anything useful to be gained from the PanelPOMP structure, or is it preferable to analyze the data as a collection of POMP models?</p>
+<p></p>
+<p><a href="./exercises.html#exercise-8.1">Worked solution</a></p>
+</section>
+<section id="methods-for-panelpomps" class="level2">
+<h2 class="anchored" data-anchor-id="methods-for-panelpomps">Methods for panelPomps</h2>
+<p>How would you find the panelPomp package methods available for working with a <code>panelPomp</code> object?</p>
+<p></p>
+<p><a href="./exercises.html#exercise-8.2">Worked solution</a></p>
+</section>
+</section>
+<section id="likelihood-based-inference-for-panelpomps" class="level1">
+<h1>Likelihood-based inference for PanelPOMPs</h1>
+<section id="likelihood-evaluation-for-panelpomps" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="likelihood-evaluation-for-panelpomps">Likelihood evaluation for PanelPOMPs</h2>
+<ul>
+<li><p>PanelPOMP models are closely related to POMPs, and particle filter methods remain applicable.</p></li>
+<li><p><code>contacts</code> contains a parameter vector corresponding to the MLE for total contacts reported by <span class="citation" data-cites="Romero-Severson2015">E. O. Romero-Severson et al. (<a href="#ref-Romero-Severson2015" role="doc-biblioref">2015</a>)</span>:</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(contacts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   mu_X sigma_X    mu_D sigma_D    mu_R sigma_R   alpha 
+   1.75    2.67    3.81    4.42    0.04    0.00    0.90 </code></pre>
+</div>
+</div>
+<ul>
+<li><code>pfilter(contacts,Np=1000)</code> carries out a particle filter computation at this parameter vector.</li>
+</ul>
+</section>
+<section id="what-happens-when-we-pfilter-a-panelpomp" class="level2">
+<h2 class="anchored" data-anchor-id="what-happens-when-we-pfilter-a-panelpomp">What happens when we <code>pfilter</code> a <code>panelPomp</code>?</h2>
+<ul>
+<li><p>Describe what you think <code>pfilter(contacts,Np=1000)</code> should do.</p></li>
+<li><p>Hypothesize what might be the class of the resulting object? What slots might this object possess?</p></li>
+<li><p>Check your hypothesis.</p></li>
+</ul>
+<p><a href="./exercises.html#exercise-8.3">Worked solution</a></p>
+</section>
+<section id="replicated-likelihood-evaluations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="replicated-likelihood-evaluations">Replicated likelihood evaluations</h2>
+<ul>
+<li>As usuual for Monte Carlo calculations, it is useful to replicate the likelihood evaluations, both to reduce Monte Carlo uncertainty and (perhaps more importantly) to quantify it.</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plan</span>(multicore,<span class="at">workers=</span><span class="dv">20</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  pf1_results <span class="ot">&lt;-</span> <span class="fu">foreach</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,<span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%dofuture%</span> {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    pf <span class="ot">&lt;-</span> <span class="fu">pfilter</span>(contacts,<span class="at">Np=</span><span class="dv">2000</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">logLik=</span><span class="fu">logLik</span>(pf),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">unitLogLik=</span><span class="fu">sapply</span>(<span class="fu">unitobjects</span>(pf),logLik)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>This took 0.3 minutes using 20 cores.</li>
+</ul>
+</section>
+</section>
+<section id="combining-likelihood-evaluations" class="level1">
+<h1>Combining likelihood evaluations</h1>
+<section id="combining-monte-carlo-likelihood-evaluations-for-panelpomps" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="combining-monte-carlo-likelihood-evaluations-for-panelpomps">Combining Monte Carlo likelihood evaluations for PanelPOMPs</h2>
+<ul>
+<li><p>We have a new consideration not found with <code>pomp</code> models. Each unit has its own log-likelihood arising from an independent Monte Carlo computation.</p></li>
+<li><p>The basic <code>pomp</code> approach remains valid:</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>  loglik1 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(pf1_results,<span class="cf">function</span>(x) x<span class="sc">$</span>logLik)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">logmeanexp</span>(loglik1,<span class="at">se=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         est           se 
+-9553.266898     1.732402 </code></pre>
+</div>
+</div>
+<ul>
+<li>Can we do better, using the independence of units? It turns out we can <span class="citation" data-cites="Breto2020">(<a href="#ref-Breto2020" role="doc-biblioref">Bretó, Ionides, and King 2020</a>)</span>.</li>
+</ul>
+</section>
+<section id="logmeanexp-versus-panel_logmeanexp" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="logmeanexp-versus-panel_logmeanexp"><code>logmeanexp</code> versus <code>panel_logmeanexp</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>  pf1_loglik_matrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(pf1_results,<span class="cf">function</span>(x) x<span class="sc">$</span>unitLogLik)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel_logmeanexp</span>(pf1_loglik_matrix,<span class="at">MARGIN=</span><span class="dv">1</span>,<span class="at">se=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         se 
+-9554.1728296     0.6482015 </code></pre>
+</div>
+</div>
+<ul>
+<li><p>The improvement via <code>panel_logmeanexp</code> is small in this case, since the number of observation times is small.</p></li>
+<li><p>For longer panels, the difference becomes more important.</p></li>
+</ul>
+</section>
+<section id="the-difference-between-panel_logmeanexp-and-logmeanexp" class="level2">
+<h2 class="anchored" data-anchor-id="the-difference-between-panel_logmeanexp-and-logmeanexp">The difference between <code>panel_logmeanexp</code> and <code>logmeanexp</code></h2>
+<ul>
+<li><p>The basic <code>pomp</code> approach averages the Monte Carlo likelihood estimates after aggregating the likelihood over units.</p></li>
+<li><p>The <code>panel_logmeanexp</code> averages separately for each unit before combining.</p></li>
+<li><p>Why does the latter typically give a higher log-likelihood estimate with lower Monte Carlo uncertainty?</p></li>
+<li><p>Either reason at a heuristic level or (optionally) develop a mathematical argument.</p></li>
+</ul>
+<p></p>
+<p><a href="./exercises.html#exercise-8.4">Worked solution</a></p>
+</section>
+<section id="writing-a-panelpomp-as-a-pomp" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="writing-a-panelpomp-as-a-pomp">Writing a PanelPOMP as a POMP</h2>
+<ul>
+<li><p>If we can formally write a PanelPOMP as a POMP, we can use methods such as <code>mif2</code> for inference.</p></li>
+<li><p>We could stack the panel models in different ways to make a large POMP model.</p></li>
+<li><p>A naive way to do inference for a PanelPOMP model as a POMP is to let an observation for the POMP be a vector of observations for all units in the PanelPOMP at that time. This gives a high-dimensional observation vector which is numerically intractable via particle filters.</p></li>
+<li><p>Instead, we concatenate the panels into one long time series, with dynamic breaks where the panels are glued together.</p></li>
+</ul>
+</section>
+</section>
+<section id="maximizing-the-likelihood" class="level1">
+<h1>Maximizing the likelihood</h1>
+<section id="likelihood-maximization-using-the-pif-algorithm" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="likelihood-maximization-using-the-pif-algorithm">Likelihood maximization using the PIF algorithm</h2>
+<ul>
+<li><p>The panel iterated filtering (PIF) algorithm of <span class="citation" data-cites="Breto2020">Bretó, Ionides, and King (<a href="#ref-Breto2020" role="doc-biblioref">2020</a>)</span> applies the IF2 algorithm to a POMP model constructed by concanenating the collection of panels.</p></li>
+<li><p>PIF is implemented in panelPomp as the <code>mif2</code> method for class <code>panelPomp</code>.</p></li>
+<li><p>Comparing <code>?panelPomp::mif2</code> with <code>?pomp::mif2</code> reveals that the only difference in the arguments is that the <code>params</code> argument for <code>pomp::mif2</code> becomes <code>shared.start</code> and <code>specific.start</code> for <code>panelPomp::mif2</code>.</p></li>
+<li><p>As an example of an iterated filtering investigation, let’s carry out a local search, starting at the current estimate of the MLE.</p></li>
+<li><p>Following <span class="citation" data-cites="Romero-Severson2015">E. O. Romero-Severson et al. (<a href="#ref-Romero-Severson2015" role="doc-biblioref">2015</a>)</span> we fix <span class="math inline">\(\sigma_R=0\)</span>.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plan</span>(multicore,<span class="at">workers=</span><span class="dv">20</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  mif_results <span class="ot">&lt;-</span> <span class="fu">foreach</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="cn">TRUE</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%dofuture%</span> {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    mf <span class="ot">&lt;-</span> <span class="fu">mif2</span>(contacts,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">Nmif=</span><span class="dv">50</span>, <span class="at">Np=</span><span class="dv">1000</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">cooling.type=</span><span class="st">"geometric"</span>, <span class="co"># note difference with pomp</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">cooling.fraction.50=</span><span class="fl">0.5</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">rw.sd=</span><span class="fu">rw_sd</span>(<span class="at">mu_X=</span><span class="fl">0.02</span>, <span class="at">sigma_X=</span><span class="fl">0.02</span>,<span class="at">mu_D =</span> <span class="fl">0.02</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">sigma_D=</span><span class="fl">0.02</span>,<span class="at">mu_R=</span><span class="fl">0.02</span>, <span class="at">alpha=</span><span class="fl">0.02</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">logLik=</span><span class="fu">logLik</span>(mf),<span class="at">params=</span><span class="fu">coef</span>(mf))</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p>This search took 12.8 minutes on 20 cores.</p></li>
+<li><p>We see that <code>panelPomp</code> iterated filtering is set up similarly to its <code>pomp</code> cousin.</p></li>
+</ul>
+</section>
+<section id="some-considerations-for-likelihood-evaluations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="some-considerations-for-likelihood-evaluations">Some considerations for likelihood evaluations</h2>
+<p>Similar likelihood evaluation issues arise for panelPomp as for {pomp}.</p>
+<ul>
+<li><p>The preliminary likelihood estimated as a consequence of running <code>mif2</code> and extracted here by <code>sapply(m2,logLik)</code> does not correspond to the actual, fixed parameter, model. It is the sequential Monte Carlo estimate of the likelihood from the last filtering iteration, and therefore will have some perturbation of the parameters.</p></li>
+<li><p>One typically requires fewer particles for each filtering iteration than necessary to obtain a good likelihood estimate—stochastic errors can cancel out through the filtering iterations, rather than within any one iteration.</p></li>
+<li><p>For promising new parameter values, it is desirable to put computational effort into evaluating the likelihood sufficient to make the Monte Carlo error small compared to one log unit.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>  mif_logLik <span class="ot">&lt;-</span>  <span class="fu">sapply</span>(mif_results,<span class="cf">function</span>(x)x<span class="sc">$</span>logLik)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  mif_mle <span class="ot">&lt;-</span> mif_results[[<span class="fu">which.max</span>(mif_logLik)]]<span class="sc">$</span>params</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plan</span>(multicore,<span class="at">workers=</span><span class="dv">10</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  pf3_loglik_matrix <span class="ot">&lt;-</span> <span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="at">.combine=</span>rbind,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="cn">TRUE</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%dofuture%</span> {</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unitlogLik</span>(<span class="fu">pfilter</span>(contacts,<span class="at">shared=</span>mif_mle,<span class="at">Np=</span><span class="dv">10000</span>))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel_logmeanexp</span>(pf3_loglik_matrix,<span class="at">MARGIN=</span><span class="dv">2</span>,<span class="at">se=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         se 
+-9607.1582324     0.2157907 </code></pre>
+</div>
+</div>
+<ul>
+<li><p>This took 0.7 minutes on 10 cores.</p></li>
+<li><p>Here, the local search found a lower likelhood than the published MLE. Longer searches with more cooling, and/or more Monte Carlo replications, may be needed to reliably obtain accurate maximization.</p></li>
+</ul>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<section id="references-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="references-1">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Breto2020" class="csl-entry" role="listitem">
+Bretó, Carles, Edward L. Ionides, and Aaron A. King. 2020. <span>“Panel Data Analysis via Mechanistic Models.”</span> <em>J Am Stat Assoc</em> 115 (531): pre–published online. <a href="https://doi.org/10.1080/01621459.2019.1604367">https://doi.org/10.1080/01621459.2019.1604367</a>.
+</div>
+<div id="ref-Keeling2009" class="csl-entry" role="listitem">
+Keeling, M., and P. Rohani. 2009. <em>Modeling Infectious Diseases in Humans and Animals</em>. Princeton, NJ: Princeton University Press.
+</div>
+<div id="ref-Romero-Severson2015" class="csl-entry" role="listitem">
+Romero-Severson, E. O., E. Volz, J. S. Koopman, T. Leitner, and E. L. Ionides. 2015. <span>“Dynamic Variation in Sexual Contact Rates in a Cohort of <span>HIV</span>-Negative Gay Men.”</span> <em>Am J Epidemiol</em> 182 (3): 255–62. <a href="https://doi.org/10.1093/aje/kwv044">https://doi.org/10.1093/aje/kwv044</a>.
+</div>
+<div id="ref-Romero-Severson2012" class="csl-entry" role="listitem">
+Romero-Severson, Ethan O., Shah Jamal Alam, Erik M. Volz, and James S. Koopman. 2012. <span>“Heterogeneity in Number and Type of Sexual Contacts in a Gay Urban Cohort.”</span> <em>Stat Commun Infect Dis</em> 4 (1). <a href="https://doi.org/10.1515/1948-4690.1042">https://doi.org/10.1515/1948-4690.1042</a>.
+</div>
+<div id="ref-Vittinghoff1999" class="csl-entry" role="listitem">
+Vittinghoff, Eric, John Douglas, Frank Judon, David McKiman, Kate MacQueen, and Susan P. Buchinder. 1999. <span>“Per-Contact Risk of Human Immunodificiency Virus Tramnsmision Between Male Sexual Partners.”</span> <em>Am J Epidemiol</em> 150 (3): 306–11.
+</div>
+</div>
+</section>
+<section id="license-acknowledgments-and-links" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
+<ul>
+<li><p>This lesson is prepared for the <a href="https://kingaa.github.io/sbied/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://www.biostat.washington.edu/suminst/sismid">SISMID</a>.</p></li>
+<li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
+<li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
+<li><p>Produced with R version 4.4.0, pomp version 5.9, and panelPomp version 1.1.0.1.</p></li>
+<li><p>Compiled on 2024-06-18.</p></li>
+</ul>
+<p><a href="index.html">Back to Lesson</a></p>
+<p><a href="./main.R"><code>R</code> codes for this lesson</a></p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

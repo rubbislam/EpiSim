@@ -1,0 +1,444 @@
+
+R version 4.3.2 (2023-10-31) -- "Eye Holes"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(tidyverse)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+> library(pomp)
+
+Attaching package: ‘pomp’
+
+The following object is masked from ‘package:purrr’:
+
+    map
+
+> library(doFuture)
+Loading required package: foreach
+
+Attaching package: ‘foreach’
+
+The following objects are masked from ‘package:purrr’:
+
+    accumulate, when
+
+Loading required package: future
+> stopifnot(packageVersion("pomp")>="5.3.1")
+> options(
++   dplyr.summarise.inform=FALSE,
++   pomp_archive_dir="results"
++ )
+> 
+> library(tidyverse)
+> data <- read_csv(
++   "https://kingaa.github.io/sbied/polio/polio_wisconsin.csv",
++   comment="#")
+Rows: 288 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (4): time, cases, births, pop
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> head(data,5)
+# A tibble: 5 × 4
+   time cases births     pop
+  <dbl> <dbl>  <dbl>   <dbl>
+1 1931.     7   4698 2990000
+2 1931.     0   4354 2990000
+3 1931.     7   4836 2990000
+4 1931.     3   4468 2990000
+5 1931.     4   4712 2990000
+> 
+> 
+> 
+> statenames <- c("SB1","SB2","SB3","SB4","SB5","SB6",
++   "IB","SO","IO")
+> t0 <- 1932+4/12
+> 
+> library(pomp)
+> K <- 6
+> covar <- covariate_table(
++   t=data$time,
++   B=data$births,
++   P=predict(
++     smooth.spline(x=1931:1954,y=data$pop[seq(12,24*12,by=12)]),
++     x=data$time)$y,
++   periodic_bspline_basis(t,nbasis=K,
++     degree=3,period=1,names="xi%d"),
++   times="t"
++ )
+> 
+> rp_names <- c("b1","b2","b3","b4","b5","b6",
++   "psi","rho","tau","sigma_dem","sigma_env")
+> 
+> ivp_names <- c("SO_0","IO_0")
+> paramnames <- c(rp_names,ivp_names)
+> 
+> fp_names <- c("delta","K",
++   "SB1_0","SB2_0","SB3_0","SB4_0","SB5_0","SB6_0")
+> paramnames <- c(rp_names,ivp_names,fp_names)
+> covar_index_t0 <- which(abs(covar@times-t0)<0.01)
+> initial_births <- covar@table["B",covar_index_t0-0:5]
+> names(initial_births) <- c("SB1_0","SB2_0",
++   "SB3_0","SB4_0","SB5_0","SB6_0")
+> fixed_params <- c(delta=1/60,K=K,initial_births)
+> 
+> params_guess <- c(
++   b1=3,b2=0,b3=1.5,b4=6,b5=5,b6=3,
++   psi=0.002,rho=0.01,tau=0.001,
++   sigma_dem=0.04,sigma_env=0.5,
++   SO_0=0.12,IO_0=0.001,
++   fixed_params)
+> 
+> rprocess <- Csnippet("
++   double beta = exp(dot_product( (int) K, &xi1, &b1));
++   double lambda = (beta * (IO+IB) / P + psi);
++   double var_epsilon = pow(sigma_dem,2)/ lambda +
++     pow(sigma_env,2);
++   lambda *= (var_epsilon < 1.0e-6) ? 1 :
++     rgamma(1/var_epsilon,var_epsilon);
++   double p = exp(-(delta+lambda)/12);
++   double q = (1-p)*lambda/(delta+lambda);
++   SB1=B;
++   SB2=SB1*p;
++   SB3=SB2*p;
++   SB4=SB3*p;
++   SB5=SB4*p;
++   SB6=SB5*p;
++   SO=(SB6+SO)*p;
++   IB=(SB1+SB2+SB3+SB4+SB5+SB6)*q;
++   IO=SO*q;
++ ")
+> 
+> dmeasure <- Csnippet("
++   double tol = 1.0e-25;
++   double mean_cases = rho*IO;
++   double sd_cases = sqrt(pow(tau*IO,2) + mean_cases);
++   if(cases > 0.0){
++     lik = pnorm(cases+0.5,mean_cases,sd_cases,1,0)
++       - pnorm(cases-0.5,mean_cases,sd_cases,1,0) + tol;
++   } else{
++     lik = pnorm(cases+0.5,mean_cases,sd_cases,1,0) + tol;
++   }
++   if (give_log) lik = log(lik);")
+> rmeasure <- Csnippet("
++   cases = rnorm(rho*IO, sqrt( pow(tau*IO,2) + rho*IO ) );
++   if (cases > 0.0) {
++     cases = nearbyint(cases);
++   } else {
++     cases = 0.0;
++   }")
+> 
+> rinit <- Csnippet("
++   SB1 = SB1_0;
++   SB2 = SB2_0;
++   SB3 = SB3_0;
++   SB4 = SB4_0;
++   SB5 = SB5_0;
++   SB6 = SB6_0;
++   IB = 0;
++   IO = IO_0 * P;
++   SO = SO_0 * P;
++ ")
+> 
+> partrans <- parameter_trans(
++   log=c("psi","rho","tau","sigma_dem","sigma_env"),
++   logit=c("SO_0","IO_0")
++ )
+> 
+> data |>
++   filter(
++     time > t0 + 0.01,
++     time < 1953+1/12+0.01
++   ) |>
++   select(cases,time) |>
++   pomp(
++     times="time",t0=t0,
++     params=params_guess,
++     rprocess=euler(step.fun=rprocess,delta.t=1/12),
++     rmeasure=rmeasure,
++     dmeasure=dmeasure,
++     rinit=rinit,
++     partrans=partrans,
++     covar=covar,
++     statenames=statenames,
++     paramnames=paramnames
++   ) -> polio
+> 
+> simulate(polio)
+<object of class ‘pomp’>
+> 
+> 
+> run_level <- as.integer(Sys.getenv("RUNLEVEL"))
+> stopifnot(`bad runlevel`=isTRUE(run_level %in% c(1,2,3)))
+> Np <-          switch(run_level,100, 1e3, 5e3)
+> Nmif <-        switch(run_level, 10, 100, 200)
+> Nreps_eval <-  switch(run_level,  2,  10,  20)
+> Nreps_local <- switch(run_level, 10,  20,  40)
+> Nreps_global <-switch(run_level, 10,  20, 100)
+> Nsim <-        switch(run_level, 50, 100, 500)
+> 
+> library(doFuture)
+> library(iterators)
+> 
+> par_init <- function (run_level) {
++   if (run_level >= 3 && file.exists("CLUSTER.R")) {
++     source("CLUSTER.R")
++   } else {
++     plan(multisession)
++   }
++ }
+> 
+> stew(file="pf1.rda",seed=3899882,{
++   par_init(run_level)
++   pf1 <- foreach(i=1:20,.combine=c,
++     .options.future=list(seed=TRUE)
++   ) %dofuture% pfilter(polio,Np=Np)
++   cores <- nbrOfWorkers()
++ })
+> L1 <- logmeanexp(sapply(pf1,logLik),se=TRUE)
+> 
+> simulate(polio,nsim=Nsim,seed=1643079359,
++   format="data.frame",include.data=TRUE) -> sims
+> 
+> sims |>
++   group_by(.id) |>
++   summarize(
++     no_cases=sum(cases==0),
++     fadeout1=sum(IO+IB<1,na.rm=TRUE),
++     fadeout100=sum(IO+IB<100,na.rm=TRUE),
++     imports=coef(polio,"psi")*mean(SO+SB1+SB2+SB3+SB4+SB5+SB6,na.rm=TRUE)/12
++   ) |>
++   ungroup() |>
++   gather(var,val,-.id) |>
++   group_by(
++     type=if_else(.id=="data","data","sim"),
++     var
++   ) |>
++   summarize(val=mean(val)) |>
++   ungroup() |>
++   spread(var,val) -> summ
+Warning message:
+attributes are not identical across measure variables; they will be dropped 
+> summ |>
++   column_to_rownames("type") -> summ
+> 
+> 
+> 
+> mif.rw.sd <- eval(substitute(rw_sd(
++   b1=rwr,b2=rwr,b3=rwr,b4=rwr,b5=rwr,b6=rwr,
++   psi=rwr,rho=rwr,tau=rwr,sigma_dem=rwr,
++   sigma_env=rwr,
++   IO_0=ivp(rwi),SO_0=ivp(rwi)),
++   list(rwi=0.2,rwr=0.02)))
+> 
+> stew(file="mif.rda",seed=942098028,{
++   par_init(run_level)
++   m2 <- foreach(
++     i=1:Nreps_local,.combine=c,
++     .options.future=list(seed=TRUE)
++   ) %dofuture%
++     mif2(polio, Np=Np, Nmif=Nmif, rw.sd=mif.rw.sd,
++       cooling.fraction.50=0.5)
++   lik_m2 <- foreach(
++     m=m2,.combine=rbind,
++     .options.future=list(seed=TRUE)
++   ) %dofuture%
++     logmeanexp(replicate(Nreps_eval,
++       logLik(pfilter(m,Np=Np))),se=TRUE)
++ })
+> 
+> coef(m2) |> melt() |> spread(name,value) |>
++   select(-.id) |>
++   bind_cols(logLik=lik_m2[,1],logLik_se=lik_m2[,2]) -> r2
+> r2 |> arrange(-logLik) |>
++   write_csv("params.csv")
+> summary(r2$logLik,digits=5)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ -805.3  -800.9  -799.5  -799.7  -798.0  -796.7 
+> 
+> 
+> 
+> box <- rbind(
++   b1=c(-2,8), b2=c(-2,8),
++   b3=c(-2,8), b4=c(-2,8),
++   b5=c(-2,8), b6=c(-2,8),
++   psi=c(0,0.1), rho=c(0,0.1), tau=c(0,0.1),
++   sigma_dem=c(0,0.5), sigma_env=c(0,1),
++   SO_0=c(0,1), IO_0=c(0,0.01)
++ )
+> 
+> bake(file="box_eval1.rds",seed=833102018,{
++   par_init(run_level)
++   foreach(i=1:Nreps_global,.combine=c,
++     .options.future=list(seed=TRUE)) %dofuture%
++     mif2(m2[[1]],params=c(fixed_params,
++       apply(box,1,function(x)runif(1,x[1],x[2]))))
++ }) -> m3
+> 
+> bake(file="box_eval2.rds",seed=71449038,{
++   par_init(run_level)
++   foreach(m=m3,.combine=rbind,
++     .options.future=list(seed=TRUE)) %dofuture%
++     logmeanexp(replicate(Nreps_eval,
++       logLik(pfilter(m,Np=Np))),se=TRUE)
++ }) -> lik_m3
+> 
+> coef(m3) |> melt() |> spread(name,value) |>
++   select(-.id) |>
++   bind_cols(logLik=lik_m3[,1],logLik_se=lik_m3[,2]) -> r3
+> read_csv("params.csv") |>
++   bind_rows(r3) |>
++   arrange(-logLik) |>
++   write_csv("params.csv")
+Rows: 20 Columns: 23
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (23): b1, b2, b3, b4, b5, b6, delta, IO_0, K, psi, rho, SB1_0, SB2_0, SB...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> summary(r3$logLik,digits=5)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ -918.8  -803.6  -800.0  -808.6  -798.5  -796.1 
+> 
+> 
+> 
+> nb_lik <- function (theta) {
++   -sum(dnbinom(as.numeric(obs(polio)),
++     size=exp(theta[1]),prob=exp(theta[2]),log=TRUE))}
+> nb_mle <- optim(c(0,-5),nb_lik)
+> -nb_mle$value
+[1] -1036.227
+> 
+> log_y <- log(as.vector(obs(polio))+1)
+> arma_fit <- arima(log_y,order=c(2,0,2),
++   seasonal=list(order=c(1,0,1),period=12))
+> arma_fit$loglik-sum(log_y)
+[1] -822.0827
+> 
+> params <- read_csv("params.csv")
+Rows: 40 Columns: 23
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (23): b1, b2, b3, b4, b5, b6, delta, IO_0, K, psi, rho, SB1_0, SB2_0, SB...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> pairs(~logLik+psi+rho+tau+sigma_dem+sigma_env,
++   data=subset(params,logLik>max(logLik)-20),pch=16)
+> 
+> 
+> 
+> 
+> 
+> library(tidyverse)
+> params |>
++   filter(logLik>max(logLik)-20) |>
++   select(-logLik,-logLik_se) |>
++   gather(variable,value) |>
++   group_by(variable) |>
++   summarize(min=min(value),max=max(value)) |>
++   ungroup() |>
++   column_to_rownames(var="variable") |>
++   t() -> box
+> 
+> profile_pts <-  switch(run_level,  3,  5,  30)
+> profile_Nreps <- switch(run_level, 2,  3,  10)
+> 
+> idx <- which(colnames(box)!="rho")
+> profile_design(
++   rho=seq(0.01,0.025,length=profile_pts),
++   lower=box["min",idx],upper=box["max",idx],
++   nprof=profile_Nreps
++ ) -> starts
+> 
+> profile.rw.sd <- eval(substitute(rw_sd(
++   rho=0,b1=rwr,b2=rwr,b3=rwr,b4=rwr,b5=rwr,b6=rwr,
++   psi=rwr,tau=rwr,sigma_dem=rwr,sigma_env=rwr,
++   IO_0=ivp(rwi),SO_0=ivp(rwi)),
++   list(rwi=0.2,rwr=0.02)))
+> 
+> stew(file="profile_rho.rda",seed=1888257101,{
++   par_init(run_level)
++   foreach(start=iter(starts,"row"),.combine=rbind,
++     .options.future=list(seed=TRUE)) %dofuture% {
++       polio |> mif2(params=start,
++         Np=Np,Nmif=ceiling(Nmif/2),
++         cooling.fraction.50=0.5,
++         rw.sd=profile.rw.sd
++       ) |>
++         mif2(Np=Np,Nmif=ceiling(Nmif/2),
++           cooling.fraction.50=0.1
++         ) -> mf
++       replicate(Nreps_eval,
++         mf |> pfilter(Np=Np) |> logLik()
++       ) |> logmeanexp(se=TRUE) -> ll
++       mf |> coef() |> bind_rows() |>
++         bind_cols(logLik=ll[1],logLik_se=ll[2])
++     } -> m4
++   cores <- nbrOfWorkers()
++ })
+> 
+> ## stew(file="profile_rho.rda",seed=1888257101,{
+> ##   par_init(run_level)
+> ##   foreach(start=iter(starts,"row"),.combine=rbind,
+> ##     .options.future=list(seed=TRUE)) %dofuture% {
+> ##       polio |> mif2(params=start,
+> ##         Np=Np,Nmif=ceiling(Nmif/2),
+> ##         cooling.fraction.50=0.5,
+> ##         rw.sd=profile.rw.sd
+> ##       ) |>
+> ##         mif2(Np=Np,Nmif=ceiling(Nmif/2),
+> ##           cooling.fraction.50=0.1
+> ##         ) -> mf
+> ##       replicate(Nreps_eval,
+> ##         mf |> pfilter(Np=Np) |> logLik()
+> ##       ) |> logmeanexp(se=TRUE) -> ll
+> ##       mf |> coef() |> bind_rows() |>
+> ##         bind_cols(logLik=ll[1],logLik_se=ll[2])
+> ##     } -> m4
+> ##   cores <- nbrOfWorkers()
+> ## })
+> 
+> 
+> 
+> read_csv("params.csv") |>
++   bind_rows(m4) |>
++   arrange(-logLik) |>
++   write_csv("params.csv",append=TRUE)
+Rows: 40 Columns: 23
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (23): b1, b2, b3, b4, b5, b6, delta, IO_0, K, psi, rho, SB1_0, SB2_0, SB...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> 
+> proc.time()
+   user  system elapsed 
+  5.339  10.673   3.769 

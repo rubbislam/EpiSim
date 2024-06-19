@@ -1,0 +1,153 @@
+---
+title: |
+  Deterministic latent process models and their role in benchmarking POMP models
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+params:
+  prefix: det
+---
+
+\newcommand\prob[1]{\mathbb{P}\left[{#1}\right]}
+\newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
+\newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
+\newcommand\dd[1]{d{#1}}
+\newcommand\lik{\mathcal{L}}
+\newcommand\loglik{\ell}
+
+-----------------------------------
+
+Produced in R version `r getRversion()`.
+
+-----------------------------------
+
+```{r knitr-opts,include=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+```{r prelims,include=FALSE,cache=FALSE}
+library(tidyverse)
+library(pomp)
+set.seed(594709947L)
+```
+
+## Why fit a deterministic process model?
+
+* We're focusing on biological dynamic systems, which are typically far from perfectly predictable. 
+
+* Deterministic latent process models are perfectly predictable, given the parameter values and initial conditions. One might therefore expect that these determinstic process models are problematic as statistical descriptions of unpredictable systems.
+
+    + Exception: an imperfectly measured chaotic system is both deterministic and unpredictable. 
+	However, there has been little success using this class of models for fitting biological systems.
+
+    + Exception: for short time series, the role of dynamic stochasticity may be negligible compared to measurement error, parameter uncertainty and uncertainty about initial values.
+
+* Deterministic latent process models are useful as a **benchmark** when fitting POMP models.
+
+## Benchmarking
+
+* Recall that it is statistically meaningful to compare likelihoods between entirely different classes of models for the same data, for example by AIC.
+
+* A benchmark is a simple model that is fitted with the goal of providing a sanity check on a more sophisticated model.
+  We believe that the complex model should fit the data better, but we want to check!
+
+* Some simple benchmarks can be constructed with relatively little effort:
+
+    + independent, identically distributed observations.
+
+    + ARMA models are appropriate for time series which appear stationary, perhaps after differencing.
+
+    + Regression models, including nonlinear regression models such as ordinary differential equation models for compartment models.
+
+
+## The likelihood for a deterministic latent process
+
+Suppose that the latent process is deterministic.
+In our POMP notation, this lets us write the latent process as
+$$X_{n}=x_n(\theta),$$ 
+so that the latent process is a known and non-random function of $\theta$ for each $n$.
+What is the likelihood?
+
+Since the probability of the observation, $Y_n$, depends only on $X_n$ and $\theta$, and since, in particular $Y_{m}$ and $Y_{n}$ are independent given $X_{m}$ and $X_{n}$, we have 
+$$\lik(\theta) = \prod_{n} f_{Y_n|X_n}\big(y_n^*;x_n(\theta),\theta\big)$$ 
+or 
+$$\ell(\theta) = \log\lik(\theta) = \sum_{n} \log f_{Y_n|X_n}\big(y_n^*;x_n(\theta),\theta\big).$$
+The following diagram illustrates this.
+
+```{r det-example,echo=FALSE,results="hide",purl=FALSE}
+library(pomp)
+
+bsflu |>
+  select(day,B) |>
+  pomp(times="day",t0=0,
+    params=c(
+      mu_IR=1/3,
+      Beta=1.4,Beta_sd=0,
+      pop=1400,
+      rho=0.9,sigma=3.6,
+      S_0=0.999,I_0=0.001,R_0=0
+    ),
+    skeleton=vectorfield(Csnippet("
+      double rate[2];           // transition rates
+      double term[2];           // transition numbers
+      // compute the transition rates
+      rate[0] = Beta*I/pop;   // force of infection
+      rate[1] = mu_IR;              // recovery
+      // compute the several terms
+      term[0] = rate[0]*S;
+      term[1] = rate[1]*I;
+      // balance the equations
+      DS = -term[0];
+      DI = term[0]-term[1];
+      DH = DR = term[1];
+      DW = 0;                   // no noise, so no noise accumulation"
+    )),
+    rinit=Csnippet("
+      double m = pop/(S_0+I_0+R_0);
+      S = nearbyint(m*S_0);
+      I = nearbyint(m*I_0);
+      R = nearbyint(m*R_0);
+      H = 0;
+      W = 0;"
+    ),
+    dmeasure=Csnippet("
+      lik = dnbinom_mu(B,1/sigma/sigma,rho*H,give_log);"
+    ),
+    statenames=c("S","I","R","H","W"),
+    paramnames=c(
+      "mu_IR","Beta","Beta_sd","pop","rho","sigma",
+      "S_0","I_0","R_0"
+    ),
+    accumvars="H"
+  ) -> bbs
+
+trajectory(bbs,format="data.frame") |>
+  full_join(as.data.frame(bbs),by="day") |>
+  mutate(
+    xlab=sprintf("hat(y)[%d]",day),
+    ylab=sprintf("y[%d]^'*'",day)
+  ) -> y
+
+ggplot(data=y,mapping=aes(x=day,xend=day))+
+  geom_point(aes(y=B),color='black',alpha=0.5)+
+  geom_point(aes(y=H),color='red',alpha=0.5)+
+  geom_line(aes(y=B),color='black',alpha=0.5)+
+  geom_line(aes(y=H),color='red',alpha=0.5)+
+  geom_text(aes(y=B,label=ylab,vjust=ifelse(day>=10,2,-1)),parse=TRUE,color='black')+
+  geom_text(aes(y=H,label=xlab,vjust=ifelse(day>=10,-1,2)),parse=TRUE,color='red')+
+  geom_segment(aes(y=H,yend=B),color='blue',linetype=2,alpha=0.3,
+               arrow=grid::arrow(length=grid::unit(0.02,"npc")))+
+  expand_limits(y=c(-30,330))+
+  labs(y="")
+```
+
+In this diagram, $\hat y_n$ refers to the model prediction, 
+$\hat y_n = \expect{Y_n \vert X_n=x_n(\theta)}$, and $y_n^*$ is data.

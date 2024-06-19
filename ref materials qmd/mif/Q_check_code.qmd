@@ -1,0 +1,35 @@
+---
+title: Checking the source code
+author: Aaron A. King and Edward L. Ionides
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+bibliography: ../sbied.bib
+csl: ../jss.csl
+params:
+  prefix: qslice
+---
+
+
+## Exercise
+
+Check the source code for the `measSIR` pomp object, using the `spy` command.
+Does the code implement the model described?
+
+(a)  Does the code implement the model described?
+
+*Let us know if you find a discrepancy. Some bugs can be discovered by reading code, but many slip through this test. We cannot assume that code which looks okay is bug-free.*
+
+Papers should be written to be readable, and therefore people rarely choose to clutter papers with numerical details which they hope and believe are scientifically irrelevant.
+
+(b) What problems can arise due to the conflict between readability and reproducibility?
+
+*Reproducibility requires that all details are fully described. For most readers, most of the time, presenting all the technical details may serve a negative purpose of obscuring the main points of the paper.*
+
+(c) What solutions are available?
+
+*Rnw and Rmd file formats (for R) and Jupyter notebooks (for python and R) are popular methods for reproducible computing.*

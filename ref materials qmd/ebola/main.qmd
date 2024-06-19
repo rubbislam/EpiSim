@@ -1,0 +1,546 @@
+---
+title: "Lesson 7: Case study: ebola"
+author:
+  - Aaron A. King
+  - Edward L. Ionides
+format: 
+  beamer:
+    theme: "AnnArbor"
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    include-in-header: "../_includes/header.tex"
+    beameroptions:
+      - setbeamertemplate: "footline[frame number]"
+      - setbeamertemplate: "navigation symbols{}"
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+---
+
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+
+```{r read_chunks,include=FALSE,cache=FALSE}
+read_chunk("codes.R")
+knitr::opts_chunk$set(purl=FALSE)
+options(dplyr.summarise.inform=FALSE)
+```
+
+```{r prelims,include=FALSE,cache=FALSE}
+
+```
+
+
+
+# Introduction
+
+## Objectives {.allowframebreaks}
+
+  1. 
+    To explore the use of POMP models in the context of an outbreak of an
+    emerging infectious disease.
+  2. 
+    To demonstrate the use of diagnostic probes for model criticism.
+  3. 
+    To illustrate some forecasting methods based on POMP models.
+  4. 
+    To provide an example that can be modified to apply similar approaches
+    to other outbreaks of emerging infectious diseases.
+
+  \vspace{2ex}
+  
+  This lesson follows @King2015, all codes for which are available on [datadryad.org](https://dx.doi.org/10.5061/dryad.r5f30).
+
+
+
+# 2014 West Africa EVD outbreak
+
+## An emerging infectious disease outbreak {.allowframebreaks}
+
+  Let's situate ourselves at the beginning of October 2014.
+  The WHO situation report contained data on the number of cases in each of Guinea, Sierra Leone, and Liberia.
+  Key questions included:
+
+
+  1. 
+    How fast will the outbreak unfold?
+  2. 
+    How large will it ultimately prove?
+  3. 
+    What interventions will be most effective?
+
+
+  
+  
+  As is to be expected in the case of a fast-moving outbreak of a novel pathogen in an underdeveloped country, the answers to these questions were sought in a context far from ideal:
+
+  
+  - 
+    Case ascertainment is difficult and the case definition itself may be evolving.
+  - 
+    Surveillance effort is changing on the same timescale as the outbreak itself.
+  - 
+    The public health and behavioral response to the outbreak is rapidly changing.
+  
+
+
+## Best practices {.allowframebreaks}
+  
+  - 
+    The @King2015 paper focused critical attention on the economical and therefore common practice of fitting deterministic transmission models to cumulative incidence data.
+  -  
+    Specifically, @King2015 showed how this practice easily leads to overconfident prediction that, worryingly, can mask their own presence.
+  -  
+    The paper recommended the use of POMP models, for several reasons:
+    
+    - 
+      Such models can accommodate a wide range of hypothetical forms.
+    - 
+      They can be readily fit to incidence data, especially during the exponential growth phase of an outbreak.
+    - 
+      Stochastic models afford a more explicit treatment of uncertainty.
+    - 
+      POMP models come with a number of diagnostic approaches built-in, which can be used to assess model misspecification.
+    
+  
+
+
+
+# Data and model
+
+# Data
+
+## Situation-report data {.allowframebreaks}
+
+  The data and pomp codes used to represent the transmission models are presented in [a supplement](./model.html).
+
+  The data we focus on here are from the WHO Situation Report of 1 October 2014.
+  Supplementing these data are population estimates for the three countries.
+
+```{r get-data,include=FALSE}
+```
+  
+```{r popsizes,include=FALSE}
+```
+  
+```{r plot-data,echo=FALSE,out.width="0.8\\textwidth"}
+```
+
+
+# Model
+
+## SEIR model with gamma-distributed latent period {.allowframebreaks}
+
+  
+  - 
+    Many of the early modeling efforts used variants on the simple SEIR model.
+  -  
+    Here, we'll focus on a variant that attempts a more careful description of the duration of the latent period.
+  -  
+    Specifically, this model assumes that the amount of time an infection remains latent is
+    
+    \begin{equation*}
+      \mathrm{LP} \sim \dist{Gamma}{m,\frac{1}{m\,\alpha}},
+    \end{equation*}
+    
+    where $m$ is an integer.
+  -  
+    This means that the latent period has expectation $1/\alpha$ and variance $1/(m\,\alpha)$. In this document, we'll fix $m=3$.
+    
+  -  
+    We implement Gamma distributions using the so-called *linear chain trick*.
+  
+
+```{r seir-diagram,include=FALSE,cache=FALSE,purl=FALSE,eval=FALSE}
+  library(DiagrammeR)
+  DiagrammeR("digraph SEIR {
+  graph [rankdir=LR, overlap=false, fontsize = 10]
+  node[shape=oval, label='S'] S;
+  node[shape=oval, label='E1'] E1;
+  node[shape=oval, label='E2'] E2;
+  node[shape=oval, label='E3'] E3;
+  node[shape=oval, label='I'] I;
+  S->E1 E1->E2 E2->E3 E3->I
+  node[shape=diamond, label='recovered'] R;
+  node[shape=diamond, label='  dead   '] d;
+  I->R I->d
+  }",type="grViz",engine="dot",height=100,width=800)
+```
+  
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{model_diagram.png}
+  \end{center}
+  
+```{r rproc,include=FALSE}
+```
+  
+```{r skel,include=FALSE}
+```
+
+  
+  
+  The observations are modeled as a negative binomial process conditional on the number of infections.
+  That is, if $C_t$ are the reported cases at week $t$ and $H_t$ is the true incidence, then we postulate that $C_t | H_t$ is negative binomial with
+  
+  \begin{equation*}
+    \expect{C_t|H_t} = \rho\,H_t\] and \[\var{C_t|H_t} = \rho\,H_t\,(1+k\,\rho\,H_t).
+  \end{equation*}
+  
+  The negative binomial process allows for overdispersion in the counts. This overdispersion is controlled by parameter $k$.
+
+```{r measmodel,include=FALSE}
+```
+  
+```{r partrans,include=FALSE}
+```
+  
+```{r pomp-construction,include=FALSE}
+```
+
+
+# Parameter estimates
+
+## Parameter estimates {.allowframebreaks}
+
+  
+  - 
+   @King2015 estimated parameters for this model for each country.
+  -  
+    A Latin hypercube design was used to initiate a large number of iterated filtering runs.
+  -  
+    Profile likelihoods were computed for each country against the parameters $k$ (the measurement model overdispersion) and $R_0$ (the basic reproductive ratio).
+  -  
+    Full details are given [on the datadryad.org site](https://dx.doi.org/10.5061/dryad.r5f30).
+  -  
+    Codes for this document are [available here](./codes.R).
+    The results of these calculations are loaded and displayed in the following.
+
+```{r load-profile,echo=FALSE}
+```
+    
+  -  
+    The following are plots of the profile likelihoods.
+    The horizontal line represents the critical value of the likelihood ratio test for $p=0.01$.
+
+```{r profiles-plots,results="hide",echo=FALSE,out.width="0.8\\textwidth"}
+```
+
+  
+
+
+# Model Criticism
+
+## Diagnostics *or* Model Criticism {.allowframebreaks}
+  
+  - 
+    Parameter estimation is the process of finding the parameters that are "best", in some sense, for a given model, from among the set of those that make sense for that model.
+  - 
+    Model selection, likewise, aims at identifying the "best" model, in some sense, from among a set of candidates.
+  - 
+    One can do both of these things more or less well, but no matter how carefully they are done, the best of a bad set of models is still bad.
+  - 
+    Let's investigate the model here, at its maximum-likelihood parameters, to see if we can identify problems.
+  - 
+    The guiding principle in this is that, if the model is "good", then the data are a plausible realization of that model.
+  - 
+    Therefore, we can compare the data directly against model simulations.
+  - 
+    Moreover, we can quantify the agreement between simulations and data in any way we like.
+  - 
+    Any statistic, or set of statistics, that can be applied to the data can also be applied to simulations.
+  - 
+    Shortcomings of the model should manifest themselves as discrepancies between the model-predicted distribution of such statistics and their value on the data.
+  - 
+    pomp provides tools to facilitate this process.
+  - 
+    Specifically, the `probe` function applies a set of user-specified summary statistics or *probes*, to the model and the data, and quantifies the degree of disagreement in several ways.
+    
+  -  
+    Let's see how this is done using the model for the Guinean outbreak.
+  
+  
+
+# Simulation for diagnosis
+
+## Model simulations {.allowframebreaks}
+
+  From our profile-likelihood calculations, we extract the MLE:
+
+```{r diagnostics1a}
+```
+
+  Here, `profs` contains the profile-likelihood calculations displayed previously and `gin` is a pomp object containing the model and data for Guinea.
+  
+  
+
+  The following generates and plots some simulations on the same axes as the data.
+
+```{r diagnostics1b}
+```
+
+
+
+# Diagnostic probes
+  
+## Diagnostic probes {.allowframebreaks}
+
+  
+  - 
+    Does the data look like it could have come from the model?
+    
+    - 
+      The simulations appear to be growing a bit more quickly than the data.
+    
+  - 
+    Let's try to quantify this.
+    
+    - 
+      First, we'll write a function that estimates the exponential growth rate by linear regression.
+    - 
+      Then, we'll apply it to the data and to 500 simulations.
+    
+  - 
+    In the following, `gin` is a pomp object containing the model and the data from the Guinea outbreak.
+
+```{r diagnostics-growth-rate,out.width="0.7\\textwidth"}
+``` 
+    
+  - 
+    Do these results bear out our suspicion that the model and data differ
+    in terms of growth rate?
+
+    
+    
+```{r diagnostics1b,echo=FALSE}
+```
+
+    
+    
+  - 
+    The simulations also appear to be more highly variable around the trend
+    than do the data.
+
+```{r diagnostics-growth-rate-and-sd,out.width="0.7\\textwidth"}
+```
+
+  - 
+    Do we see evidence for lack of fit of model to data?
+    
+    
+    
+  - 
+    Let's also look more carefully at the distribution of values about the trend using the 1st and 3rd quartiles.
+  - 
+    Also, it looks like the data are less jagged than the simulations.
+    We can quantify this using the autocorrelation function (ACF).
+
+```{r diagnostics2,fig.width=6,fig.height=6,out.width="0.65\\textwidth"}
+``` 
+
+  
+
+
+# Exercise
+
+##  The Sierra Leone outbreak
+
+  Apply probes to investigate the extent to which the SEIR model above is an adequate description of the data from the Sierra Leone outbreak.
+  Have a look at the probes provided with pomp: `?basic.probes`.
+  Try also to come up with some informative probes of your own. Discuss the implications of your findings.
+
+
+# Forecasting using POMP models
+
+# Sources of uncertainty
+
+## Forecasting and forecasting uncertainty {.allowframebreaks}
+
+  
+  - 
+    To this point in the course, we've focused on using POMP models to answer scientific questions,
+    i.e., to compare alternative hypothetical explanations for the data in hand.
+  -  
+    Of course, we can also use them to make forecasts.
+
+    
+    
+  -  
+    A set of key issues surrounds quantifying the forecast uncertainty.
+  -  
+    This arises from four sources:
+
+    1. 
+      measurement error
+    2. 
+      process noise
+    3. 
+      parametric uncertainty
+    4. 
+      structural uncertainty
+
+  -     
+    Here, we'll explore how we can account for the first three of these in making forecasts for the Sierra Leone outbreak.
+  
+
+
+# Forecasting Ebola: an empirical Bayes approach
+
+## Parameter uncertainty {.allowframebreaks}
+
+  We take an [*empirical Bayes*](https://en.wikipedia.org/wiki/Empirical_Bayes_method) approach.
+
+  First, we set up a collection of parameter vectors in a neighborhood of the maximum likelihood estimate containing the region of high likelihood.
+
+```{r forecasts1a,include=FALSE}
+``` 
+  
+```{r forecasts1c}
+``` 
+  
+```{r forecasts1d,eval=FALSE}
+```
+
+  
+
+```{r forecasts1d,echo=FALSE,fig.width=7,fig.height=7,out.width="0.65\\textwidth"}
+```
+
+
+
+## Process noise and measurement error {.allowframebreaks}
+      
+  Next, we carry out a particle filter at each parameter vector, which gives us estimates of both the likelihood and the filter distribution at that parameter value.
+  
+```{r forecasts2c,eval=FALSE}
+```
+    
+  
+
+  We extract the state variables at the end of the data for use as initial conditions for the forecasts.
+
+```{r forecasts2d,eval=FALSE}
+```
+  
+  The final states are now stored in `x`.
+
+  
+
+  We simulate forward from the initial condition, up to the desired forecast horizon, to give a forecast corresponding to the selected parameter vector.
+  To do this, we first set up a matrix of parameters:
+```{r forecasts2e1,eval=FALSE}
+```
+
+  
+
+  Then, we generate simulations over the "calibration period" (i.e., the time interval over which we have data).
+  We record the likelihood of the data given the parameter vector:
+```{r forecasts2e2,eval=FALSE}
+```
+
+  
+
+  Now, we create a new pomp object for the forecasting.
+
+```{r forecasts2f,eval=FALSE}
+```
+  
+  
+  
+  We set the initial conditions to the ones determined above and perform forecast simulations.
+
+```{r forecasts2g,eval=FALSE}
+```
+  
+  
+
+  We combine the calibration and projection simulations into a single data frame.
+  
+```{r forecasts2h,eval=FALSE}
+```
+  
+  We repeat this procedure for each parameter vector, binding the results into a single data frame.
+  See [this lesson's `R` script](./codes.R) for details.
+
+  
+  
+```{r get_forecasts,include=FALSE,cache=FALSE}
+  readRDS("results/forecasts.rds") -> sims
+``` 
+  
+  We give these prediction distributions weights proportional to the estimated likelihoods of the parameter vectors.
+
+```{r forecasts2j}
+```
+
+  We verify that our effective sample size is large.
+
+```{r forecasts2k}
+``` 
+
+  
+  
+  Finally, we compute quantiles of the forecast incidence.
+
+```{r forecasts2l}
+``` 
+
+  
+  
+```{r forecast-plots,echo=FALSE}
+```
+  
+
+
+# Exercise
+
+##  Decomposing the uncertainty
+  As we have discussed, the uncertainty shown in the forecasts above has three sources: parameter uncertainty, process noise, and measurement error.
+  Show how you can break the total uncertainty into these three components.
+  Produce plots similar to that above showing each of the components.
+
+
+# References
+## References{.allowframebreaks}
+
+::: {#refs}
+:::
+
+
+## License, acknowledgments, and links {.allowframebreaks}
+
+  
+  - 
+    This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
+
+  - 
+    The materials build on [previous versions of this course and related courses](../acknowledge.html).
+
+  - 
+    Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/).
+    Please share and remix non-commercially, mentioning its origin.
+    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+
+  - 
+    Produced with `R` version `r getRversion()` and pomp version `r packageVersion("pomp")`.
+
+  - 
+    Compiled on 2024-06-17.
+
+  
+
+  [Back to Lesson](index.html)
+  
+  [Model construction supplement](model.html)
+
+  [`R` codes for this lesson](./codes.R)
+
+
+
