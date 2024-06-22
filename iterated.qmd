@@ -3,6 +3,13 @@ title: "Maximum likelihood estimation and iterated filtering"
 author: "Qianying (Ruby) Lin"
 toc: true
 engine: knitr
+filters:
+  - pseudocode
+
+pseudocode:
+  caption-prefix: "Algorithm"
+  reference-prefix: "Algorithm"
+  caption-number: true
 ---
 
 ## Summary

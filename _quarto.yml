@@ -17,14 +17,6 @@ website:
 
 editor: visual
 
-filters:
-  - pseudocode
-
-pseudocode:
-  caption-prefix: "Algorithm"
-  reference-prefix: "Algorithm"
-  caption-number: true
-
 format:
   html:
     theme: cosmo
