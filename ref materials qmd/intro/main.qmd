@@ -1,14 +1,15 @@
 ---
 title: "Lesson 1: Introduction to Simulation-based Inference for Epidemiological Dynamics"
 author:
-  - Aaron A. King
-  - Edward L. Ionides
+  - Qianying (Ruby) Lin
+  - Spencer J. Fox
+  - Zian Zhuang
 format: 
   beamer:
-    theme: "AnnArbor"
     keep_tex: true
     slide_level: 2
     section-titles: false
+    aspectratio: 169
     beameroptions:
       - setbeamertemplate: "footline[frame number]"
       - setbeamertemplate: "navigation symbols{}"
@@ -25,281 +26,423 @@ bibliography: ["sbied.bib"]  # Assuming this is the bibliography file you're usi
 source("../_includes/setup.R", local = knitr::knit_global())
 ```
 
+# Introductions
 
+## Qianying
 
+## Spencer
 
-# Introduction
+::: columns
+::: {.column width="50%"}
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/spencer-photo.jpeg}
+  \end{center}
+```
+:::
 
-## Objectives for this lesson
-  
-  -  To understand the motivations for simulation-based inference in the study of epidemiological and ecological systems.
-  -  To introduce the class of partially observed Markov process (POMP) models.
-  -  To introduce the pomp `R` package.
-  
+::: {.column width="50%"}
+-   Assistant Professor at UGA in department of epidemiology and biostatistics
+-   Infectious disease modeler and forecaster of emerging infectious diseases
+-   Fan of the outdoors (started as biologist)
+-   Worked with pomp for \~8 years (still learning)
+:::
+:::
 
+## Zian
 
-# What makes epidemiological inference hard?
+## Please introduce yourselves
 
-## Epidemiological and Ecological Dynamics
-  
-  -  Ecological systems are complex, open, nonlinear, and nonstationary.
-  - ``Laws of Nature" are unavailable except in the most general form.
-  -  It is useful to model them as stochastic systems.
-  -  For any observable phenomenon, multiple competing explanations are possible.
-  -  Central scientific goals:
-    
-    -  Which explanations are most favored by the data?
-    -  Which kinds of data are most informative?
-    
-  -  Central applied goals:
-    
-    -  How to design ecological or epidemiological intervention?
-    -  How to make accurate forecasts?
-    
-  -  Time series are particularly useful sources of data.
-  
-
-
-## Obstacles to inference
-  Obstacles for *ecological* modeling and inference via nonlinear mechanistic models enumerated by @Bjornstad2001
-
-  1.  Combining measurement noise and process noise.
-  2.  Including covariates in mechanistically plausible ways.
-  3.  Using continuous-time models.
-  4.  Modeling and estimating interactions in coupled systems.
-  5.  Dealing with unobserved variables.
-  6.  Modeling spatial-temporal dynamics.
-
-  The same issues arise for *epidemiological* modeling and inference via nonlinear mechanistic models.
-
-  The *partially observed Markov process* modeling framework we focus on in this course addresses most of these problems effectively.
-
-
-# Course overview
+-   Name
+-   Position (e.g. "I am a post-doc in so and so's lab at this university")
+-   Something you did this summer that you enjoyed
 
 ## Course objectives
 
-  1.  To show how stochastic dynamical systems models can be used as scientific instruments.
-  2.  To teach statistically and computationally efficient approaches for performing scientific inference using POMP models.
-  3.  To give students the ability to formulate models of their own.
-  4.  To give students opportunities to work with such inference methods.
-  5.  To familiarize students with the pomp package.
-  6.  To provide documented examples for adaptation and re-use.
+<!-- #::: {.incremental} -->
+
+1.  Demonstrate the utility of partially observed markov processes (POMP) for epidemiological and ecological modeling
+2.  Provide theoretical underpinnings of statistical inference of POMP models
+3.  Outline the process of formulating models and coding them in the `pomp` R package
+4.  Provide hands on experience working with such models and inference methods
+5.  Highlight research case studies and examples that can be adapted and re-used for future work
+
+<!-- ::: -->
+
+## Survey results
+
+-   A few key points from the surbey that we want to highlight - maybe move to before the course objective depending on what we think
+
+## Objectives for this lesson
+
+-   To understand the motivations for simulation-based inference in the study of epidemiological and ecological systems.
+-   To introduce the class of partially observed Markov process (POMP) models.
+-   To introduce the `pomp` R package.
+
+# Mpox motivating example
+
+## Why is ecological and epidemiological inference difficult?
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=4cm]{../graphics/multiscale-diagram.jpeg}
+  \end{center}
+```
+
+<!-- #::: {.incremental} -->
+-   Ecological systems are complex, open, nonlinear, nonstationary, and multi-scalar
+-   We don't fully know the \`\`Laws of Nature" governing the system
+-   Limited data and many unobserved aspects
+-   Multiple ways to explain available data
+    -   Remember herd immunity debate for COVID-19?
+    -   Does wearing face coverings reduce transmission?
+<!-- ::: -->
+
+::: {style="font-size: 20%;"}
+::: footer
+https://link.springer.com/article/10.1007/s40139-020-00213-x
+:::
+:::
+
+## In 2022, Mpox was growing rapidly in the United States
+::: columns
+::: {.column width="50%"}
+```{=tex}
+\begin{center}
+    \includegraphics[height=5cm]{../graphics/mpox_ts2.png}
+\end{center}
+```
+:::
+
+::: {.column width="50%"}
+Example questions public health officials had:
+
+  1. What is the reproduction number of the virus?
+  2. What will case counts be over the next 4 weeks?
+  3. How would vaccination campaigns alter the progression of the epidemic?
+  
+:::
+:::
+
+## We need to understand the data generating process (DGP) - what is driving the observed Mpox case counts?
+```{=tex}
+\begin{center}
+    \includegraphics[height=7cm]{../graphics/mpox_ts2.png}
+\end{center}
+```
+
+## Ecological/Epidemiological DGPs
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=7cm]{../graphics/pomp_schematic1.png}
+  \end{center}
+```
+
+## Partially observed Markov process (POMP) models
+
+  - A model where observations (data) are dependent and/or generated by a latent (hidden) Markov model
+  - A Markov model is a stochastic (described by probability distribution) model of a system that assumes that future states depend only on the current state, not on the events that occurred before it
+  - POMPs are also known as hidden Markov models or state space models
+  - Data collected at each time step are modeled as noisy, incomplete, and indirect observations of a Markov process
+  - POMP models can address the ecological/epidemiological inference issues
+  - Any system of differential equations $dx/dt=f(x)$ is Markovian
+
+## Time-based POMP model schematic
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=8cm]{../graphics/pomp_schematic2.png}
+  \end{center}
+```
+
+## How do these apply for the Mpox example?
+```{=tex}
+\begin{center}
+    \includegraphics[height=5cm]{../graphics/pomp_schematic2.png}
+  \end{center}
+```
+
+  - Process model could be an epidemiological model (e.g. SEIR ODE)
+  - Measurement model would be how observations are generated probabilistically (e.g. some fraction of infections are randomly reported)
+  
+## Three goals for models
+
+  1. Inference - learn about the current or historic variables governing the system
+      - What is the reproduction number of the virus?
+  2. Forecast - predict the values of the future states or observations (usually observations)
+      - What will case counts be over the next 4 weeks?
+  3. Scenario Projections - predict the values of future states or observations under pre-specified scenarios
+      - How would vaccination campaigns alter the progression of the epidemic?
+
+## Why are POMPs important for answering these questions?
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=5cm]{../graphics/avoidable-errors.png}
+\end{center}
+```
+
+## The 2014-2015 Ebola epidemic was devastating (>28k cases and >11k deaths)
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=7cm]{../graphics/wa-ebola.png}
+\end{center}
+```
+
+## First time models and predictions were highly visible in real-time during an epidemic/pandemic
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/meltzer-pred.png}
+\end{center}
+```
+Meltzer et al 2014
 
 
+## King et al set out to show the impact of common modeling errors
 
-## Questions and answers
+  1. Using cumulative data
+  2. Using a deterministic rather than stochastic process model
+      
+## Using cumulative (or accumulated) data break assumptions in statistical models regarding the independence of observations
 
-  1.  [How does one combine various data types to quantify asymptomatic COVID-19 infections?](https://doi.org/10.1073/pnas.2019716118) [@Subramanian2021]
-  2.  [How effective have various non-pharmaceutical interventions been at controlling SARS-CoV-2 spread in hospitals?](https://doi.org/10.3201/eid2807.212339) [@Shirreff2022]
-  3.  [How does one use incidence and mobility data to infer key epidemiological parameters?](https://doi.org/10.1371/journal.pcbi.1010206) [@Andrade2022]
-  4.  [How does one make forecasts for an outbreak of an emerging infectious disease?](https://dx.doi.org/10.1098/rspb.2015.0347) [@King2015]
-  5.  [How does one build a system for real-time surveillance of COVID-19 using epidemiological and mobility data?](https://doi.org/10.1073/pnas.2111870119) [@Fox2022]
-  6.  [What strategies are effective at containing mumps spread on college campuses?](https://doi.org/10.1098/rsos.210948) [@Shah2022]
-  7.  [What explains the resurgence of pertussis in countries with sustained high vaccine coverage?](https://doi.org/10.1126/scitranslmed.aaj1748) [@DomenechdeCelles2018]
-  8.  [Do subclinical infections of pertussis play an important epidemiological role?](https://dx.doi.org/10.1371/journal.pone.0072086) [@Lavine2013]
-  9.  [Can serotype-specific immunity explain the strain dynamics of human enteroviruses?](https://dx.doi.org/10.1126/science.aat6777) [@PonsSalort2018]
-  10.  [How does dynamic variation in individual sexual behavior contribute to the HIV epidemic? How does this compare to the role of heterogeneity between individuals?](https://dx.doi.org/10.1093/aje/kwv044) [@Romero-Severson2015]
-  11.  [What is the contribution of adults to polio transmission?](https://doi.org/10.1073/pnas.1323688111) [@Blake2014]
-  12.  [What explains the interannual variability of malaria?](https://dx.doi.org/10.1371/journal.pcbi.1000898) [@Laneri2010]
-  13.  [Can hydrology explain the seasonality of cholera?](https://doi.org/10.1016/j.advwatres.2016.11.012) [@Baracchini2017]
-  14.  [What roles are played by asymptomatic infection and waning immunity in cholera epidemics?](https://dx.doi.org/10.1038/nature07084) [@King2008]
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/pomp_schematic2.png}
+  \end{center}
+```
 
+  - $Y_i$ assumed to be independent conditioned upon the $X_i$
+  
+  
+## Accumulated data leads to incorrect parameter estimates
 
+```{=tex}
+\begin{center}
+    \includegraphics[height=5cm]{../graphics/incorrect-estimates.png}
+  \end{center}
+```
+
+  - (a) $R_0$ estimates similar between data types 
+  - (b) the measurement dispersion parameter incorrect for accumulated counts
+
+## Accumulated data leads to overconfidence in parameter estimates
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/overconfidence.png}
+  \end{center}
+```
+
+  - (c) $R_0$ confidence intervals narrower when using accumulated data
+  - (d) the coverage is lower with accumulated data
+      - Why is nominal coverage still below expected 99%
+  
+## Using a deterministic model assigns all discrepancies between model prediction and observations to the measurement model
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/pomp_schematic2.png}
+  \end{center}
+```
+
+## The two "errors" trickle into overconfidence in forecasting and projections
+  
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/forecast-overconfidence.png}
+\end{center}
+```
+
+## What is recommended?
+
+  - Fit stochastic models to incidence data
+  - POMPs, `pomp`, and simulated inference are one of the few ways to do so
+
+## Recent `pomp` examples
+
+1.  [Quantifying asymptomatic COVID-19 infections](https://doi.org/10.1073/pnas.2019716118) [@Subramanian2021]
+2.  [Estimating the effectiveness of non-pharmaceutical interventions for controlling SARS-CoV-2 spread](https://doi.org/10.3201/eid2807.212339) [@Shirreff2022]
+3.  [Using human mobility data to infer epidemiological parameters](https://doi.org/10.1371/journal.pcbi.1010206) [@Andrade2022]
+5.  [Using mobility data to forecast COVID-19 burden](https://doi.org/10.1073/pnas.2111870119) [@Fox2022]
+6.  [Identifying effective strategies to contain mumps spread](https://doi.org/10.1098/rsos.210948) [@Shah2022]
+7.  [Explaining the resurgence of pertussis](https://doi.org/10.1126/scitranslmed.aaj1748) [@DomenechdeCelles2018]
+9.  [Explaining strain dynamics in enteroviruses](https://dx.doi.org/10.1126/science.aat6777) [@PonsSalort2018]
+10. [Contributions of population heterogeneity to HIV epidemic](https://dx.doi.org/10.1093/aje/kwv044) [@Romero-Severson2015]
+11. [Estimating the role that adults play in polio transmission](https://doi.org/10.1073/pnas.1323688111) [@Blake2014]
+13. [Relating hydrology to cholera dynamics](https://doi.org/10.1016/j.advwatres.2016.11.012) [@Baracchini2017]
 
 # Partially observed Markov processes
 
 # Mathematical definitions
 
 ## Partially observed Markov process (POMP) models
-  
-  -  Data $y^*_1,\dots,y^*_N$ collected at times $t_1<\dots<t_N$ are modeled as noisy, incomplete, and indirect observations of a Markov process $\{X(t), t\ge t_0\}$.
-  -  This is a *partially observed Markov process (POMP)* model, also known as a hidden Markov model or a state space model.
-  -  $\{X(t)\}$ is Markov if the history of the process, $\{X(s), s\le t\}$, is uninformative about the future of the process, $\{X(s), s\ge t\}$, given the current value of the process, $X(t)$.
-  -  If all quantities important for the dynamics of the system are placed in the *state*, $X(t)$, then the Markov property holds by construction.
-  -  Systems with delays can usually be rewritten as Markovian systems, at least approximately.
-  -  An important special case: any system of differential equations $dx/dt=f(x)$ is Markovian.
-  -  POMP models can include all the features desired by @Bjornstad2001.
-  
 
+-   Data $y^*_1,\dots,y^*_N$ collected at times $t_1<\dots<t_N$ are modeled as noisy, incomplete, and indirect observations of a Markov process $\{X(t), t\ge t_0\}$.
+-   This is a *partially observed Markov process (POMP)* model, also known as a hidden Markov model or a state space model.
+-   $\{X(t)\}$ is Markov if the history of the process, $\{X(s), s\le t\}$, is uninformative about the future of the process, $\{X(s), s\ge t\}$, given the current value of the process, $X(t)$.
+-   If all quantities important for the dynamics of the system are placed in the *state*, $X(t)$, then the Markov property holds by construction.
+-   Systems with delays can usually be rewritten as Markovian systems, at least approximately.
+-   An important special case: any system of differential equations $dx/dt=f(x)$ is Markovian.
+-   POMP models can include all the features desired by @Bjornstad2001.
 
 ## Schematic of the structure of a POMP
-  
-  -  Arrows in the following diagram show causal relations.
-  -  A key perspective to keep in mind is that *the model is to be viewed as the process that generated the data*.
-  -  That is: the data are viewed as one realization of the model's stochastic process.
-  
-  \begin{center}
+
+-   Arrows in the following diagram show causal relations.
+-   A key perspective to keep in mind is that *the model is to be viewed as the process that generated the data*.
+-   That is: the data are viewed as one realization of the model's stochastic process.
+
+```{=tex}
+\begin{center}
     \includegraphics[height=4cm]{../graphics/pomp_schematic1.png}
   \end{center}
-
-
+```
 ## Notation for POMP models
-  
-  -  Write $X_n=X(t_n)$ and $X_{0:N}=(X_0,\dots,X_N)$. Let $Y_n$ be a random variable modeling the observation at time $t_n$.
-  -  The one-step transition density, $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the measurement density, $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the initial density, $f_{X_0}(x_0;\theta)$, specify the entire POMP model.
-  -  The joint density $f_{X_{0:N},Y_{1:N}}(x_{0:N},y_{1:N};\theta)$ can be written as
-    \begin{equation*}
-      f_{X_0}(x_0;\theta)\,\prod_{n=1}^N\!f_{X_n | X_{n-1}}(x_n|x_{n-1};\theta)\,f_{Y_n|X_n}(y_n|x_n;\theta)
-    \end{equation*}
-  -  The marginal density for $Y_{1:N}$ evaluated at the data, $y_{1:N}^*$, is
-    \begin{equation*}
-      f_{Y_{1:N}}(y^*_{1:N};\theta)=\int f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}
-    \end{equation*}
-  
 
+-   Write $X_n=X(t_n)$ and $X_{0:N}=(X_0,\dots,X_N)$. Let $Y_n$ be a random variable modeling the observation at time $t_n$.
+-   The one-step transition density, $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the measurement density, $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the initial density, $f_{X_0}(x_0;\theta)$, specify the entire POMP model.
+-   The joint density $f_{X_{0:N},Y_{1:N}}(x_{0:N},y_{1:N};\theta)$ can be written as \begin{equation*}
+     f_{X_0}(x_0;\theta)\,\prod_{n=1}^N\!f_{X_n | X_{n-1}}(x_n|x_{n-1};\theta)\,f_{Y_n|X_n}(y_n|x_n;\theta)
+        \end{equation*}
+-   The marginal density for $Y_{1:N}$ evaluated at the data, $y_{1:N}^*$, is \begin{equation*}
+     f_{Y_{1:N}}(y^*_{1:N};\theta)=\int f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}
+        \end{equation*}
 
 ## Another POMP model schematic
 
+```{=tex}
 \begin{center}
     \includegraphics[height=4cm]{../graphics/pomp_schematic2.png}
   \end{center}
-
-  
-  -  The state process, $X_n$, is Markovian, i.e.,
-    \begin{equation*}
-      f_{X_n|X_{0:n-1},Y_{1:n-1}}(x_n|x_{0:n-1},y_{1:n-1})=f_{X_n|X_{n-1}}(x_n|x_{n-1}).
-    \end{equation*}
-  -  Moreover, $Y_n$, depends only on the state at that time:
-    \begin{equation*}
-      f_{Y_n|X_{0:N},Y_{1:n-1}}(y_n|x_{0:n},y_{1:n-1})=f_{Y_n|X_{n}}(y_n|x_n), \quad\text{for $n=1,\dots,N$}.
-    \end{equation*}
-  
-
+```
+-   The state process, $X_n$, is Markovian, i.e., \begin{equation*}
+     f_{X_n|X_{0:n-1},Y_{1:n-1}}(x_n|x_{0:n-1},y_{1:n-1})=f_{X_n|X_{n-1}}(x_n|x_{n-1}).
+        \end{equation*}
+-   Moreover, $Y_n$, depends only on the state at that time: \begin{equation*}
+     f_{Y_n|X_{0:N},Y_{1:n-1}}(y_n|x_{0:n},y_{1:n-1})=f_{Y_n|X_{n}}(y_n|x_n), \quad\text{for $n=1,\dots,N$}.
+        \end{equation*}
 
 # From math to algorithms
 
 ## Moving from math to algorithms for POMP models
-  We specify some *basic model components* which can be used within algorithms:
-  
-  -  `rprocess`: a draw from $f_{X_n|X_{n-1}}(x_n| x_{n-1};\theta)$
-  -  `dprocess`: evaluation of $f_{X_n|X_{n-1}}(x_n| x_{n-1};\theta)$
-  -  `rmeasure`: a draw from $f_{Y_n|X_n}(y_n| x_n;\theta)$
-  -  `dmeasure`: evaluation of $f_{Y_n|X_n}(y_n| x_n;\theta)$
-  -  `rinit`: a draw from $f_{X_0}(x_0;\theta)$
-  
-  These basic model components define the specific POMP model under consideration.
 
+We specify some *basic model components* which can be used within algorithms:
+
+-   `rprocess`: a draw from $f_{X_n|X_{n-1}}(x_n| x_{n-1};\theta)$
+-   `dprocess`: evaluation of $f_{X_n|X_{n-1}}(x_n| x_{n-1};\theta)$
+-   `rmeasure`: a draw from $f_{Y_n|X_n}(y_n| x_n;\theta)$
+-   `dmeasure`: evaluation of $f_{Y_n|X_n}(y_n| x_n;\theta)$
+-   `rinit`: a draw from $f_{X_0}(x_0;\theta)$
+
+These basic model components define the specific POMP model under consideration.
 
 ## What is a simulation-based method?
-  
-  -  Simulating random processes is often much easier than evaluating their transition probabilities.
-  -  In other words, we may be able to write rprocess but not dprocess.
-  -   *Simulation-based* methods require the user to specify rprocess but not dprocess.
-  -   *Plug-and-play*, *likelihood-free* and *equation-free* are alternative terms for "simulation-based" methods.
-  -  Much development of simulation-based statistical methodology has occurred in the past decade.
-  
 
+-   Simulating random processes is often much easier than evaluating their transition probabilities.
+-   In other words, we may be able to write rprocess but not dprocess.
+-   *Simulation-based* methods require the user to specify rprocess but not dprocess.
+-   *Plug-and-play*, *likelihood-free* and *equation-free* are alternative terms for "simulation-based" methods.
+-   Much development of simulation-based statistical methodology has occurred in the past decade.
 
 # The pomp package
 
 ## The pomp package for POMP models
-  
-  -  pomp is an  `R` package for data analysis using partially observed Markov process (POMP) models [@King2016].
-  -  Note the distinction:
-    lower case pomp is a software package;
-    upper case POMP is a class of models.
-  -  pomp builds methodology for POMP models in terms of arbitrary user-specified POMP models.
-  -  pomp provides tools, documentation, and examples to help users specify POMP models.
-  -  pomp provides a platform for modification and sharing of models, data-analysis workflows, and methodological development.
-  
 
+-   pomp is an `R` package for data analysis using partially observed Markov process (POMP) models [@King2016].
+-   Note the distinction: lower case pomp is a software package; upper case POMP is a class of models.
+-   pomp builds methodology for POMP models in terms of arbitrary user-specified POMP models.
+-   pomp provides tools, documentation, and examples to help users specify POMP models.
+-   pomp provides a platform for modification and sharing of models, data-analysis workflows, and methodological development.
 
 ## Structure of the pomp package
-  It is useful to divide the pomp package functionality into different levels:
-  
-  -  Basic model components
-  -  Workhorses
-  -  Elementary POMP algorithms
-  -  Inference algorithms
-  
 
+It is useful to divide the pomp package functionality into different levels:
+
+-   Basic model components
+-   Workhorses
+-   Elementary POMP algorithms
+-   Inference algorithms
 
 ## Basic model components
-  Basic model components are user-specified procedures that perform the elementary computations that specify a POMP model.
-  There are nine of these:
-  
-  -  `rinit`: simulator for the initial-state distribution, i.e., the distribution of the latent state at time $t_0$.
-  -  `rprocess` and `dprocess`: simulator and density evaluation procedure, respectively, for the process model.
-  -  `rmeasure` and `dmeasure`: simulator and density evaluation procedure, respectively, for the measurement model.
-  -  `rprior` and `dprior`: simulator and density evaluation procedure, respectively, for the prior distribution.
-  -  `skeleton`: evaluation of a deterministic skeleton.
-  -  `partrans`: parameter transformations.
-  
-  The scientist must specify whichever of these basic model components are required for the algorithms that the scientist uses.
 
+Basic model components are user-specified procedures that perform the elementary computations that specify a POMP model. There are nine of these:
+
+-   `rinit`: simulator for the initial-state distribution, i.e., the distribution of the latent state at time $t_0$.
+-   `rprocess` and `dprocess`: simulator and density evaluation procedure, respectively, for the process model.
+-   `rmeasure` and `dmeasure`: simulator and density evaluation procedure, respectively, for the measurement model.
+-   `rprior` and `dprior`: simulator and density evaluation procedure, respectively, for the prior distribution.
+-   `skeleton`: evaluation of a deterministic skeleton.
+-   `partrans`: parameter transformations.
+
+The scientist must specify whichever of these basic model components are required for the algorithms that the scientist uses.
 
 ## Workhorses
-  Workhorses are `R` functions, built into the package, that cause the basic model component procedures to be executed.
-  
-  -  Each basic model component has a corresponding workhorse.
-  -  Effectively, the workhorse is a vectorized wrapper around the basic model component.
-  -  For example, the `rprocess()` function uses code specified by the rprocess model component, constructed via the `rprocess` argument to `pomp()`.
-  -  The rprocess model component specifies how a single trajectory evolves at a single moment of time.
-    The `rprocess()` workhorse combines these computations for arbitrary collections of times and arbitrary numbers of replications.
-  
 
+Workhorses are `R` functions, built into the package, that cause the basic model component procedures to be executed.
+
+-   Each basic model component has a corresponding workhorse.
+-   Effectively, the workhorse is a vectorized wrapper around the basic model component.
+-   For example, the `rprocess()` function uses code specified by the rprocess model component, constructed via the `rprocess` argument to `pomp()`.
+-   The rprocess model component specifies how a single trajectory evolves at a single moment of time. The `rprocess()` workhorse combines these computations for arbitrary collections of times and arbitrary numbers of replications.
 
 ## Elementary POMP algorithms
-  These are algorithms that interrogate the model or the model/data confrontation without attempting to estimate parameters.
-  There are currently four of these:
-  
-  -  `simulate` performs simulations of the POMP model, i.e., it samples from the joint distribution of latent states and observables.
-  -  `pfilter` runs a sequential Monte Carlo (particle filter) algorithm to compute the likelihood and (optionally) estimate the prediction and filtering distributions of the latent state process.
-  -  `probe` computes one or more uni\- or multi\-variate summary statistics on both actual and simulated data.
-  -  `spect` estimates the power spectral density functions for the actual and simulated data.
-  
+
+These are algorithms that interrogate the model or the model/data confrontation without attempting to estimate parameters. There are currently four of these:
+
+-   `simulate` performs simulations of the POMP model, i.e., it samples from the joint distribution of latent states and observables.
+-   `pfilter` runs a sequential Monte Carlo (particle filter) algorithm to compute the likelihood and (optionally) estimate the prediction and filtering distributions of the latent state process.
+-   `probe` computes one or more uni- or multi-variate summary statistics on both actual and simulated data.
+-   `spect` estimates the power spectral density functions for the actual and simulated data.
+
+## POMP inference algorithms {.allowframebreaks}
+
+These are procedures that build on the elementary algorithms and are used for estimation of parameters and other inferential tasks. There are currently ten of these:
+
+-   `abc`: approximate Bayesian computation
+-   `bsmc2`: Liu-West algorithm for Bayesian SMC
+-   `pmcmc`: a particle MCMC algorithm
+-   `mif2`: iterated filtering (IF2)
+-   `enkf`, `eakf` ensemble and ensemble adjusted Kalman filters
+-   `traj_objfun`: trajectory matching
+-   `spect_objfun`: power spectrum matching
+-   `probe_objfun`: probe matching
+-   `nlf_objfun`: nonlinear forecasting
+
+*Objective function methods*: among the estimation algorithms just listed, four are methods that construct stateful objective functions that can be optimized using general-purpose numerical optimization algorithms such as `optim`, `subplex`, or the optimizers in the nloptr package.
 
 
-## POMP inference algorithms{.allowframebreaks}
-  These are procedures that build on the elementary algorithms and are used for estimation of parameters and other inferential tasks.
-  There are currently ten of these:
-  
-  -  `abc`: approximate Bayesian computation
-  -  `bsmc2`: Liu-West algorithm for Bayesian SMC
-  -  `pmcmc`: a particle MCMC algorithm
-  -  `mif2`: iterated filtering (IF2)
-  -  `enkf`, `eakf` ensemble and ensemble adjusted Kalman filters
-  -  `traj_objfun`: trajectory matching
-  -  `spect_objfun`: power spectrum matching
-  -  `probe_objfun`: probe matching
-  -  `nlf_objfun`: nonlinear forecasting
-  
-  *Objective function methods*:
-  among the estimation algorithms just listed, four are methods that construct stateful objective functions that can be optimized using general-purpose numerical optimization algorithms such as `optim`, `subplex`, or the optimizers in the nloptr package.
+## Activity: how do stochastic and deterministic models differ?
+
+  - Navigate to: https://spncrfx.shinyapps.io/stochastic-sir/
+  - Read introduction, play with parameters to understand what factors impact concordance between stochastic and deterministic models
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=5cm]{../graphics/stochastic-simulator.png}
+  \end{center}
+```
 
 # References
-## References{.allowframebreaks}
+
+## References {.allowframebreaks}
 
 ::: {#refs}
 :::
 
 ## License, acknowledgments, and links
-  
-  - 
-    This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
 
-  - 
-    The materials build on [previous versions of this course and related courses](../acknowledge.html).
+-   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
 
-  - 
-    Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/).
-    Please share and remix non-commercially, mentioning its origin.
-    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+-   The materials build on [previous versions of this course and related courses](../acknowledge.html).
 
-  - 
-    Produced with `R` version `r getRversion()` and pomp version `r packageVersion("pomp")`.
+-   Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/). Please share and remix non-commercially, mentioning its origin. \includegraphics[height=12pt]{../graphics/cc-by-nc}
 
-  - 
-    Compiled on 2024-06-13.
+-   Produced with `R` version `r getRversion()` and pomp version `r packageVersion("pomp")`.
 
-  
+-   Compiled on 2024-06-13.
 
-  [Back to Lesson](index.html)
+[Back to Lesson](index.html)
 
-  [pomp](https://kingaa.github.io/pomp/) homepage
-  
-
-
-
-
+[pomp](https://kingaa.github.io/pomp/) homepage
