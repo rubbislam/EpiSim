@@ -1,14 +1,14 @@
 ---
 title: "Lesson 2: Simulation of stochastic dynamic models"
 author:
-  - Aaron A. King
-  - Edward L. Ionides
+  - Qianying (Ruby) Lin
+  - Spencer J. Fox
 format: 
   beamer:
-    theme: "AnnArbor"
     keep_tex: true
     slide_level: 2
     section-titles: false
+    aspectratio: 169
     include-in-header: "../_includes/header.tex"
     beameroptions:
       - setbeamertemplate: "footline[frame number]"
@@ -32,110 +32,146 @@ plan(multisession)
 set.seed(2488820)
 ```
 
-
 ## Objectives
 
-  This tutorial develops some classes of dynamic models relevant to biological systems, especially for epidemiology.
+This tutorial develops some classes of dynamic models relevant to biological systems, especially for epidemiology.
 
-
-  1.  Dynamic systems can often be represented in terms of *flows* between *compartments*.
-  2.  We develop the concept of a *compartmental model* for which we specify *rates* for the flows between compartments.
-  3.  We show how deterministic and stochastic versions of a compartmental model are derived and related.
-  4.  We introduce Euler's method to simulate from dynamic models.
-  5.  We specify deterministic and stochastic compartmental models in pomp using Euler method simulation.
-
-
-
+1.  Dynamic systems can often be represented in terms of *flows* between *compartments*.
+2.  We develop the concept of a *compartmental model* for which we specify *rates* for the flows between compartments.
+3.  We show how deterministic and stochastic versions of a compartmental model are derived and related.
+4.  We introduce Euler's method to simulate from dynamic models.
+5.  We specify deterministic and stochastic compartmental models in pomp using Euler method simulation.
 
 # Compartment models
 
-
 # Example: the SIR model
 
-## A basic compartment model: The SIR model{.allowframebreaks}
+## A basic compartment model: The SIR model {.allowframebreaks}
 
-  
-  - 
-    We develop deterministic and stochastic representations of a susceptible-infected-recovered (SIR) system, a fundamental class of models for disease transmission dynamics.
-  - 
-    We set up  notation applicable to general compartment models [@Breto2009].
-    \input{../graphics/sir_diagram}
-    \vspace{5mm}
+-   We develop deterministic and stochastic representations of a susceptible-infected-recovered (SIR) system, a fundamental class of models for disease transmission dynamics.
+
+-   We set up notation applicable to general compartment models [@Breto2009]. \input{../graphics/sir_diagram} \vspace{5mm}
+
+    ```{=tex}
     \begin{tabular}{c @{\ :\ } l c @{\ :\ } l}
       S & susceptible & I & infected and infectious  \\
       R & recovered and/or removed  & C & reported cases
     \end{tabular}
-  -  We suppose that each arrow has an associated rate, so here there is a rate $\mu_{SI}(t)$ at which individuals in $S$ transition to $I$, and $\mu_{IR}$ at which individuals in $I$ transition to $R$.
-  -  To account for demography (births/deaths/migration) we allow the possibility of a source and sink compartment, which is not usually represented on the flow diagram. We write $\mu_{BS}$ for a rate of births into $S$, and denote mortality rates by $\mu_{SD}$, $\mu_{ID}$, $\mu_{RD}$.
-  -  The rates may be either constant or varying. In particular, for a simple SIR model, the recovery rate $\mu_{IR}$ is a constant but the infection rate has the time-varying form
-    $$\mu_{SI}(t)=\beta \, I(t),$$
-    with $\beta$ being the *transmission rate*. For the simplest SIR model, ignoring demography, we set
-    $$ \mu_{BS}=\mu_{SD}=\mu_{ID}=\mu_{RD}=0.$$
-  
+    ```
 
+-   We suppose that each arrow has an associated rate, so here there is a rate $\mu_{SI}(t)$ at which individuals in $S$ transition to $I$, and $\mu_{IR}$ at which individuals in $I$ transition to $R$.
+
+-   To account for demography (births/deaths/migration) we allow the possibility of a source and sink compartment, which is not usually represented on the flow diagram. We write $\mu_{BS}$ for a rate of births into $S$, and denote mortality rates by $\mu_{SD}$, $\mu_{ID}$, $\mu_{RD}$.
+
+-   The rates may be either constant or time-varying. 
+-   For the simplest SIR model, ignoring demography, we set $$ \mu_{BS}=\mu_{SD}=\mu_{ID}=\mu_{RD}=0.$$
 
 # Notation
 
-## General notation for compartment models{.allowframebreaks}
+## General notation for compartment models {.allowframebreaks}
 
-  To develop a systematic notation, it turns out to be convenient to keep track of the flows between compartments as well as the number of individuals in each compartment. Let
-  $$N_{SI}(t)$$
-  count the number of individuals who have transitioned from $S$ to $I$ by time $t$. We say that $N_{SI}(t)$ is a *counting process*.
-  A similarly constructed process
-  $$N_{IR}(t)$$
-  counts individuals transitioning from $I$ to $R$. To include demography, we could keep track of birth and death events by the counting processes $N_{BS}(t)$, $N_{SD}(t)$, $N_{ID}(t)$, $N_{RD}(t)$.
+To develop a systematic notation, it turns out to be convenient to keep track of the flows between compartments as well as the number of individuals in each compartment. Let $$N_{SI}(t)$$ count the number of individuals who have transitioned from $S$ to $I$ by time $t$. We say that $N_{SI}(t)$ is a *counting process*. A similarly constructed process $$N_{IR}(t)$$ counts individuals transitioning from $I$ to $R$. To include demography, we could keep track of birth and death events by the counting processes $N_{BS}(t)$, $N_{SD}(t)$, $N_{ID}(t)$, $N_{RD}(t)$.
 
-  \framebreak
+\framebreak
 
-  
-  -  For discrete population compartment models, the flow counting processes are non-decreasing and integer valued.
-  -  For continuous population compartment models, the flow counting processes are non-decreasing and real valued.
-  
-
-
+-   For discrete population compartment models, the flow counting processes are non-decreasing and integer valued.
+-   For continuous population compartment models, the flow counting processes are non-decreasing and real valued.
 
 ## Compartment processes from counting processes
 
-  
-  -  The numbers of people in each compartment can be computed via these counting processes. Ignoring demography, we have:
-    \begin{equation*}
-      \begin{aligned}
-        S(t) &= S(0) - N_{SI}(t) &\\
-        I(t) &= I(0) + N_{SI}(t) &- N_{IR}(t) \\
-        R(t) &= R(0) &+ N_{IR}(t)
-      \end{aligned}
-    \end{equation*}
+-   The numbers of people in each compartment can be computed via these counting processes. Ignoring demography, we have: \begin{equation*}
+     \begin{aligned}
+       S(t) &= S(0) - N_{SI}(t) &\\
+       I(t) &= I(0) + N_{SI}(t) &- N_{IR}(t) \\
+       R(t) &= R(0) &+ N_{IR}(t)
+     \end{aligned}
+        \end{equation*}
 
-  -  These equations represent *conservation of individuals* or *what goes in must come out*.
-
-  
-
-
-
+-   These equations represent *conservation of individuals* or *what goes in must come out*.
 
 # A deterministic interpretation
 
 ## Ordinary differential equation interpretation
-  Together with initial conditions specifying $S(0)$, $I(0)$ and $R(0)$, we just need to write down ordinary differential equations (ODEs) for the flow counting processes.
-  These are:
-  \begin{equation*}
+
+Together with initial conditions specifying $S(0)$, $I(0)$ and $R(0)$, we just need to write down ordinary differential equations (ODEs) for the flow counting processes. These are: \begin{equation*}
     \begin{aligned}
       \deriv{N_{SI}}{t} &= \mu_{SI}(t)\,S(t)\\
       \deriv{N_{IR}}{t} &= \mu_{IR}\,I(t)
     \end{aligned}
   \end{equation*}
+  
+## Common notation for a deterministic SIR model 
+```{=tex}
+\begin{center}
+    \includegraphics[height=3cm]{../graphics/simple-sir.png}
+\end{center}
+```
 
+  - $\beta$: transmission rate, encompasses the frequency of contacts and transmission probability between individuals
+  - $\gamma$: recovery rate, rate that infected individuals become "uninfectious"
+      - Duration of infectiousness on average is $\frac{1}{\gamma}$
+  - $S + I + R = N$
+
+## Common notation for a deterministic SIR model - equations
+```{=tex}
+\begin{center}
+    \includegraphics[height=3cm]{../graphics/simple-sir.png}
+\end{center}
+```
+
+```{=tex}
+\begin{equation*}
+\begin{aligned}
+  \deriv{S}{t} &= - \beta S \frac{I}{N}\\
+  \deriv{I}{t} &= \beta S \frac{I}{N} - \gamma * I \\
+  \deriv{R}{t} &= \gamma I
+\end{aligned}
+\end{equation*}
+```
+
+## Common notation for a deterministic SIR model - Skeleton code
+```{=tex}
+\begin{center}
+    \includegraphics[height=3cm]{../graphics/simple-sir.png}
+\end{center}
+```
+
+::: columns
+::: {.column width="40%"}
+```{=tex}
+\begin{equation*}
+\begin{aligned}
+  \deriv{S}{t} &= - \beta S \frac{I}{N}\\
+  \deriv{I}{t} &= \beta S \frac{I}{N} - \gamma * I \\
+  \deriv{R}{t} &= \gamma I
+\end{aligned}
+\end{equation*}
+```
+:::
+
+::: {.column width="60%"}
+```{r det-skel}
+library(pomp)
+Csnippet("
+        DS = -Beta*S*I/N;
+        DI = Beta*S*I/N - I*Gamma;
+        DR = I*Gamma;
+        ") -> sir_det_skel
+```
+:::
+:::
+
+## Spencer component done...
 
 # A stochastic interpretation
 
 ## Continuous-time Markov chain interpretation
 
-  
+-   Continuous-time Markov chains are the basic tool for building discrete population epidemic models.
 
-  -  Continuous-time Markov chains are the basic tool for building discrete population epidemic models.
+-   The Markov property lets us specify a model by the transition probabilities on small intervals (together with the initial conditions). For the SIR model, we have
 
-  -  The Markov property lets us specify a model by the transition probabilities on small intervals (together with the initial conditions). For the SIR model, we have
-
+```{=tex}
 \begin{equation*}
       \begin{aligned}
         \pr\big[N_{SI}(t+\delta)&= N_{SI}(t)+1\big] &=& \phantom{1-}\mu_{SI}(t)\,S(t)\,\delta + o(\delta)
@@ -147,207 +183,137 @@ set.seed(2488820)
         \pr\big[N_{IR}(t+\delta)&= N_{IR}(t)\big] &=& 1-\mu_{IR}(t)\,I(t)\,\delta + o(\delta)
       \end{aligned}
     \end{equation*}
-
-  -  Here, we are using *little o notation*
-    We write
-    $h(\delta)=o(\delta)$
-    to mean
-    $\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0$.
-  
-
+```
+-   Here, we are using *little o notation* We write $h(\delta)=o(\delta)$ to mean $\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0$.
 
 ## 
 
-  What is the link between little $o$ notation and the derivative?
-  Explain why
-  $$f(x+\delta)=f(x)+ \delta g(x) + o(\delta)$$
-  is the same statement as
-  $$ \frac{df}{dx} = g(x).$$
-  What considerations might help you choose which of these notations to use?
+What is the link between little $o$ notation and the derivative? Explain why $$f(x+\delta)=f(x)+ \delta g(x) + o(\delta)$$ is the same statement as $$ \frac{df}{dx} = g(x).$$ What considerations might help you choose which of these notations to use?
 
-  \vspace{3mm}
+\vspace{3mm}
 
-  [Worked solution to the Exercise](./exercises.html\#exercise-little-o-notation)
-
-
-
+[Worked solution to the Exercise](./exercises.html#exercise-little-o-notation)
 
 ## Simple counting processes
-  
-  -  A *simple counting process* is one which cannot count more than one event at a time.
-  -  Technically, the SIR Markov chain model we have written is simple.
-  -  One may want to model the extra randomness resulting from multiple simultaneous events:
-    someone sneezing in a bus; large gatherings at football matches; etc.
-    This extra randomness may even be critical to match the variability in data.
-  -  Later in the course, we may see situations where this extra randomness plays an important role.
-    Setting up the model using counting processes, as we have done here, turns out to be useful for this.
-  
 
+-   A *simple counting process* is one which cannot count more than one event at a time.
+-   Technically, the SIR Markov chain model we have written is simple.
+-   One may want to model the extra randomness resulting from multiple simultaneous events: someone sneezing in a bus; large gatherings at football matches; etc. This extra randomness may even be critical to match the variability in data.
+-   Later in the course, we may see situations where this extra randomness plays an important role. Setting up the model using counting processes, as we have done here, turns out to be useful for this.
 
 # Euler's method
 
 # Numerical solution of deterministic dynamics
 
-## Euler's method for ordinary differential equations{.allowframebreaks}
+## Euler's method for ordinary differential equations {.allowframebreaks}
 
-  
-  - 
-    Euler (1707--1783) wanted a numeric solution of an ordinary differential equation (ODE)
-    $dx/dt = h(x)$
-    with an initial condition $x(0)$.
+-   Euler (1707--1783) wanted a numeric solution of an ordinary differential equation (ODE) $dx/dt = h(x)$ with an initial condition $x(0)$.
 
-  - 
-    He supposed this ODE has some true solution $x(t)$ which could not be worked out analytically.
-    He wanted an approximation $\tilde{x}(t)$ of $x(t)$.
+-   He supposed this ODE has some true solution $x(t)$ which could not be worked out analytically. He wanted an approximation $\tilde{x}(t)$ of $x(t)$.
 
-  -  He initialized the numerical solution at the known starting value,
-    $$\tilde x(0)=x(0).$$
+-   He initialized the numerical solution at the known starting value, $$\tilde x(0)=x(0).$$
 
-  -  For $k=1,2,\dots$, he supposed that the gradient $dx/dt$ is approximately constant over the small time interval $k\delta\le t\le (k+1)\delta$.
-    Therefore, he defined
-    $$\tilde x\big( \,(k+1)\delta\,\big) = \tilde x( k\delta) + \delta \, h\big(\, \tilde x(k\delta)\,\big).$$
+-   For $k=1,2,\dots$, he supposed that the gradient $dx/dt$ is approximately constant over the small time interval $k\delta\le t\le (k+1)\delta$. Therefore, he defined $$\tilde x\big( \,(k+1)\delta\,\big) = \tilde x( k\delta) + \delta \, h\big(\, \tilde x(k\delta)\,\big).$$
 
-  -  This only defines $\tilde x(t)$ when $t$ is a multiple of $\delta$, but suppose $\tilde x(t)$ is constant between these discrete times.
+-   This only defines $\tilde x(t)$ when $t$ is a multiple of $\delta$, but suppose $\tilde x(t)$ is constant between these discrete times.
 
-  -  We now have a numerical scheme, stepping forwards in time increments of size $\delta$, that can be readily evaluated by computer.
+-   We now have a numerical scheme, stepping forwards in time increments of size $\delta$, that can be readily evaluated by computer.
 
-  
+## Euler's method versus other numerical methods {.allowframebreaks}
 
+-   Mathematical analysis of Euler's method says that, as long as the function $h(x)$ is not too exotic, then $x(t)$ is well approximated by $\tilde x(t)$ when the discretization time-step, $\delta$, is sufficiently small.
+-   Euler's method is not the only numerical scheme to solve ODEs. More advanced schemes have better convergence properties, meaning that the numerical approximation is closer to $x(t)$. However, there are 3 reasons we choose to lean heavily on Euler's method:
 
-
-## Euler's method versus other numerical methods{.allowframebreaks}
-  
-  -  Mathematical analysis of Euler's method says that, as long as the function $h(x)$ is not too exotic, then $x(t)$ is well approximated by $\tilde x(t)$  when the discretization time-step, $\delta$, is sufficiently small.
-  -  Euler's method is not the only numerical scheme to solve ODEs. More advanced schemes have better convergence properties, meaning that the numerical approximation is closer to $x(t)$. However, there are 3 reasons we choose to lean heavily on Euler's method:
-
-    1.  Euler's method is the simplest (cf.\ the KISS principle).
-    2.  Euler's method extends naturally to stochastic models, both continuous-time Markov chains models and stochastic differential equation (SDE) models.
-    3.  Close approximation of the numerical solutions to a continuous-time model is less important than it may at first appear, a topic to be discussed.
-
-  
-
+```         
+1.  Euler's method is the simplest (cf.\ the KISS principle).
+2.  Euler's method extends naturally to stochastic models, both continuous-time Markov chains models and stochastic differential equation (SDE) models.
+3.  Close approximation of the numerical solutions to a continuous-time model is less important than it may at first appear, a topic to be discussed.
+```
 
 ## Continuous-time models and discretized approximations
-  
-  -  In some physical and engineering situations, a system follows an ODE model closely. For example, Newton's laws provide a very good approximation to the motions of celestial bodies.
-  -  In many biological situations, ODE models only become close mathematical approximations to reality at reasonably large scale. On small temporal scales, models cannot usually capture the full scope of biological variation and biological complexity.
-  -  If we are going to expect substantial error in using $x(t)$ to model a biological system, maybe the numerical solution $\tilde x(t)$ represents the system being modeled as well as $x(t)$  does.
-  -  If our model fitting, model investigation, and final conclusions are all based on our numerical solution  $\tilde x(t)$ (i.e., we are sticking entirely to simulation-based methods) then we are most immediately concerned with how well  $\tilde x(t)$ describes the system of interest.  $\tilde x(t)$ becomes more important than the original model, $x(t)$.
-  
 
+-   In some physical and engineering situations, a system follows an ODE model closely. For example, Newton's laws provide a very good approximation to the motions of celestial bodies.
+-   In many biological situations, ODE models only become close mathematical approximations to reality at reasonably large scale. On small temporal scales, models cannot usually capture the full scope of biological variation and biological complexity.
+-   If we are going to expect substantial error in using $x(t)$ to model a biological system, maybe the numerical solution $\tilde x(t)$ represents the system being modeled as well as $x(t)$ does.
+-   If our model fitting, model investigation, and final conclusions are all based on our numerical solution $\tilde x(t)$ (i.e., we are sticking entirely to simulation-based methods) then we are most immediately concerned with how well $\tilde x(t)$ describes the system of interest. $\tilde x(t)$ becomes more important than the original model, $x(t)$.
 
 ## Numerical solutions as scientific models
-  
-  -  It is important that a scientist fully describe the numerical model $\tilde x(t)$.
-    Arguably, the main purpose of the original model $x(t)$ is to give a succinct description of how $\tilde x(t)$ was constructed.
-  -  All numerical methods are, ultimately, discretizations. Epidemiologically, setting $\delta$ to be a day, or an hour, can be quite different from setting $\delta$ to be two weeks or a month. For continuous-time modeling, we still require that $\delta$ is small compared to the timescale of the process being modeled, so the choice of $\delta$ should not play an explicit role in the interpretation of the model.
-  -  Putting more emphasis on the scientific role of the numerical solution itself reminds you that the numerical solution has to do more than approximate a target model in some asymptotic sense: the numerical solution should be a sensible model in its own right.
-  
 
+-   It is important that a scientist fully describe the numerical model $\tilde x(t)$. Arguably, the main purpose of the original model $x(t)$ is to give a succinct description of how $\tilde x(t)$ was constructed.
+-   All numerical methods are, ultimately, discretizations. Epidemiologically, setting $\delta$ to be a day, or an hour, can be quite different from setting $\delta$ to be two weeks or a month. For continuous-time modeling, we still require that $\delta$ is small compared to the timescale of the process being modeled, so the choice of $\delta$ should not play an explicit role in the interpretation of the model.
+-   Putting more emphasis on the scientific role of the numerical solution itself reminds you that the numerical solution has to do more than approximate a target model in some asymptotic sense: the numerical solution should be a sensible model in its own right.
 
-## Euler's method for a discrete SIR model{.allowframebreaks}
-  
-  -  Recall the simple continuous-time Markov chain interpretation of the SIR model without demography:
-    \begin{equation*}
-      \begin{aligned}
-        \pr\big[N_{SI}(t+\delta)&\equals N_{SI}(t)+1\big] &\equals& \mu_{SI}(t) \, S(t) \delta + o(\delta),
+## Euler's method for a discrete SIR model {.allowframebreaks}
+
+-   Recall the simple continuous-time Markov chain interpretation of the SIR model without demography: \begin{equation*}
+     \begin{aligned}
+       \pr\big[N_{SI}(t+\delta)&\equals N_{SI}(t)+1\big] &\equals& \mu_{SI}(t) \, S(t) \delta + o(\delta),
+       \\
+       \pr\big[N_{IR}(t+\delta)&\equals N_{IR}(t)+1\big] &\equals& \mu_{IR} \, I(t) \delta + o(\delta).
+     \end{aligned}
+        \end{equation*}
+-   We want a numerical solution with state variables $\tilde S(k\delta)$, $\tilde I(k\delta)$, $\tilde R(k\delta)$.
+-   The counting processes for the flows between compartments are $\tilde N_{SI}(t)$ and $\tilde N_{IR}(t)$. The counting processes are related to the numbers of individuals in the compartments by the same flow equations we had before: $$\begin{array}{lcl}
+        \tilde S(k\delta)&=& S(0) - \tilde N_{SI}(k\delta)
         \\
-        \pr\big[N_{IR}(t+\delta)&\equals N_{IR}(t)+1\big] &\equals& \mu_{IR} \, I(t) \delta + o(\delta).
-      \end{aligned}
-    \end{equation*}
-  -  We want a numerical solution with state variables $\tilde S(k\delta)$, $\tilde I(k\delta)$, $\tilde R(k\delta)$.
-  -  The counting processes for the flows between compartments are $\tilde N_{SI}(t)$ and $\tilde N_{IR}(t)$. The counting processes are related to the numbers of individuals in the compartments by the same flow equations we had before:
-    $$\begin{array}{lcl}
-    \tilde S(k\delta)&=& S(0) - \tilde N_{SI}(k\delta)
-    \\
-    \tilde I(k\delta)&=& I(0) + \tilde N_{SI}(k\delta) - \tilde N_{IR}(k\delta)
-    \\
-    \tilde R(k\delta) &=& R(0) + \tilde N_{IR}(k\delta)
-  \end{array}$$
-  -  We focus on a numerical solution to $N_{SI}(t)$, since the same methods can also be applied to $N_{IR}(t)$.
-  
-
+        \tilde I(k\delta)&=& I(0) + \tilde N_{SI}(k\delta) - \tilde N_{IR}(k\delta)
+        \\
+        \tilde R(k\delta) &=& R(0) + \tilde N_{IR}(k\delta)
+      \end{array}$$
+-   We focus on a numerical solution to $N_{SI}(t)$, since the same methods can also be applied to $N_{IR}(t)$.
 
 # Numerical solution of stochastic dynamics
 
 ## Three different stochastic Euler solutions
 
-  \vspace{-3mm}
+\vspace{-3mm}
 
+1.  A Poisson approximation. $$\tilde N_{SI}(t+\delta)= \tilde N_{SI}(t) + \mathrm{Poisson}\big[\mu_{SI}\big(\tilde I(t)\big) \, \tilde S(t) \,\delta\big],$$ where $\mathrm{Poisson}(\mu)$ is a Poisson random variable with mean $\mu$ and $$\mu_{SI}\big(\tilde I(t)\big) = \beta\, \tilde I(t).$$
 
-  1.  A Poisson approximation.
-    $$\tilde N_{SI}(t+\delta)= \tilde N_{SI}(t) + \mathrm{Poisson}\big[\mu_{SI}\big(\tilde I(t)\big) \, \tilde S(t) \,\delta\big],$$
-    where $\mathrm{Poisson}(\mu)$ is a Poisson random variable with mean $\mu$ and
-    $$\mu_{SI}\big(\tilde I(t)\big) = \beta\, \tilde I(t).$$
+2.  A binomial approximation, $$\tilde N_{SI}(t+\delta) = \tilde N_{SI}(t) + \mathrm{Binomial}\big[\tilde S(t),\mu_{SI}\big(\tilde I(t)\big) \, \delta\big],$$ where $\mathrm{Binomial}(n,p)$ is a binomial random variable with mean $np$ and variance $np(1-p)$. Here, $p=\mu_{SI}\big(\tilde I(t)\big) \, \delta$.
 
-  2.  A binomial approximation,
-    $$\tilde N_{SI}(t+\delta) = \tilde N_{SI}(t) + \mathrm{Binomial}\big[\tilde S(t),\mu_{SI}\big(\tilde I(t)\big) \, \delta\big],$$
-    where $\mathrm{Binomial}(n,p)$ is a binomial random variable with mean $np$ and variance $np(1-p)$. Here, $p=\mu_{SI}\big(\tilde I(t)\big) \, \delta$.
+3.  A binomial approximation with exponential transition probabilities. $$ \tilde N_{SI}(t+\delta)= \tilde N_{SI}(t) + \mathrm{Binomial}\big[\tilde S(t),1-\exp\big\{-\mu_{SI}\big(\tilde I(t)\big) \delta\big\}\big].$$
 
-  3.  A binomial approximation with exponential transition probabilities.
-    $$ \tilde N_{SI}(t+\delta)= \tilde N_{SI}(t) + \mathrm{Binomial}\big[\tilde S(t),1-\exp\big\{-\mu_{SI}\big(\tilde I(t)\big) \delta\big\}\big].$$
+\hrulefill
 
-
-
-  \hrulefill
-
-  Analytically, it is usually easiest to reason using (1) or (2).
-  Practically, it is usually preferable to work with (3).
-
-
+Analytically, it is usually easiest to reason using (1) or (2). Practically, it is usually preferable to work with (3).
 
 ## Compartment models as stochastic differential equations
-  
-  -  The Euler method extends naturally to stochastic differential equations (SDEs).
-  -  A natural way to add stochastic variation to an ODE $dx/dt=h(x)$ is
-    \begin{equation*}
-      \deriv{X}{t} = h(X)+\sigma\,\deriv{B}{t}
-    \end{equation*}
-    where $\{B(t)\}$ is Brownian motion and so $dB/dt$ is Brownian noise.
-  -  An Euler approximation $\tilde X(t)$ is
-    \begin{equation*}
-      \tilde{X}\big( \,(k+1)\delta\,\big) = \tilde{X}( k\delta) + \delta\, h\big(\, \tilde{X}(k\delta)\,\big) + \sigma \sqrt{\delta} \, Z_k
-    \end{equation*}
-    where $Z_1,Z_2,\dots$ are independent standard normal random variables, i.e.,  $Z_k\sim \dist{Normal}{0,1}$.
-  -  Although SDEs are often considered an advanced topic in probability, the Euler approximation doesn't demand much more than familiarity with the normal distribution.
-  
 
-
+-   The Euler method extends naturally to stochastic differential equations (SDEs).
+-   A natural way to add stochastic variation to an ODE $dx/dt=h(x)$ is \begin{equation*}
+     \deriv{X}{t} = h(X)+\sigma\,\deriv{B}{t}
+        \end{equation*} where $\{B(t)\}$ is Brownian motion and so $dB/dt$ is Brownian noise.
+-   An Euler approximation $\tilde X(t)$ is \begin{equation*}
+     \tilde{X}\big( \,(k+1)\delta\,\big) = \tilde{X}( k\delta) + \delta\, h\big(\, \tilde{X}(k\delta)\,\big) + \sigma \sqrt{\delta} \, Z_k
+        \end{equation*} where $Z_1,Z_2,\dots$ are independent standard normal random variables, i.e., $Z_k\sim \dist{Normal}{0,1}$.
+-   Although SDEs are often considered an advanced topic in probability, the Euler approximation doesn't demand much more than familiarity with the normal distribution.
 
 ## Euler's method vs Gillespie's algorithm
 
-  A widely used, exact simulation method for continuous time Markov chains is  [Gillespie's algorithm](https://en.wikipedia.org/wiki/Gillespie_algorithm).
-  We do not put much emphasis on Gillespie's algorithm here. Why? When would you prefer an implementation of Gillespie's algorithm to an Euler solution?
+A widely used, exact simulation method for continuous time Markov chains is [Gillespie's algorithm](https://en.wikipedia.org/wiki/Gillespie_algorithm). We do not put much emphasis on Gillespie's algorithm here. Why? When would you prefer an implementation of Gillespie's algorithm to an Euler solution?
 
-  \vspace{3mm}
+\vspace{3mm}
 
-  [Worked solution to the Exercise](./exercises.html\#exercise-euler-versus-gillespie)
+[Worked solution to the Exercise](./exercises.html#exercise-euler-versus-gillespie)
 
-  \vspace{3mm}
+\vspace{3mm}
 
-  Numerically, Gillespie's algorithm is often approximated using so-called
-  [tau-leaping](https://en.wikipedia.org/wiki/Tau-leaping)
-  methods.
-  These are closely related to Euler's approach.
-  In this context, the Euler method has sometimes been called tau-leaping.
-
-
-
-
+Numerically, Gillespie's algorithm is often approximated using so-called [tau-leaping](https://en.wikipedia.org/wiki/Tau-leaping) methods. These are closely related to Euler's approach. In this context, the Euler method has sometimes been called tau-leaping.
 
 # Compartment models in pomp
 
 # A basic pomp model for measles
 
-## The Consett measles outbreak{.allowframebreaks}
+## The Consett measles outbreak {.allowframebreaks}
 
-  As an example that we can probe in some depth, let's look at outbreak of measles that occurred in the small town of Consett in England in 1948.
+As an example that we can probe in some depth, let's look at outbreak of measles that occurred in the small town of Consett in England in 1948.
 
-  The town had population of 38820, with 737 births over the course of the year.
+The town had population of 38820, with 737 births over the course of the year.
 
-  \framebreak
+\framebreak
 
-  We download the data and examine them:
+We download the data and examine them:
 
 ```{r meas-data1}
   library(tidyverse)
@@ -357,7 +323,7 @@ set.seed(2488820)
   meas |> as.data.frame() |> head()
 ```
 
-  \framebreak
+\framebreak
 
 ```{r meas-data2,echo=FALSE}
   library(tidyverse)
@@ -367,48 +333,30 @@ set.seed(2488820)
     geom_point()
 ```
 
-
-
-
 ## A simple POMP model for measles
-  
-  -  These are incidence data: The `reports` variable counts the number of reports of new measles cases each week.
-  -  Let us model the outbreak using the simple SIR model.
-  -  Our tasks will be, first, to estimate the parameters of the SIR and, second, to decide whether or not the SIR model is an adequate description of these data.
-  -  The rate at which individuals move from S to I is the *force of infection*, $\mu_{SI}=\beta\,I/N$, while that at which individuals move into the R class is $\mu_{IR}$.
-  
 
+-   These are incidence data: The `reports` variable counts the number of reports of new measles cases each week.
+-   Let us model the outbreak using the simple SIR model.
+-   Our tasks will be, first, to estimate the parameters of the SIR and, second, to decide whether or not the SIR model is an adequate description of these data.
+-   The rate at which individuals move from S to I is the *force of infection*, $\mu_{SI}=\beta\,I/N$, while that at which individuals move into the R class is $\mu_{IR}$.
 
 ## Framing the SIR as a POMP model
 
-  
+-   The unobserved state variables, in this case, are the numbers of individuals, $S(t)$, $I(t)$, $R(t)$ in the S, I, and R compartments, respectively.
 
-  -  The unobserved state variables, in this case, are the numbers of individuals, $S(t)$, $I(t)$, $R(t)$ in the S, I, and R compartments, respectively.
+-   It's reasonable in this case to view the population size $N=S(t)+I(t)+R(t)$, as fixed at the known population size of 38,000.
 
-  -  It's reasonable in this case to view the population size $N=S(t)+I(t)+R(t)$, as fixed at the known population size of 38,000.
+-   The numbers that actually move from one compartment to another over any particular time interval are modeled as stochastic processes.
 
-  -  The numbers that actually move from one compartment to another over any particular time interval are modeled as stochastic processes.
+-   In this case, we'll assume that the stochasticity is purely demographic, i.e., that each individual in a compartment at any given time faces the same risk of exiting the compartment.
 
-  -  In this case, we'll assume that the stochasticity is purely demographic, i.e., that each individual in a compartment at any given time faces the same risk of exiting the compartment.
+-   *Demographic stochasticity* is the unavoidable randomness that arises from chance events occurring in a discrete and finite population.
 
-  -  *Demographic stochasticity* is the unavoidable randomness that arises from chance events occurring in a discrete and finite population.
+## Implementing the SIR model in pomp {.allowframebreaks}
 
-  
+-   To implement the model in pomp, the first thing we need is a stochastic simulator for the unobserved state process.
 
-
-
-## Implementing the SIR model in pomp{.allowframebreaks}
-
-  
-
-  -  To implement the model in pomp, the first thing we need is a stochastic simulator for the unobserved state process.
-
-  -   We follow method 3 above, modeling the number, $\Delta{N_{SI}}$, moving from S to I over interval $\Delta{t}$ as
-    $$\Delta{N_{SI}} \sim \dist{Binomial}{S,1-e^{-\beta\,\frac{I}{N}\,\Delta{t}}},$$
-    and the number moving from I to R as
-    $$\Delta{N_{IR}} \sim \dist{Binomial}{I,1-e^{-\mu_{IR}\,\Delta{t}}}.$$
-
-
+-   We follow method 3 above, modeling the number, $\Delta{N_{SI}}$, moving from S to I over interval $\Delta{t}$ as $$\Delta{N_{SI}} \sim \dist{Binomial}{S,1-e^{-\beta\,\frac{I}{N}\,\Delta{t}}},$$ and the number moving from I to R as $$\Delta{N_{IR}} \sim \dist{Binomial}{I,1-e^{-\mu_{IR}\,\Delta{t}}}.$$
 
 ```{r rproc1R}
     sir_step <- function (S, I, R, N, Beta, mu_IR, delta.t, ...)
@@ -422,7 +370,7 @@ set.seed(2488820)
     }
 ```
 
-  -  At day zero, we'll assume that $I=1$ but we don't know how many people are susceptible, so we'll treat this fraction, $\eta$, as a parameter to be estimated.
+-   At day zero, we'll assume that $I=1$ but we don't know how many people are susceptible, so we'll treat this fraction, $\eta$, as a parameter to be estimated.
 
 ```{r init1R}
     sir_rinit <- function (N, eta, ...) {
@@ -430,7 +378,7 @@ set.seed(2488820)
     }
 ```
 
-  -  We fold these basic model components, with the data, into a `pomp` object thus:
+-   We fold these basic model components, with the data, into a `pomp` object thus:
 
 ```{r pomp1R}
     library(pomp)
@@ -441,13 +389,11 @@ set.seed(2488820)
       ) -> measSIR
 ```
 
-  -  Now assume the case reports result from a process by which new infections are diagnosed and reported with probability $\rho$, which we can think of as the probability that a child's parents take the child to the doctor, who recognizes measles and reports it to the authorities.
+-   Now assume the case reports result from a process by which new infections are diagnosed and reported with probability $\rho$, which we can think of as the probability that a child's parents take the child to the doctor, who recognizes measles and reports it to the authorities.
 
-  -  Measles symptoms tend to be quite recognizable, and children with measles tend to be confined to bed. Therefore diagnosed cases have, presumably, a much lower transmission rate.
-    Accordingly, let's treat each week's `reports` as being related to the number of individuals who have moved from I to R over the course of that week.
+-   Measles symptoms tend to be quite recognizable, and children with measles tend to be confined to bed. Therefore diagnosed cases have, presumably, a much lower transmission rate. Accordingly, let's treat each week's `reports` as being related to the number of individuals who have moved from I to R over the course of that week.
 
-  -  We need a variable to track these daily counts.
-    We modify our rprocess function above, adding a variable $H$ to tally the true incidence.
+-   We need a variable to track these daily counts. We modify our rprocess function above, adding a variable $H$ to tally the true incidence.
 
 ```{r rproc2R}
     sir_step <- function (S, I, R, N, Beta, mu_IR, delta.t,
@@ -466,9 +412,7 @@ set.seed(2488820)
     }
 ```
 
-  -  In pomp terminology, $H$ is an *accumulator variable*.
-    Since we want $H$ to tally only the incidence over the week, we'll need to reset it to zero at the beginning of each week.
-    We accomplish this using the `accumvars` argument to `pomp`:
+-   In pomp terminology, $H$ is an *accumulator variable*. Since we want $H$ to tally only the incidence over the week, we'll need to reset it to zero at the beginning of each week. We accomplish this using the `accumvars` argument to `pomp`:
 
 ```{r zero1R}
     measSIR |>
@@ -478,13 +422,11 @@ set.seed(2488820)
       ) -> measSIR
 ```
 
-  -  Now, we'll model the data by a negative binomial variable,
-    \begin{equation*}
-      \mathrm{reports}_t \sim \dist{NegBin}{\rho\,H(t),k}.
-    \end{equation*}
-    with mean $\rho\,H(t)$ and variance $\rho H(t)+ \big(\rho H(t)\big)^2/k$. The binomial distribution does not have a separate variance parameter.
+-   Now, we'll model the data by a negative binomial variable, \begin{equation*}
+     \mathrm{reports}_t \sim \dist{NegBin}{\rho\,H(t),k}.
+        \end{equation*} with mean $\rho\,H(t)$ and variance $\rho H(t)+ \big(\rho H(t)\big)^2/k$. The binomial distribution does not have a separate variance parameter.
 
-  -  Now, to include the observations in the model, we must write either a `dmeasure` or an `rmeasure` component, or both:
+-   Now, to include the observations in the model, we must write either a `dmeasure` or an `rmeasure` component, or both:
 
 ```{r meas-modelR}
     sir_dmeas <- function (reports, H, rho, k, log, ...) {
@@ -496,7 +438,7 @@ set.seed(2488820)
     }
 ```
 
-  -  We then put these into our `pomp` object:
+-   We then put these into our `pomp` object:
 
 ```{r add-meas-modelR}
     measSIR |>
@@ -511,22 +453,17 @@ set.seed(2488820)
       simulate(params=c(Beta=8,mu_IR=0.5,rho=0.5,k=10,N=38000,eta=1/10))
 ```
 
-  
-
-
 # C snippets
 
 ## Specifying model components using C snippets
 
-  
+-   Although we can always specify basic model components using `R` functions, as above, we\`ll typically want the computational speed-up that we can obtain only by using compiled native code.
 
-  -  Although we can always specify basic model components using `R` functions, as above, we`ll typically want the computational speed-up that we can obtain only by using compiled native code.
+-   pomp provides a facility for doing so with ease, using *C snippets*.
 
-  -  pomp provides a facility for doing so with ease, using *C snippets*.
+-   C snippets are small pieces of C code used to specify basic model components.
 
-  -  C snippets are small pieces of C code used to specify basic model components.
-
-  -  For example, a C snippet encoding the rprocess for an `sir` model is as follows.
+-   For example, a C snippet encoding the rprocess for an `sir` model is as follows.
 
 ```{r csnips}
     sir_step <- Csnippet("
@@ -539,7 +476,7 @@ set.seed(2488820)
     ")
 ```
 
-  -  C snippets for the initializer and measurement model are:
+-   C snippets for the initializer and measurement model are:
 
 ```{r more-csnips}
     sir_rinit <- Csnippet("
@@ -558,7 +495,7 @@ set.seed(2488820)
     ")
 ```
 
-  -  A call to `pomp` replaces the basic model components with these, much faster, implementations:
+-   A call to `pomp` replaces the basic model components with these, much faster, implementations:
 
 ```{r sir_pomp}
     measSIR |>
@@ -572,37 +509,23 @@ set.seed(2488820)
       ) -> measSIR
 ```
 
-  -  Note that, when using C snippets, one has to tell pomp which of the variables referenced in the C snippets are state variables and which are parameters.
-    This is accomplished using the `statenames` and `paramnames` arguments.
-
-  
-
+-   Note that, when using C snippets, one has to tell pomp which of the variables referenced in the C snippets are state variables and which are parameters. This is accomplished using the `statenames` and `paramnames` arguments.
 
 # Choosing parameters
 
-## Guessing plausible parameter values{.allowframebreaks}
+## Guessing plausible parameter values {.allowframebreaks}
 
-  
+-   To check the code is working properly, we simulate. This requires us to assign parameters. A little thought will get us some ballpark estimates.
 
-  -  To check the code is working properly, we simulate. This requires us to assign parameters. A little thought will get us some ballpark estimates.
+-   Recall that $\Rzero$ is the expected number of secondary infections resulting from one primary infection introduced into a fully susceptible population. For an SIR infection, one has that $\Rzero\approx\frac{L}{A}$, where $L$ is the lifespan of a host and $A$ is the mean age of infection. Analysis of age-stratified serology data establish that the mean age of infection for measles during this period was around 4--5yr [@Anderson1991]. Assuming a lifespan of 60--70yr, we have $\Rzero\approx 15$.
 
-  -  Recall that $\Rzero$ is the expected number of secondary infections resulting from one primary infection introduced into a fully susceptible population.
-    For an SIR infection, one has that $\Rzero\approx\frac{L}{A}$, where $L$ is the lifespan of a host and $A$ is the mean age of infection.
-    Analysis of age-stratified serology data establish that the mean age of infection for measles during this period was around 4--5yr [@Anderson1991].
-    Assuming a lifespan of 60--70yr, we have $\Rzero\approx 15$.
+-   The basic theory of SIR epidemics gives the final-size equation, $$\Rzero = -\frac{\log{(1-f)}}{f},$$ where $f$ is the final size of the epidemic---the fraction of those susceptible at the beginning of the outbreak who ultimately become infected. For $\Rzero>5$, this equation predicts that $f>0.99$.
 
-  -  The basic theory of SIR epidemics gives the final-size equation,
-    $$\Rzero = -\frac{\log{(1-f)}}{f},$$
-    where $f$ is the final size of the epidemic---the fraction of those susceptible at the beginning of the outbreak who ultimately become infected.
-    For $\Rzero>5$, this equation predicts that $f>0.99$.
+-   In the data, it looks like there were a total of $`r sum(meas$reports)`$ infections.     Assuming 50\% reporting, we have that $S_0\approx`r sum(meas$reports)/0.5`$, so that $\eta=\frac{S_0}{N}\approx`r mysignif(2*sum(meas$reports)/38000,2)\\\$.
 
-  -  In the data, it looks like there were a total of $`r sum(meas$reports)`$ infections.
-    Assuming 50\% reporting, we have that $S_0\approx`r sum(meas$reports)/0.5`$, so that
-    $\eta=\frac{S_0}{N}\approx`r mysignif(2*sum(meas$reports)/38000,2)`$.
+-   If the infectious period is roughly 2 weeks, then $1/\mu_{IR} \approx 2~\text{wk}$ and $\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}$.
 
-  -  If the infectious period is roughly 2 weeks, then $1/\mu_{IR} \approx 2~\text{wk}$ and $\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}$.
-
-  -  Let's simulate the model at these parameters.
+-   Let's simulate the model at these parameters.
 
 ```{r sir_sim1_plot,out.width="8cm"}
     measSIR |>
@@ -618,78 +541,54 @@ set.seed(2488820)
       guides(color="none")
 ```
 
-  The data are in blue; the `r length(levels(sims$.id))-1` simulations are shown in red.
+The data are in blue; the `r length(levels(sims$.id))-1` simulations are shown in red.
 
-  Clearly, this leaves something to be desired.
-  In the exercises, you'll see if this model can do better.
-
-  
-
-
+Clearly, this leaves something to be desired. In the exercises, you'll see if this model can do better.
 
 # Exercises
 
 ## Explore the SIR model.
 
-  Fiddle with the parameters to see if you can't find a model for which the data are a more plausible realization.
+Fiddle with the parameters to see if you can't find a model for which the data are a more plausible realization.
 
-  \vspace{3mm}
+\vspace{3mm}
 
-  [Worked solution to the Exercise](./exercises.html\#exercise-explore-the-sir-model)
-
-
-
+[Worked solution to the Exercise](./exercises.html#exercise-explore-the-sir-model)
 
 ## The SEIR model
 
-  Below is a diagram of the so-called SEIR model.
-  This differs from the SIR model in that infected individuals must pass a period of latency before becoming infectious.
+Below is a diagram of the so-called SEIR model. This differs from the SIR model in that infected individuals must pass a period of latency before becoming infectious.
 
+```{=tex}
 \begin{center}
     \includegraphics[height=4cm]{../graphics/SEIR model.png}
   \end{center}
+```
+Modify the codes above to construct a `pomp` object containing the Consett measles data and an SEIR model. Perform simulations as above and adjust parameters to get a sense of whether improvement is possible by including a latent period.
 
-  Modify the codes above to construct a `pomp` object containing the Consett measles data and an SEIR model.
-  Perform simulations as above and adjust parameters to get a sense of whether improvement is possible by including a latent period.
+\vspace{3mm}
 
-  \vspace{3mm}
-
-  [Worked solution to the Exercise](./exercises.html\#exercise-the-seir-model)
-
+[Worked solution to the Exercise](./exercises.html#exercise-the-seir-model)
 
 # References
-## References{.allowframebreaks}
+
+## References {.allowframebreaks}
 
 ::: {#refs}
 :::
 
+## License, acknowledgments, and links
 
+-   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
 
-## License, acknowledgments, and links 
+-   The materials build on [previous versions of this course and related courses](../acknowledge.html).
 
-  
-  - 
-    This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
+-   Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/). Please share and remix non-commercially, mentioning its origin. \includegraphics[height=12pt]{../graphics/cc-by-nc}
 
-  - 
-    The materials build on [previous versions of this course and related courses](../acknowledge.html).
+-   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
 
-  - 
-    Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/).
-    Please share and remix non-commercially, mentioning its origin.
-    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+-   Compiled on 2024-06-16.
 
-  - 
-    Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
+[Back to Lesson](index.html)
 
-  - 
-    Compiled on 2024-06-16.
-
-  
-
-  [Back to Lesson](index.html)
-
-  [`R` codes for this lesson](main.R)
-
-
-
+[`R` codes for this lesson](main.R)
