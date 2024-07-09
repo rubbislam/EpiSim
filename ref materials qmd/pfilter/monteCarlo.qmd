@@ -1,6 +1,5 @@
 ---
 title: "Monte Carlo methods"
-subtitle: "Monte Carlo methods"
 author:
   - name: "Aaron A. King"
     affiliation: "Department of Ecology & Evolutionary Biology, Center for the Study of Complex Systems, University of Michigan, Ann Arbor, MI 48109 USA"
@@ -19,9 +18,11 @@ include-in-header: "../_includes/header.tex"
 ```{r prefix,include=FALSE,cache=FALSE,purl=FALSE}
 params <- list(prefix="mc")
 ```
+
 ```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
 ```
+
 ```{r packages,include=FALSE,cache=FALSE,purl=TRUE}
 library(tidyverse)
 library(cowplot)
@@ -50,7 +51,7 @@ Let's examine some *Monte Carlo* approaches for evaluating this and other diffic
 An excellent technical reference on Monte Carlo techniques is @Robert2004.
 
 
-# The fundamental theorem of Monte Carlo integration
+# The fundamental theorem of Monte Carlo integration {#the-fundamental-theorem-of-monte-carlo-integration .unnumbered}
 
 The basic insight of Monte Carlo methods is that we can get a numerical approximation to a challenging integral,
 \begin{equation*}

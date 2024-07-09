@@ -26,5 +26,11 @@
   },
   "ref materials qmd/pfilter/main.qmd": {
     "main.tex": "a27951b3"
+  },
+  "ref materials qmd/stochsim/main.qmd": {
+    "main.tex": "6f4aed51"
+  },
+  "ref materials qmd/pfilter/monteCarlo.qmd": {
+    "monteCarlo.tex": "27fdfe46"
   }
 }
