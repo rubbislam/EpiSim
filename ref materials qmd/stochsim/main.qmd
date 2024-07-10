@@ -25,6 +25,8 @@ editor_options:
 bibliography: ["../sbied.bib"]
 ---
 
+
+
 ```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
 ```
@@ -837,7 +839,7 @@ measSIR |>
 
 # C snippets
 
-## Specifying model components using C snippets
+## Specifying model components using C snippets {.allowframebreaks}
 
 -   Although we can always specify basic model components using `R` functions, as above, we\`ll typically want the computational speed-up that we can obtain only by using compiled native code.
 
@@ -845,7 +847,7 @@ measSIR |>
 
 -   C snippets are small pieces of C code used to specify basic model components.
 
----
+
 
 -   For example, a C snippet encoding the rprocess for an `sir` model is as follows.
 
@@ -869,7 +871,6 @@ measSIR |>
 
 - Remember to add a semicolon (`;`) after each line to ensure proper syntax.
 
----
 
 -   C snippets for the initializer and measurement model are:
 
@@ -894,7 +895,6 @@ measSIR |>
 
 - `reports` is the variable name specified in your dataset.
 
----
 
 -   A call to `pomp` replaces the basic model components with these, much faster, implementations:
 
@@ -955,7 +955,7 @@ ggplot(res, aes(x=expr, y=time/1000000, color=expr)) +
 
 -   The basic theory of SIR epidemics gives the final-size equation, $$\Rzero = -\frac{\log{(1-f)}}{f},$$ where $f$ is the final size of the epidemic---the fraction of those susceptible at the beginning of the outbreak who ultimately become infected. For $\Rzero>5$, this equation predicts that $f>0.99$.
 
--   In the data, it looks like there were a total of $`r sum(meas$reports)`$ infections.     Assuming 50\% reporting, we have that $S_0\approx`r sum(meas$reports)/0.5`$, so that $\eta=\frac{S_0}{N}\approx`r mysignif(2*sum(meas$reports)/38000,2)\\\$.
+-   In the data, it looks like there were a total of $`r sum(meas$reports)`$ infections.     Assuming 50\% reporting, we have that $S_0\approx`r sum(meas$reports)/0.5`$, so that $\eta=\frac{S_0}{N}\approx`r mysignif(2*sum(meas$reports)/38000,2)`$.
 
 -   If the infectious period is roughly 2 weeks, then $1/\mu_{IR} \approx 2~\text{wk}$ and $\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}$.
 
@@ -988,7 +988,7 @@ Fiddle with the parameters to see if you can't find a model for which the data a
 
 In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out after only a few weeks. To attempt to simulate data for which the observed data is a more plausible realization, we might try increasing the force of infection.
 
-```{r}
+```{r, fig.width=8, fig.height=2.3}
 measSIR |>
   simulate(params=c(Beta=25,Gamma=0.5,Rho=0.5,k=10,Eta=0.03,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
@@ -997,7 +997,6 @@ measSIR |>
   guides(color="none")
 ```
 
---- 
 
 Taking it farther....
 
@@ -1010,7 +1009,6 @@ measSIR |>
   guides(color="none")
 ```
 
----
 
 While this increases the overall incidence, the epidemic is now peaking too quickly. To counteract this, we might try reducing the recovery rate.
 
@@ -1023,7 +1021,7 @@ measSIR |>
   guides(color="none")
 ```
 
----
+
 
 Additionally, we might have a look at the effects of changing the initial susceptible fraction, $\eta$. Indeed, it seems that it is possible to get something not too awful to contemplate by just manipulating $\eta$:
 
@@ -1083,7 +1081,7 @@ measSIR |>
   ) -> measSEIR
 ```
 
----
+
 
 Using the rough estimate that the latent period in measles is 8--10da, we take $\mu_{EI}\sim 0.8$wk^-1^ and $\mu_{IR}\sim 1.3$wk^-1^ (roughly the same generation time as before).
 
@@ -1096,7 +1094,6 @@ measSEIR |>
   geom_line() + guides(color="none")
 ```
 
----
 
 Again one can increase the force of infection:
 
