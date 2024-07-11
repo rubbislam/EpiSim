@@ -13,9 +13,12 @@ format:
     section-titles: false
     aspectratio: 169
     include-in-header: "../_includes/header.tex"
-    beameroptions:
-      - setbeamertemplate: "footline[frame number]"
-      - setbeamertemplate: "navigation symbols{}"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
   html:
     toc: false
   pdf:
@@ -545,14 +548,14 @@ meas |>
 
 ## The SIR as a POMP model for measles {.allowframebreaks}
 
-Recall the simple SIR model and frame it as s POMP model:
-
-```{=tex}
+::: columns
+::: {.column width="30%"}
 \begin{center}
     \includegraphics[height=2cm]{../graphics/simple-sir.png}
 \end{center}
-```
+:::
 
+::: {.column width="70%"}
 - The **unobserved states**: $S(t)$, $I(t)$, $R(t)$, the numbers of individuals in the S, I, and R compartments, respectively.
 
 - The constant population size: $N=S(t)+I(t)+R(t)$, as fixed at the known population size of 38,000.
@@ -561,6 +564,8 @@ Recall the simple SIR model and frame it as s POMP model:
 
 - **Demographic stochasticity**: each individual in a compartment at any given time faces the same risk of exiting the compartment; 
 the unavoidable randomness that arises from chance events occurring in a discrete and finite population.
+:::
+:::
 
 \framebreak
 
@@ -743,7 +748,7 @@ measSIR |>
 <!-- -   We follow method 3 above, modeling the number, $\Delta{N_{SI}}$, moving from S to I over interval $\Delta{t}$ as $$\Delta{N_{SI}} \sim \dist{Binomial}{S,1-e^{-\beta\,\frac{I}{N}\,\Delta{t}}},$$ and the number moving from I to R as $$\Delta{N_{IR}} \sim \dist{Binomial}{I,1-e^{-\mu_{IR}\,\Delta{t}}}.$$ -->
 
 <!-- ```{r rproc1R} -->
-<!--     sir_step <- function (S, I, R, N, Beta, mu_IR, delta.t, ...) -->
+<!--     sir_stoch <- function (S, I, R, N, Beta, mu_IR, delta.t, ...) -->
 <!--     { -->
 <!--       dN_SI <- rbinom(n=1,size=S,prob=1-exp(-Beta*I/N*delta.t)) -->
 <!--       dN_IR <- rbinom(n=1,size=I,prob=1-exp(-mu_IR*delta.t)) -->
@@ -768,7 +773,7 @@ measSIR |>
 <!--     library(pomp) -->
 <!--     meas |> -->
 <!--       pomp(times="week",t0=0, -->
-<!--         rprocess=euler(sir_step,delta.t=1/7), -->
+<!--         rprocess=euler(sir_stoch,delta.t=1/7), -->
 <!--         rinit=sir_rinit -->
 <!--       ) -> measSIR -->
 <!-- ``` -->
@@ -780,7 +785,7 @@ measSIR |>
 <!-- -   We need a variable to track these daily counts. We modify our rprocess function above, adding a variable $H$ to tally the true incidence. -->
 
 <!-- ```{r rproc2R} -->
-<!--     sir_step <- function (S, I, R, N, Beta, mu_IR, delta.t, -->
+<!--     sir_stoch <- function (S, I, R, N, Beta, mu_IR, delta.t, -->
 <!--       H, ...) { -->
 <!--       dN_SI <- rbinom(n=1,size=S,prob=1-exp(-Beta*I/N*delta.t)) -->
 <!--       dN_IR <- rbinom(n=1,size=I,prob=1-exp(-mu_IR*delta.t)) -->
@@ -801,7 +806,7 @@ measSIR |>
 <!-- ```{r zero1R} -->
 <!--     measSIR |> -->
 <!--       pomp( -->
-<!--         rprocess=euler(sir_step,delta.t=1/7), -->
+<!--         rprocess=euler(sir_stoch,delta.t=1/7), -->
 <!--         rinit=sir_rinit, accumvars="H" -->
 <!--       ) -> measSIR -->
 <!-- ``` -->
@@ -847,21 +852,22 @@ measSIR |>
 
 -   C snippets are small pieces of C code used to specify basic model components.
 
-
+\framebreak
 
 -   For example, a C snippet encoding the rprocess for an `sir` model is as follows.
 
 ```{r csnips}
-    sir_step <- Csnippet("
-      double dN_SI = rbinom(S,1-exp(-Beta*I/N*dt));
-      double dN_IR = rbinom(I,1-exp(-Gamma*dt));
-      S -= dN_SI;
-      I += dN_SI - dN_IR;
-      R += dN_IR;
-      H += dN_IR;
-    ")
+sir_stoch <- Csnippet("
+  double dN_SI = rbinom(S,1-exp(-Beta*I/N*dt));
+  double dN_IR = rbinom(I,1-exp(-Gamma*dt));
+  S -= dN_SI;
+  I += dN_SI - dN_IR;
+  R += dN_IR;
+  H += dN_IR;
+")
 ```
 
+\framebreak
 
 **Note:**
 
@@ -871,8 +877,7 @@ measSIR |>
 
 - Remember to add a semicolon (`;`) after each line to ensure proper syntax.
 
-
--   C snippets for the initializer and measurement model are:
+- C snippets for the initializer and measurement model are:
 
 ```{r more-csnips}
     sir_rinit <- Csnippet("
@@ -889,32 +894,43 @@ measSIR |>
     ")
 ```
 
+\framebreak
+
 - No need to define the type for likelihood `(lik)` here, as it is already predefined.
 
 - `nearbyint` is a built-in function used to find the closest integer to a given value.
 
 - `reports` is the variable name specified in your dataset.
 
+\framebreak
 
 -   A call to `pomp` replaces the basic model components with these, much faster, implementations:
 
 ```{r sir_pomp}
-    measSIR |>
-      pomp(rprocess=euler(sir_step,delta.t=1/7),
-        rinit=sir_rinit,
-        rmeasure=sir_rmeas,
-        dmeasure=sir_dmeas,
-        accumvars="H",
-        statenames=c("S","I","R","H"),
-        paramnames=c("Beta","Gamma","N","Eta","Rho","k")
-      ) -> measSIR_C
+measSIR |>
+  pomp(
+    rprocess=euler(sir_stoch,delta.t=1/7),
+    rinit=sir_rinit,
+    rmeasure=sir_rmeas,
+    dmeasure=sir_dmeas,
+    accumvars="H",
+    statenames=c("S","I","R","H"),
+    paramnames=c("Beta","Gamma","N","Eta","Rho","k")
+  ) -> measSIR_C
 ```
 
+\framebreak
+
+::: columns
+::: {.column width="50%"}
 -   Note that, when using C snippets, one has to tell pomp which of the variables referenced in the C snippets are state variables and which are parameters. This is accomplished using the `statenames` and `paramnames` arguments.
 
-## Compare the running time between R and CSnippet {.allowframebreaks}
+- We can tell from the summary table that CSnippet is approximate 50 times faster than R.
+:::
 
-```{r}
+::: {.column width="50%"}
+\vspace{-5mm}
+```{r CSnippet-compare, echo=FALSE, fig.width=4, fig.height=4, cache=TRUE}
 fR <- function() {measSIR |>
       simulate(
         params=c(Beta=7.5,Gamma=0.5,Rho=0.5,k=10,
@@ -928,22 +944,17 @@ fC <- function() {measSIR_C |>
         nsim=100,format="data.frame",include.data=TRUE
       )} 
 res <- microbenchmark(fR(), fC(), times=100L)
-```
 
-
-```{r, echo=FALSE, fig.width=8, fig.height=3}
 ggplot(res, aes(x=expr, y=time/1000000, color=expr)) +
-  scale_y_log10()+
-  scale_color_brewer(palette="Dark2")+
-  geom_boxplot(outliers = F)+
-  ylab("time (milliseconds)")+
-  xlab(NULL)+
-  theme_bw()
+  geom_boxplot(outliers = FALSE) +
+  scale_color_brewer(palette="Dark2") +
+  scale_x_discrete(labels = c("fR()" = "R", "fC()" = "CSnippet")) +
+  scale_y_log10() + 
+  labs(y = "time (milliseconds)", x = NULL) +
+  theme_bw() + guides(color="none")
 ```
-
-
-- We can tell from the summary table that CSnippet is approximate 50 times faster than R.
-
+:::
+:::
 
 # Choosing parameters
 
@@ -959,101 +970,106 @@ ggplot(res, aes(x=expr, y=time/1000000, color=expr)) +
 
 -   If the infectious period is roughly 2 weeks, then $1/\mu_{IR} \approx 2~\text{wk}$ and $\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}$.
 
--   Let's simulate the model at these parameters.
+\framebreak
 
-```{r sir_sim1_plot,out.width="8cm"}
-    measSIR |>
-      simulate(
-        params=c(Beta=7.5,Gamma=0.5,Rho=0.5,k=10, Eta=0.03,N=38000),
-        nsim=20,format="data.frame",include.data=TRUE
-      ) -> sims
-
-    sims |>
-      ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-      geom_line()+
-      guides(color="none")
+```{r sir_sims1, echo=FALSE}
+measSIR |>
+  simulate(
+    params=c(Beta=7.5,Gamma=0.5,Rho=0.5,k=10, Eta=0.03,N=38000),
+    nsim=20,format="data.frame",include.data=TRUE
+  ) -> sims
 ```
 
-The data are in blue; the `r length(levels(sims$.id))-1` simulations are shown in red.
+```{r sir_sim1_plot,fig.width=8,fig.height=2}
+measSIR |> 
+  simulate(params=c(Beta=7.5,Gamma=0.5,Rho=0.5,k=10, Eta=0.03,N=38000),
+    nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
+```
 
-Clearly, this leaves something to be desired. In the exercises, you'll see if this model can do better.
+<!-- The data are in blue; the `r length(levels(sims$.id))-1` simulations are shown in red. -->
+
+<!-- Clearly, this leaves something to be desired.  -->
+<!-- In the exercises, you'll see if this model can do better. -->
 
 # Exercises
 
-## Exercise: Explore the SIR model
+## Exercise I: Explore the SIR model
 
 Fiddle with the parameters to see if you can't find a model for which the data are a more plausible realization.
 
-## Worked solutions: Explore the SIR model {.allowframebreaks}
+## Worked solutions I: Explore the SIR model {.allowframebreaks}
 
-In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out after only a few weeks. To attempt to simulate data for which the observed data is a more plausible realization, we might try increasing the force of infection.
+In the simulated outbreaks, the overall incidence is much too low, 
+and the outbreak dies out immediately. 
+We might try increasing the force of infection:
 
-```{r, fig.width=8, fig.height=2.3}
+```{r, fig.width=8, fig.height=1.5}
 measSIR |>
   simulate(params=c(Beta=25,Gamma=0.5,Rho=0.5,k=10,Eta=0.03,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
-  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-  geom_line()+
-  guides(color="none")
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
 ```
 
+\framebreak
 
-Taking it farther....
+Taking it farther...
 
-```{r, fig.width=8, fig.height=2.7}
+```{r, fig.width=8, fig.height=1.5}
 measSIR |>
   simulate(params=c(Beta=40,Gamma=0.5,Rho=0.5,k=10,Eta=0.03,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
-  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-  geom_line()+
-  guides(color="none")
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
 ```
 
+\framebreak
 
-While this increases the overall incidence, the epidemic is now peaking too quickly. To counteract this, we might try reducing the recovery rate.
+While this increases the overall incidence, the epidemic is now peaking too quickly. 
+To counteract this, we might try reducing the recovery rate.
 
-```{r, fig.width=8, fig.height=2.5}
+```{r, fig.width=8, fig.height=1.5}
 measSIR |>
   simulate(params=c(Beta=40,Gamma=0.2,Rho=0.5,k=10,Eta=0.03,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
   ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-  geom_line()+
-  guides(color="none")
+  geom_line() + guides(color="none")
 ```
 
+\framebreak
 
+Additionally, we might have a look at the effects of changing the initial susceptible fraction, $\eta$:
 
-Additionally, we might have a look at the effects of changing the initial susceptible fraction, $\eta$. Indeed, it seems that it is possible to get something not too awful to contemplate by just manipulating $\eta$:
-
-```{r, fig.width=8, fig.height=2.3}
+```{r, fig.width=8, fig.height=1.5}
 measSIR |>
   simulate(params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
-  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-  geom_line()+
-  guides(color="none")
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
 ```
 
 
-## The SEIR model
+## Exercise II: Extend the SIR model to SEIR model
 
 Below is a diagram of the so-called SEIR model. This differs from the SIR model in that infected individuals must pass a period of latency before becoming infectious.
 
 ```{=tex}
 \begin{center}
     \includegraphics[height=4cm]{../graphics/SEIR model.png}
-  \end{center}
+\end{center}
 ```
 Modify the codes above to construct a `pomp` object containing the Consett measles data and an SEIR model. Perform simulations as above and adjust parameters to get a sense of whether improvement is possible by including a latent period.
 
-## Worked solutions: The SEIR model{.allowframebreaks}
+## Worked solutions II: The SEIR model{.allowframebreaks}
 
 The existing code may be modified as follows:
 
 ```{r}
-seir_step <- Csnippet("
+seir_stoch <- Csnippet("
   double dN_SE = rbinom(S,1-exp(-Beta*I/N*dt));
-  double dN_EI = rbinom(E,1-exp(-mu_EI*dt));
+  double dN_EI = rbinom(E,1-exp(-Sigma*dt));
   double dN_IR = rbinom(I,1-exp(-Gamma*dt));
   S -= dN_SE;
   E += dN_SE - dN_EI;
@@ -1063,48 +1079,49 @@ seir_step <- Csnippet("
 ")
 ```
 
+\framebreak
 
 ```{r}
 seir_init <- Csnippet("
   S = nearbyint(Eta*N);
-  E = 0;
-  I = 1;
+  E = 0; I = 1;
   R = nearbyint((1-Eta)*N);
   H = 0;
 ")
+
 measSIR |>
   pomp(
-    rprocess=euler(seir_step,delta.t=1/7),
+    rprocess=euler(seir_stoch,delta.t=1/7),
     rinit=seir_init,
-    paramnames=c("N","Beta","mu_EI","Gamma","Rho","Eta"),
+    paramnames=c("N","Beta","Sigma","Gamma","Rho","Eta","k"),
     statenames=c("S","E","I","R","H")
   ) -> measSEIR
 ```
 
+\framebreak
 
+Using the rough estimate that the latent period in measles is 8--10da, we take $\sigma\sim 0.8$wk^-1^ and $\gamma\sim 1.3$wk^-1^ (roughly the same generation time as before).
 
-Using the rough estimate that the latent period in measles is 8--10da, we take $\mu_{EI}\sim 0.8$wk^-1^ and $\mu_{IR}\sim 1.3$wk^-1^ (roughly the same generation time as before).
-
-```{r, fig.width=8, fig.height=2.3}
+```{r, fig.width=8, fig.height=1.3}
 measSEIR |>
-  simulate(params=c(Beta=30,mu_EI=0.8,Gamma=1.3,
+  simulate(params=c(Beta=30,Sigma=0.8,Gamma=1.3,
                     Rho=0.5,k=10,Eta=0.06,N=38000),
     nsim=20,format="data.frame",include.data=TRUE) |>
-  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
   geom_line() + guides(color="none")
 ```
 
+\framebreak
 
 Again one can increase the force of infection:
 
-```{r, fig.width=8, fig.height=2.7}
+```{r, fig.width=8, fig.height=1.3}
 measSEIR |> 
-  simulate(params=c(Beta=40,mu_EI=0.8,Gamma=1.3,
+  simulate(params=c(Beta=40,Sigma=0.8,Gamma=1.3,
                     Rho=0.5,k=10,Eta=0.06,N=38000),
-  nsim=20,format="data.frame",include.data=TRUE) |>
-  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
-  geom_line()+
-  guides(color="none")
+    nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
 ```
 
 
