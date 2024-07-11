@@ -14,9 +14,12 @@ format:
     section-titles: false
     aspectratio: 169
     include-in-header: "../_includes/header.tex"
-    beameroptions:
-      - setbeamertemplate: "footline[frame number]"
-      - setbeamertemplate: "navigation symbols{}"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
     hyperrefoptions:
       - linktoc=all
   html:
@@ -47,7 +50,7 @@ set.seed(1350254336)
 
 # Introduction
 
-## Objectives (TBD)
+## Objectives
 
 Students completing this lesson will:
 
@@ -257,7 +260,7 @@ variables in a POMP model.
 
 ```{=tex}
 \begin{center}
-    \includegraphics[height=6cm]{../graphics/lec3ll.png}
+    \includegraphics[height=5.5cm]{../graphics/lec3ll.png}
   \end{center}
 ```
 \framebreak
@@ -501,75 +504,150 @@ $$
     \includegraphics[height=6cm]{../graphics/lec3pf.png}
 \end{center}
 
-## Parallel computing {.allowframebreaks}
+## Parallel computing
 
-It will be helpful to parallelize most of the computations. Most
-machines nowadays have multiple cores and using this computational
-capacity is as simple as:
+It will be helpful to parallelize most of the computations. 
+Most machines nowadays have multiple cores and using this computational capacity is as simple as:
 
 1.  letting `R` know you plan to use multiple processors;
-2.  using the parallel for loop provided by the foreach package; and
+2.  using the parallel for loop provided by the `foreach` package; and
 3.  paying proper attention to the use of parallel random number
     generators (RNG).
 
 For example:
 
 ```{r parallel-setup,eval=FALSE,purl=FALSE}
-  library(foreach)
-  library(doFuture)
-  plan(multisession)
+library(foreach)            # load foreach
+library(doFuture)           # load doFuture (and future)
+plan(multisession)          # using multiple R sessions
 ```
 
-The first three lines above load the foreach, iterators, and doFuture
-packages, the latter being a "backend" for the foreach package. The next
-line tells foreach that we will use the doFuture backend. The last line
-says that we plan to parallelize using multiple `R` sessions on our
-single machine. By default, `R` will attempt to determine how many cores
-are available and will run an appropriate number of concurrent `R`
-processes.
+The second line tells `foreach` that we will use the `doFuture` backend. 
+By default, R will attempt to determine how many cores are available and 
+will run an appropriate number of concurrent R processes.
 
 ## Particle filtering in pomp {.allowframebreaks}
 
-Here, we'll get some practical experience with the particle filter, and
-the likelihood function, in the context of our measles-outbreak case
-study. Here, we repeat the construction of the SIR model [we looked at
-earlier](https://kingaa.github.io/sbied/stochsim/), using the parameters
-chosen by looking at simulations. `R` code to build the model is
-available [for download](./model.R). We can execute this code by
-sourcing the relevant file:
+Recall the measles-outbreak example and the stochastic SIR model 
+that we construct in the previous lesson, we can using the `pfilter` function
+to compute the likelihood using particle filtering method, 
+given the parameters chosen by looking at simulations.
+`R` code to build the model is available [here](model_measSIR.R).
+We can execute this code by sourcing the file and check the parameters:
 
 ```{r model-construct,purl=TRUE}
-  source("https://kingaa.github.io/sbied/pfilter/model.R")
+source("model_measSIR.R")
+measSIR@params
 ```
 
-In pomp, the basic particle filter is implemented in the command
-`pfilter`. We must choose the number of particles to use by setting the
-`Np` argument.
+\framebreak
+
+In pomp, we can compute the likelihood using the particle filtering method,
+implemented by function `pfilter`.
+The argument `Np` assigns the number of particles used:
 
 ```{r pfilter-1,cache=TRUE}
-  library(pomp)
-  measSIR |>
-    pfilter(Np=5000) -> pf
-  logLik(pf)
+library(pomp)
+pf <- measSIR |> pfilter(Np=5000)
+logLik(pf)
 ```
 
-We can run a few particle filters to get an estimate of the Monte Carlo
-variability:
+\framebreak
 
-```{r pfilter-3,cache=TRUE}
-  plan(multisession)
-  foreach (
-    i=1:10,
-    .combine=c,
-    .options.future=list(seed=652643293)
-  ) %dofuture% {
+The particle filtering method relies heavily on the state process and the measurement model.
+Therefore, it is necessary to make sure that the basic particle filter is working.
+
+1. Check the `rprocess` and the `rmeasure` by simulation, as shown in Lesson 2:
+
+```{r pf-diagnostic-1, fig.height=1.5, fig.width=8}
+measSIR |>
+  simulate(nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
+```
+
+\framebreak
+
+2. A diagnostic plot to check the `rprocess` and the `dmeasure`:
+
+::: columns
+::: {.column width="40%"}
+```{r pf-diagnostic-2-1, eval=FALSE}
+plot(pf)
+```
+
+- The data, `reports`;
+
+- The **effective sample size** of the particle filter, `ess`;
+
+- The log-likelihood of each observation conditioned on the preceding ones, `cond.logLik`.
+:::
+
+::: {.column width="60%"}
+\vspace{-10mm}
+```{r pf-diagnostic-2-2, echo=FALSE, fig.width=4, fig.height=3.5}
+plot(pf)
+```
+:::
+:::
+
+\framebreak
+
+3. The Monte Carlo variability of the likelihood:
+
+```{r pf-diagnostic-3,cache=TRUE}
+plan(multisession)
+foreach (
+  i=1:10, .combine=c, .options.future=list(seed=652643293)
+) %dofuture% {
     measSIR |> pfilter(Np=5000)
-  } -> pf
-  logLik(pf) -> ll
-  logmeanexp(ll,se=TRUE)
+} -> pf
+logLik(pf) -> ll
+logmeanexp(ll,se=TRUE)
 ```
 
 Note that we set the parallel RNG seed in the `foreach` call.
+
+<!-- Here, we'll get some practical experience with the particle filter, and -->
+<!-- the likelihood function, in the context of our measles-outbreak case -->
+<!-- study. Here, we repeat the construction of the SIR model [we looked at -->
+<!-- earlier](https://kingaa.github.io/sbied/stochsim/), using the parameters -->
+<!-- chosen by looking at simulations. `R` code to build the model is -->
+<!-- available [for download](./model.R). We can execute this code by -->
+<!-- sourcing the relevant file: -->
+
+<!-- ```{r model-construct,purl=TRUE} -->
+<!--   source("https://kingaa.github.io/sbied/pfilter/model.R") -->
+<!-- ``` -->
+
+<!-- In pomp, the basic particle filter is implemented in the command -->
+<!-- `pfilter`. We must choose the number of particles to use by setting the -->
+<!-- `Np` argument. -->
+
+<!-- ```{r pfilter-1,cache=TRUE} -->
+<!--   library(pomp) -->
+<!--   measSIR |> -->
+<!--     pfilter(Np=5000) -> pf -->
+<!--   logLik(pf) -->
+<!-- ``` -->
+
+<!-- We can run a few particle filters to get an estimate of the Monte Carlo -->
+<!-- variability: -->
+
+<!-- ```{r pfilter-3,cache=TRUE} -->
+<!--   plan(multisession) -->
+<!--   foreach ( -->
+<!--     i=1:10, -->
+<!--     .combine=c, -->
+<!--     .options.future=list(seed=652643293) -->
+<!--   ) %dofuture% { -->
+<!--     measSIR |> pfilter(Np=5000) -->
+<!--   } -> pf -->
+<!--   logLik(pf) -> ll -->
+<!--   logmeanexp(ll,se=TRUE) -->
+<!-- ``` -->
+
+<!-- Note that we set the parallel RNG seed in the `foreach` call. -->
 
 # Likelihood-based inference
 
@@ -617,23 +695,11 @@ use that capability.
 There are three main approaches to estimating the statistical
 uncertainty in an MLE.
 
-1.  
+1.  The Fisher information.
 
-    ```         
-    The Fisher information.
-    ```
+2.  Profile likelihood estimation.
 
-2.  
-
-    ```         
-    Profile likelihood estimation.
-    ```
-
-3.  
-
-    ```         
-    A simulation study, also known as a bootstrap.
-    ```
+3.  A simulation study, also known as a bootstrap.
 
 ## Fisher information
 
@@ -733,60 +799,75 @@ lesson](https://kingaa.github.io/sbied/mif/).
 -   Both slices will pass through our current candidate parameter
     vector, stored in the `pomp` model object.
 
-## Slices and profiles
+\vfill
+**Questions**: 
 
-What is the difference between a likelihood slice and a profile? What is
-the consequence of this difference for the statistical interpretation of
-these plots? How should you decide whether to compute a profile or a
-slice?
+1. What is the difference between a likelihood slice and a profile? 
 
+2. What is the consequence of this difference for the statistical interpretation of these plots?
+
+3. How should you decide whether to compute a profile or a slice?
+    
 \vspace{3mm}
 
 [Worked solution to the Exercise](./Q_slice.html)
 
 ## Slicing the measles SIR likelihood {.allowframebreaks}
 
-```{r like-slice1,eval=FALSE,purl=FALSE}
-  slice_design(
-    center=coef(measSIR),
-    Beta=rep(seq(from=5,to=30,length=40),each=3),
-    mu_IR=rep(seq(from=0.2,to=2,length=40),each=3)
-  ) -> p
+- We first construct a data frame to explore the parameter slice, with $40\times 3+40\times 3=240$ rows:
+
+```{r like-slice1,purl=FALSE}
+slice_design(
+  center = coef(measSIR),
+  Beta = rep(seq(from=5,to=30,length=40),each=3),
+  Gamma = rep(seq(from=0.2,to=2,length=40),each=3)
+) -> param_slice
+
+dim(param_slice)
 ```
 
+\framebreak
+
+- We compute the likelihoods $3$ times for each combination (i.e., row) in `param_slice`:
+
 ```{r like-slice2,eval=FALSE,purl=FALSE}
-  library(iterators)
-  plan(multisession)
-  foreach (
-    theta=iter(p,"row"),
-    .combine=rbind,
-    .options.future=list(seed=108028909)
-  ) %dofuture% {
-    measSIR |> pfilter(params=theta,Np=5000) -> pf
-    theta$loglik <- logLik(pf)
-    theta
-  } -> p
+library(iterators)
+plan(multisession)
+foreach (theta=iter(param_slice,"row"), .combine=rbind, 
+  .options.future=list(seed=108028909)) %dofuture% {
+  measSIR |> pfilter(params=theta,Np=5000) -> pf
+  theta$loglik <- logLik(pf)
+  theta
+} -> lik_slice
 ```
 
 ```{r like-slice-eval,include=FALSE,purl=TRUE}
-  ## What is this 'bake' function?
-  ## See https://kingaa.github.io/sbied/misc/bake.html
-  ## for an explanation.
-  bake(file="like-slice.rds",{
-    <<like-slice1>>
-    <<like-slice2>>
-  }) -> p
+## What is this 'bake' function?
+## See https://kingaa.github.io/sbied/misc/bake.html
+## for an explanation.
+bake(file="like-slice.rds",{
+  <<like-slice1>>
+  <<like-slice2>>
+}) -> lik_slice
 ```
 
+\framebreak
+
 ```{r like-slice-plot,echo=FALSE}
-  p |>
-    pivot_longer(c(Beta,mu_IR)) |>
-    filter(name==slice) |>
-    ggplot(aes(x=value,y=loglik,color=name))+
-    geom_point()+
-    facet_grid(~name,scales="free_x")+
-    guides(color="none")+
-    labs(x="parameter value",color="")
+#| fig-width: 6
+#| fig-height: 3
+#| out-width: 5in
+#| out-height: 2in
+lik_slice |>
+  pivot_longer(c(Beta,Gamma)) |>
+  filter(name==slice) |>
+  ggplot(aes(x=value,y=loglik,color=name)) +
+  geom_point() +
+  facet_grid(
+    ~tolower(name),scales="free_x",
+    labeller=label_parsed
+  ) +
+  guides(color="none") + labs(x="parameter value",color="")
 ```
 
 -   Slices offer a very limited perspective on the geometry of the
@@ -797,46 +878,61 @@ slice?
 
 ## Two-dimensional likelihood slice {.allowframebreaks}
 
-```{r pfilter-grid1a,eval=FALSE,purl=FALSE}
-  expand.grid(
-    Beta=rep(seq(from=10,to=30,length=40),each=3),
-    mu_IR=rep(seq(from=0.4,to=1.5,length=40),each=3),
-    rho=0.5,k=10,eta=0.06,N=38000
-  ) -> p
+- We first construct the parameters grid data frame `param_grid`, 
+with $40\times 3 \times 40\times 3=14,400$ rows:
+
+```{r pfilter-grid1a,purl=FALSE}
+expand.grid(
+  Beta = rep(seq(from=10,to=30,length=40), each=3),
+  Gamma = rep(seq(from=0.4,to=1.5,length=40), each=3),
+  Rho = 0.5, k=10, Eta=0.06, N=38000
+) -> param_grid
+
+dim(param_grid)
 ```
+
+\framebreak
+
+- We then compute likelihoods for each of the combinations:
 
 ```{r pfilter-grid1b,eval=FALSE,purl=FALSE}
-  plan(multisession)
-  foreach (
-    theta=iter(p,"row"),
-    .combine=rbind,
-    .options.future=list(seed=421776444)
-  ) %dofuture% {
-    measSIR |> pfilter(params=theta,Np=5000) -> pf
-    theta$loglik <- logLik(pf)
-    theta
-  } -> p
+plan(multisession)
+foreach (theta=iter(param_grid,"row"), .combine=rbind,
+  .options.future=list(seed=421776444)) %dofuture% {
+  measSIR |> pfilter(params=theta,Np=5000) -> pf
+  theta$loglik <- logLik(pf)
+  theta
+} -> lik_grid
 ```
 
-```{r pfilter-grid1-eval,include=FALSE}
-  bake(file="pfilter-grid1.rds",{
-    <<pfilter-grid1a>>
-    <<pfilter-grid1b>>
-    p |> arrange(Beta,mu_IR)
-  })-> p
+
+```{r pfilter-grid1-eval,include=FALSE,purl=TRUE}
+bake(file="pfilter-grid1.rds",{
+  <<pfilter-grid1a>>
+  <<pfilter-grid1b>>
+  lik_grid |> arrange(Beta,Gamma) -> lik_grid
+})-> lik_grid
 ```
+
+\framebreak
 
 ```{r pfilter-grid1-plot,echo=FALSE,purl=TRUE}
-  p |>
-    group_by(Beta,mu_IR) |>
-    summarize(loglik=logmeanexp(loglik)) |>
-    ungroup() |>
-    mutate(loglik=ifelse(loglik>max(loglik)-25,loglik,NA)) |>
-    ggplot(aes(x=Beta,y=mu_IR,z=loglik,fill=loglik))+
-    geom_tile(color=NA)+
-    scale_fill_gradient()+
-    labs(x=expression(beta),y=expression(mu[IR]))
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 4.8in
+#| out-height: 3.2in
+lik_grid |>
+  group_by(Beta,Gamma) |>
+  summarize(loglik=logmeanexp(loglik)) |>
+  ungroup() |>
+  mutate(loglik=ifelse(loglik>max(loglik)-25,loglik,NA)) |>
+  ggplot(aes(x=Beta,y=Gamma,z=loglik,fill=loglik))+
+  geom_tile(color=NA)+
+  scale_fill_gradient()+
+  labs(x=expression(beta),y=expression(gamma))
 ```
+
+\framebreak
 
 In the above, all points with log-likelihoods less than 25 units below
 the maximum are shown in grey.
@@ -869,6 +965,8 @@ your conjecture by running a sequence of particle filter operations,
 with increasing numbers of particles (`Np`), measuring the time taken
 for each one using `system.time`. Plot and interpret your results.
 
+\vfill
+
 [Worked solution to the Exercise](./expense.html)
 
 ## log-likelihood estimation {.allowframebreaks}
@@ -893,13 +991,11 @@ approximately one minute on your machine.
 
 [Worked solution to the Exercise](./loglikest.html)
 
-## One-dimensional likelihood slice
+## Exercises
 
-Compute several likelihood slices in the $\eta$ direction.
+1. **One-dimensional likelihood slice**: Compute several likelihood slices in the $\eta$ direction.
 
-## Two-dimensional likelihood slice
-
-Compute a slice of the likelihood in the $\beta$-$\eta$ plane.
+2. **Two-dimensional likelihood slice**: Compute a slice of the likelihood in the $\beta$-$\eta$ plane.
 
 # More on likelihood-based inference
 
@@ -946,19 +1042,20 @@ Compute a slice of the likelihood in the $\beta$-$\eta$ plane.
     respective dimensions
     $D^{\langle 0\rangle}< D^{\langle 1\rangle}\le D$.
 -   We consider the log-likelihood maximized over each of the
-    hypotheses, \begin{equation*}
+    hypotheses, 
+    $$
       \begin{aligned}
         \ell^{\langle 0\rangle} &= \sup_{\theta\in \Theta^{\langle 0\rangle}} \ell(\theta), \\
         \ell^{\langle 1\rangle} &= \sup_{\theta\in \Theta^{\langle 1\rangle}} \ell(\theta).
       \end{aligned}
-    \end{equation*}
--   A useful approximation asserts that, under the hypothesis
-    $H^{\langle 0\rangle}$, \begin{equation*}
+    $$
+-   **Wilks approximation**: under the hypothesis $H^{\langle 0\rangle}$, 
+    $$
       \ell^{\langle 1\rangle} - \ell^{\langle 0\rangle} \approx \tfrac{1}{2}\,\chi^2_{D^{\langle 1\rangle}- D^{\langle 0\rangle}},
-    \end{equation*} where $\chi^2_d$ is a chi-squared random variable on
+    $$ 
+    where $\chi^2_d$ is a chi-squared random variable on
     $d$ degrees of freedom and $\approx$ means "is approximately
     distributed as".
--   We will call this the **Wilks approximation**.
 -   The Wilks approximation can be used to construct a hypothesis test
     of the null hypothesis $H^{\langle 0\rangle}$ against the
     alternative $H^{\langle 1\rangle}$.
@@ -1034,7 +1131,8 @@ Compute a slice of the likelihood in the $\beta$-$\eta$ plane.
 
 # References
 
-## References {.allowframebreaks}
+## References
+\small
 
 ::: {#refs}
 :::
@@ -1058,7 +1156,7 @@ Compute a slice of the likelihood in the $\beta$-$\eta$ plane.
 -   Produced with R version `r getRversion()` and pomp version
     `r packageVersion("pomp")`.
 
--   Compiled on 2024-06-16.
+-   Compiled on 2024-07-11.
 
 [Back to Lesson](index.html)
 
