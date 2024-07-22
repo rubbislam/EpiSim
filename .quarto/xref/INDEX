@@ -32,5 +32,8 @@
   },
   "ref materials qmd/pfilter/monteCarlo.qmd": {
     "monteCarlo.tex": "27fdfe46"
+  },
+  "ref materials qmd/mif/main.qmd": {
+    "main.tex": "14b400d1"
   }
 }
