@@ -142,7 +142,7 @@ set.seed(1350254336)
 ## Summary
 
 \begin{center}
-  \includegraphics[height=10cm]{../graphics/lec4 table.png}
+  \includegraphics[height=8cm]{../graphics/lec4 table.png}
 \end{center}
 
 
@@ -255,7 +255,7 @@ The following loads the data, pomp, and the stochastic SIR model we constructed 
 source("model_measSIR.R")
 ```
 
-\vspace{-10mm}
+\vspace{-20mm}
 
 \hspace{-20mm}
 
@@ -300,7 +300,7 @@ plot(measSIR, mar=c(.1,3,0,2))
 
 # Setting up the estimation problem
 
-## Setting up the estimation problem  {.allowframebreaks}
+## Setting up the estimation problem
 
 Let's assume that the population size, $N$, is known accurately.
 We'll fix that parameter.
@@ -317,8 +317,20 @@ coef(measSIR)
 
 We proceed to estimate $\beta$, $\eta$, and $\rho$.
 
+## Sanity check
+In Lesson 3, we have introduced how to test the codes and the particle filter from three aspects.
+Now we can compare the simulations with the raw data using the proposed parameters:
 
-## Parallel computing  {.allowframebreaks}
+```{r sanity, echo=FALSE, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 70%
+measSIR |>
+  simulate(nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
+```
+
+
+## Parallel computing
 It will be helpful to parallelize most of the computations.
 [Lesson 3](https://kingaa.github.io/sbied/pfilter/) discusses how to accomplish this using foreach.
 
@@ -329,7 +341,7 @@ plan(multisession)
 ``` 
 
 
-## Running a particle filter  {.allowframebreaks}
+## Running a particle filter {.allowframebreaks}
 
 We proceed to carry out replicated particle filters at an initial guess of $\beta=`r coef(measSIR,"Beta")`$, $\eta=`r coef(measSIR,"Eta")`$, and $\rho=`r coef(measSIR,"Rho")`$.
 
@@ -414,7 +426,7 @@ ncpu_loc <- attr(mifs_local,"ncpu")
 ```
 
 
-## Windows issues  {.allowframebreaks}
+## Windows issues
 Some Windows users have reported trouble with the above code.
 This appears to be due to certain Windows security features that make it impossible to compile codes inside a parallel block.
 We have found a workaround.
@@ -910,7 +922,7 @@ pairs(~loglik+Beta+Eta+Rho,data=results,pch=16)
 
 \framebreak
 
-```{r echo=FALSE, fig.width=8, fig.height=6, dpi=300}
+```{r echo=FALSE, fig.width=6, fig.height=4, dpi=300}
 #| out-height: 80%
 results |>
   filter(loglik>max(loglik)-10,loglik.se<1) |>
@@ -972,9 +984,7 @@ freeze(seed=55266255,
     nseq=1000
   )) |>
   mutate(
-    Rho=0.6,
-    k=10,
-    N=38000
+    Rho=0.6, k=10, N=38000
   ) -> guesses
 ```
 
@@ -1184,7 +1194,42 @@ results |>
 -  Thus the model is incapable of reconciling both an infectious period of less than one week and a reporting rate of 60\%.
 -  *What structural changes to the model might we make to improve its ability to explain the data?*
 
+## Visualizing predictions {.allowframebreaks}
 
+After all these analyses, we would like to visualize how exactly the model 
+with the MLEs matches the data.
+We can do it by plotting the simulations with 95\% the prediction interval.
+
+```{r}
+read_csv("measles_params.csv") |>
+  filter(loglik == max(loglik)) |>
+  select(-loglik, -loglik.se) -> best.params
+
+measSIR |>
+  simulate(
+    params=unlist(best.params),
+    nsim=1000, format="data.frame", include.data=TRUE
+  ) -> sims
+```
+
+\framebreak
+
+```{r viz-predictions, fig.height=4, fig.width=6, dpi=300}
+#| out-height: 80%
+sims |>
+  mutate(data=.id=="data") |>
+  group_by(week,data) |>
+  reframe(
+    p=c(0.025,0.5,0.975),
+    value=wquant(reports,probs=p),
+    name=c("lo","med","up")
+  ) |>
+  select(-p) |> pivot_wider() |> ungroup() |>
+  ggplot(aes(x=week,y=med,color=data,fill=data,ymin=lo,ymax=up))+
+  geom_line()+ geom_ribbon(alpha=0.2,color=NA) +
+  labs(y="reports")+
+  theme_bw() + guides(color="none",fill="none")
+```
 
 
 # Exercises
@@ -1195,7 +1240,7 @@ Purely for the sake of simplicity, you may assume that the values of $\gamma$ an
 To do this efficiently, we will make use of a system of *run-levels*.
 At each run-level, we will select some number of particles (`Np`), number of IF2 iterations (`Nmif`), and number of starting guesses, to achieve a particular result.
 
-1.  {#it:zero} First, conduct a local search and compute the likelihood at the end of each `mif2` run, as shown above.
+1.  First, conduct a local search and compute the likelihood at the end of each `mif2` run, as shown above.
   Use only as many parallel `mif2` computations as you have processors on your computer (or perhaps somewhat fewer).
   Track the time used and compute the amount of time used per cpu per IF2 iteration per 1000 particles.
   (Recall that one particle filter computation is roughly equal to a IF2 iteration in computational complexity if they both use the same number of particles.)
