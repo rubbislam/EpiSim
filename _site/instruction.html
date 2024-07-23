@@ -2,11 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.45">
+<meta name="generator" content="quarto-1.5.54">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Qianying (Ruby) Lin">
 
 <title>Instruction – EpiSim</title>
 <style>
@@ -20,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -67,6 +100,24 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -111,15 +162,15 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./iterated.html"> 
-<span class="menu-text">Iterated</span></a>
+<span class="menu-text">Maximum likelihood estimation and iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./influenza.html"> 
-<span class="menu-text">Influenza</span></a>
+    <a class="nav-link" href="./case study.html"> 
+<span class="menu-text">Case Study</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./measles.html"> 
-<span class="menu-text">Measles</span></a>
+    <a class="nav-link" href="./metapop.html"> 
+<span class="menu-text">Meta population modelling</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -137,14 +188,22 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#software-installation" id="toc-software-installation" class="nav-link active" data-scroll-target="#software-installation">Software installation</a>
+  <li><a href="#all-users" id="toc-all-users" class="nav-link active" data-scroll-target="#all-users">All users</a>
   <ul class="collapse">
-  <li><a href="#install-r-and-rstudio" id="toc-install-r-and-rstudio" class="nav-link" data-scroll-target="#install-r-and-rstudio">Install R and RStudio</a></li>
-  <li><a href="#install-pomp" id="toc-install-pomp" class="nav-link" data-scroll-target="#install-pomp">Install <code>pomp</code></a></li>
-  <li><a href="#install-other-packages" id="toc-install-other-packages" class="nav-link" data-scroll-target="#install-other-packages">Install other packages</a></li>
-  <li><a href="#test-pomp" id="toc-test-pomp" class="nav-link" data-scroll-target="#test-pomp">Test <code>pomp</code></a></li>
-  <li><a href="#trouble-shooting" id="toc-trouble-shooting" class="nav-link" data-scroll-target="#trouble-shooting">Trouble shooting</a></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a></li>
+  <li><a href="#install-r-and-rstudio" id="toc-install-r-and-rstudio" class="nav-link" data-scroll-target="#install-r-and-rstudio">Install <strong>R</strong> and <strong>RStudio</strong></a></li>
+  <li><a href="#install-needed-packages" id="toc-install-needed-packages" class="nav-link" data-scroll-target="#install-needed-packages">Install needed packages</a></li>
+  </ul></li>
+  <li><a href="#windows-users" id="toc-windows-users" class="nav-link" data-scroll-target="#windows-users">Windows users</a></li>
+  <li><a href="#macos-users" id="toc-macos-users" class="nav-link" data-scroll-target="#macos-users">MacOS users</a></li>
+  <li><a href="#all-users-1" id="toc-all-users-1" class="nav-link" data-scroll-target="#all-users-1">All users</a>
+  <ul class="collapse">
+  <li><a href="#test-pomp" id="toc-test-pomp" class="nav-link" data-scroll-target="#test-pomp">Test <strong>pomp</strong></a></li>
+  </ul></li>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting">Troubleshooting</a>
+  <ul class="collapse">
+  <li><a href="#linux-and-unix-users" id="toc-linux-and-unix-users" class="nav-link" data-scroll-target="#linux-and-unix-users">Linux and unix users</a></li>
+  <li><a href="#macos-users-1" id="toc-macos-users-1" class="nav-link" data-scroll-target="#macos-users-1">MacOS users</a></li>
+  <li><a href="#windows-users-1" id="toc-windows-users-1" class="nav-link" data-scroll-target="#windows-users-1">Windows users</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -161,12 +220,6 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Qianying (Ruby) Lin </p>
-          </div>
-  </div>
     
   
     
@@ -177,25 +230,128 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="software-installation" class="level1">
-<h1>Software installation</h1>
-<section id="install-r-and-rstudio" class="level2">
-<h2 class="anchored" data-anchor-id="install-r-and-rstudio">Install R and RStudio</h2>
+<style type="text/css">
+div .nb {
+    background-color: #ffeca3;
+    border-style: solid;
+    border-width: 2;
+    border-color: #00274c;
+    padding: 1em;
+}
+hr {
+    border-width: 3;
+    border-color: #00274c;
+}
+</style>
+<p>Please read the appropriate sections below, which give specific instructions for installing and testing the software we will be using. First follow the instructions for “all users”, then those for your specific operating system (OS).</p>
+<div class="nb">
+<p><strong>Important note:</strong> If you run into problems, send a direct message to us on the course Slack channel with a detailed description of the problem you’ve encountered. In this message, <strong>be certain to include all of the following information</strong>:</p>
+<ul>
+<li>the operating system you’re running,</li>
+<li>the version numbers of <strong>R</strong>, <strong>Rstudio</strong>, and <strong>pomp</strong> you’re attempting to install,</li>
+<li>what command(s) you’ve executed, and</li>
+<li>what error messages you’ve received.</li>
+</ul>
+<p>In particular, it is often easiest to send a screenshot or transcript showing the commands you’ve entered and the error messages you’ve received. In an <strong>R</strong> session, you can run</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/scripts/diagnostics.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>to get information on the operating system and version numbers of <strong>R</strong> and loaded packages.</p>
+</div>
+<hr>
+<section id="all-users" class="level2">
+<h2 class="anchored" data-anchor-id="all-users">All users</h2>
+<section id="install-r-and-rstudio" class="level3">
+<h3 class="anchored" data-anchor-id="install-r-and-rstudio">Install <strong>R</strong> and <strong>RStudio</strong></h3>
+<p><strong>R</strong> and <strong>RStudio</strong> are free and open-source. You’ll need at least version 4.2.0 of <strong>R</strong>. Source code and binaries are available on CRAN (https://cran.r-project.org/). Install <em>the latest version</em> of <strong>RStudio</strong> from <a href="https://www.rstudio.com/products/rstudio/download/">rstudio.com</a>.</p>
+<p><strong>For Windows users</strong>, there is a <a href="https://youtu.be/n6mnN3lGj4s" target="_blank">video tutorial on the installation of <strong>R</strong> and <strong>Rstudio</strong></a>.</p>
 </section>
-<section id="install-pomp" class="level2">
-<h2 class="anchored" data-anchor-id="install-pomp">Install <code>pomp</code></h2>
+<section id="install-needed-packages" class="level3">
+<h3 class="anchored" data-anchor-id="install-needed-packages">Install needed packages</h3>
+<p>Open a session in <strong>RStudio</strong> and run the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">update.packages</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/sbied/prep/packages.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><em>[The <code>&gt;</code> is the command prompt; it is not part of the command. Also, the quotation marks are plain keyboard double quotes.]</em></p>
+<p>The first command updates your installed packages. You may be prompted to specify a CRAN mirror: choose one geographically near you. In <strong>RStudio</strong>, you can also push the “Update” button on the “Packages” tab to accomplish this.</p>
+<p>The second command runs a script on my website. It will install some needed packages if these are not already installed on your system.</p>
+<hr>
 </section>
-<section id="install-other-packages" class="level2">
-<h2 class="anchored" data-anchor-id="install-other-packages">Install other packages</h2>
 </section>
-<section id="test-pomp" class="level2">
-<h2 class="anchored" data-anchor-id="test-pomp">Test <code>pomp</code></h2>
+<section id="windows-users" class="level2">
+<h2 class="anchored" data-anchor-id="windows-users">Windows users</h2>
+<p>If your machine runs Windows, you must install <strong>Rtools</strong>. This will give you the ability to compile C code and dynamically link it into an <strong>R</strong> session.</p>
+<p><a href="https://cran.r-project.org/bin/windows/Rtools/">Download <strong>Rtools</strong> from CRAN</a> and install it. A <a href="https://youtu.be/lmIhiT_QsPE" target="_blank">video tutorial demonstrating how to install <strong>Rtools</strong> is available</a>, as are <a href="https://cran.r-project.org/bin/windows/Rtools/">detailed installation instructions</a>. <em>Note that, after installation, there is one more step to be completed.</em></p>
+<p><strong><em>It is essential that you install these tools before the course starts!</em></strong></p>
+<hr>
 </section>
-<section id="trouble-shooting" class="level2">
-<h2 class="anchored" data-anchor-id="trouble-shooting">Trouble shooting</h2>
+<section id="macos-users" class="level2">
+<h2 class="anchored" data-anchor-id="macos-users">MacOS users</h2>
+<p>So that you can compile C code and dynamically link it into an <strong>R</strong> session, you will need to have the <strong>Xcode</strong> app installed. This is gratis and can be installed via the App Store or downloaded from <a href="https://developer.apple.com/download/">developer.apple.com</a>. Video tutorials demonstrating how to <a href="https://youtu.be/j0kqPpMecp4">check if you need to install Xcode</a>, <a href="https://youtu.be/aryEseip6Mk">how to install Xcode</a>, and <a href="https://youtu.be/ikvJcN3Zi2w">how to install pomp once you have installed Xcode</a> are available.</p>
+<p>Note that you must go beyond merely installing the <strong>Xcode</strong> app. After you’ve installed the app, open a unix terminal (listed as the <strong>Terminal</strong> app under “Utilities” in the Finder) and run the following line</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will install the “Command Line Tools” that are needed to compile native C codes. Running this command is tantamount to the part of the Xcode installation tutorial video where we complete the installation using the graphical user interface.</p>
+<hr>
 </section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section"></h2>
+<section id="all-users-1" class="level2">
+<h2 class="anchored" data-anchor-id="all-users-1">All users</h2>
+<section id="test-pomp" class="level3">
+<h3 class="anchored" data-anchor-id="test-pomp">Test <strong>pomp</strong></h3>
+<p>Open a session in <strong>RStudio</strong> and run the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/scripts/pompTest.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will check whether you can work with <strong>pomp</strong>.</p>
+<p>If it fails, try the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/scripts/helloC.R"</span>,<span class="at">echo=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If this fails to give the “Hello!” message, you will need to follow the instructions below corresponding to your OS before re-trying the <code>pompTest.R</code> script.</p>
+<hr>
+</section>
+</section>
+<section id="troubleshooting" class="level2">
+<h2 class="anchored" data-anchor-id="troubleshooting">Troubleshooting</h2>
+<section id="linux-and-unix-users" class="level3">
+<h3 class="anchored" data-anchor-id="linux-and-unix-users">Linux and unix users</h3>
+<p>If you have trouble with any of the scripts above, make sure you have the GNU compiler collection (GCC), including <strong>gfortran</strong>, installed on your computer. Linux distributions typically include this by default but it is not impossible that you have somehow avoided this.</p>
+</section>
+<section id="macos-users-1" class="level3">
+<h3 class="anchored" data-anchor-id="macos-users-1">MacOS users</h3>
+<p>If the <code>pompTest.R</code> script fails because you cannot load <strong>pomp</strong>, try installing it from source. The easiest way to do this is to execute</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"pomp"</span>,<span class="at">repos=</span><span class="st">"https://kingaa.github.io/"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>in an <strong>R</strong> session. You can also use the <strong>devtools</strong> package. Do</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"devtools"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">"kingaa/pomp"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>If, while trying to install from source, you receive the error,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">make:</span> gfortran-8.2: No such file or directory</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>or one that otherwise refers to <code>gfortran</code>, then it is likely that you do not have the necessary version of <strong>gfortran</strong> installed. Have a look at <a href="https://mac.r-project.org/tools/">these instructions</a> and contact me at the address above if these don’t work for you.</p>
+<p>Some users have reported receiving an error complaining that</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="st">'stdlib.h'</span> file not found</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This indicates that the command-line tools from <strong>Xcode</strong> have not been properly installed. In a unix terminal, run</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>to correct this problem.</p>
+</section>
+<section id="windows-users-1" class="level3">
+<h3 class="anchored" data-anchor-id="windows-users-1">Windows users</h3>
+<p>You have probably failed to install the <strong>Rtools</strong> correctly. Revisit the <a href="#windows-users">instructions above</a>.</p>
+<hr>
+<p><a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2R3iM5CAEfIIof5dQfHVRgz"><strong>Pre-course instructions for Windows users (Video)</strong></a><br>
+<a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2S8GmrOF3s68LlsWoTRmuMQ"><strong>Pre-course instructions for MacOS users (Video)</strong></a></p>
 
 
 </section>
@@ -294,7 +450,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

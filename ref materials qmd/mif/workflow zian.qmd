@@ -1,0 +1,178 @@
+---
+title: "Workflow part"
+author:
+  - Zian Zhuang
+format: 
+  beamer:
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    beameroptions:
+      - setbeamertemplate: "footline[frame number]"
+      - setbeamertemplate: "navigation symbols{}"
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"] 
+---
+
+# Workflow {.allowframebreaks}
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r doFuture,echo=FALSE,cache=FALSE}
+library(pomp)
+library(doFuture)
+library(microbenchmark)
+plan(multisession)
+set.seed(2488820)
+```
+
+data- initialization-
+
+```{r meas-data1}
+library(tidyverse)
+read_csv(paste0("https://kingaa.github.io/sbied/stochsim/", 
+  "Measles_Consett_1948.csv")) |> 
+  select(week,reports=cases) -> meas
+meas |> as.data.frame() |> head(n=3)
+```
+
+```{r meas-data2,echo=FALSE,fig.width=6, fig.height=3}
+meas |>
+  ggplot(aes(x=week,y=reports)) +
+  geom_line() +
+  geom_point()
+```
+
+```{r}
+meas |> pomp(times="week",t0=0) -> measSIR
+```
+
+R、c-dmeasure rmeasure-
+
+```{r}
+sir_stoch <- Csnippet("
+  double dN_SI = rbinom(S,1-exp(-Beta*I/N*dt));
+  double dN_IR = rbinom(I,1-exp(-Gamma*dt));
+  S -= dN_SI;
+  I += dN_SI - dN_IR;
+  R += dN_IR;
+  H += dN_IR;
+")
+```
+
+```{r more-csnips}
+    sir_rinit <- Csnippet("
+      S = nearbyint(Eta*N);
+      I = 1;
+      R = nearbyint((1-Eta)*N);
+      H = 0;
+    ")
+    sir_dmeas <- Csnippet("
+      lik = dnbinom_mu(reports,k,Rho*H,give_log);
+    ")
+    sir_rmeas <- Csnippet("
+      reports = rnbinom_mu(k,Rho*H);
+    ")
+```
+
+become pomp-
+
+```{r sir_pomp}
+measSIR  %>% 
+  pomp(
+    rprocess=euler(sir_stoch,delta.t=1/7),
+    rinit=sir_rinit,
+    rmeasure=sir_rmeas,
+    dmeasure=sir_dmeas,
+    accumvars="H",
+    statenames=c("S","I","R","H"),
+    paramnames=c("Beta","Gamma","N","Eta","Rho","k"),
+    params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000)
+  ) -> measSIR
+```
+
+simulation/likelihood with the initial guess
+
+```{r, fig.width=8, fig.height=1.5}
+measSIR |>
+  simulate(nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
+```
+
+check likelihood and ess
+
+```{r}
+pf <- measSIR |> pfilter(Np=5000)
+plot(pf)
+min(pf@eff.sample.size)
+```
+
+```{r}
+foreach(i=1:10,.combine=c,
+  .options.future=list(seed=TRUE)) %dofuture% {
+  measSIR |> pfilter(Np=5000)
+} -> pf
+pf |> logLik() |> logmeanexp(se=TRUE) -> L_pf
+L_pf
+
+# Building up a picture of the likelihood surface II ?
+pf[[1]] |> coef() |> bind_rows() |>
+  bind_cols(loglik=L_pf[1],loglik.se=L_pf[2])
+```
+
+
+
+Effective Sample Size refers to the number of particles that effectively contribute to the approximation of the posterior distribution.
+
+
+local maximum (IF2)
+
+```{r}
+foreach(i=1:20,.combine=c,
+  .options.future=list(seed=482947940)
+) %dofuture% {
+  measSIR |>
+    mif2(
+      Np=2000, Nmif=50, cooling.fraction.50=0.5,
+      rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02)),
+      partrans=parameter_trans(
+        log="Beta",logit=c("Rho","Eta")
+      ),
+      paramnames=c("Beta","Rho","Eta")
+    )
+} -> mifs_local
+```
+
+Iterated filtering diagnostics 
+
+```{r}
+mifs_local |>
+  traces() |>
+  melt() |>
+  ggplot(aes(x=iteration,y=value,group=.L1,color=factor(.L1)))+
+  geom_line()+
+  guides(color="none")+
+  facet_wrap(~name,scales="free_y")
+```
+
+
+
+
+based on the results, check the starting guess,
+
+Then perform global maximum check likelihood get point est
+
+do profile and obtain CI
+
+check likelihood and ess
+
+then prediction and compare with the observation

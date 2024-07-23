@@ -1,0 +1,18 @@
+---
+title: "Case Study"
+toc: true
+engine: knitr
+filters:
+  - pseudocode
+pseudocode:
+  caption-prefix: "Algorithm"
+  reference-prefix: "Algorithm"
+  caption-number: true
+---
+
+| &nbsp;          | &nbsp;                                                                            |
+|:----------------|:---------------------------------------------------------------------------------:|
+
+| Lecture slides  | [PDF](_site/ref materials qmd/metapop/slides.pdf)                                                                |
+| **R** script for the lesson              | [**R**](_site/ref materials qmd/metapop/main.R)                                                               |
+----------------------

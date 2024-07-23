@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.54">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aaron A. King">
+<meta name="author" content="Edward L. Ionides">
+
+<title>Lesson 5: Case study: measles – EpiSim</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">EpiSim</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Maximum likelihood estimation and iterated filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../metapop.html"> 
+<span class="menu-text">Meta population modelling</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>Beamer</a></li><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lesson 5: Case study: measles</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aaron A. King </p>
+             <p>Edward L. Ionides </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_includes/setup.R"</span>, <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<section id="objectives" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="objectives">Objectives</h2>
+<ul>
+<li>To display a published case study using plug-and-play methods with non-trivial model complexities.</li>
+<li>To show how extra-demographic stochasticity can be modeled.</li>
+<li>To demonstrate the use of covariates in pomp.</li>
+<li>To demonstrate the use of profile likelihood in scientific inference.</li>
+<li>To discuss the interpretation of parameter estimates.</li>
+<li>To emphasize the potential need for extra sources of stochasticity in modeling.</li>
+</ul>
+</section>
+<section id="challenges-in-inference-from-disease-dynamics" class="level2">
+<h2 class="anchored" data-anchor-id="challenges-in-inference-from-disease-dynamics">Challenges in inference from disease dynamics</h2>
+<ul>
+<li>Understanding, forecasting, managing epidemiological systems increasingly depends on models.</li>
+<li>Dynamic models can be used to test causal hypotheses.</li>
+<li>Real epidemiological systems:</li>
+</ul>
+<pre><code>-  are nonlinear
+-  are stochastic
+-  are nonstationary
+-  evolve in continuous time
+-  have hidden variables
+-  can be measured only with (large) error</code></pre>
+<ul>
+<li><p>Measles is the paradigm for a nonlinear ecological system that can be well described by low-dimensional nonlinear dynamics.</p></li>
+<li><p>A tradition of careful modeling studies have proposed and found evidence for a number of specific mechanisms, including</p></li>
+</ul>
+<pre><code>-  a high value of $R_0$ (c. 15--20)
+-  under-reporting
+-  seasonality in transmission rates associated with school terms
+-  response to changing birth rates
+-  a birth-cohort effect
+-  metapopulation dynamics
+-  fadeouts and reintroductions that scale with city size
+-  spatial traveling waves</code></pre>
+<ul>
+<li>Much of this evidence has been amassed from fitting models to data, using a variety of methods.</li>
+<li>See <span class="citation" data-cites="Rohani2010">Rohani and King (<a href="#ref-Rohani2010" role="doc-biblioref">2010</a>)</span> for a review of some of the high points.</li>
+</ul>
+</section>
+</section>
+<section id="model-and-implementation" class="level1">
+<h1>Model and implementation</h1>
+</section>
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<section id="measles-in-england-and-wales" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="measles-in-england-and-wales">Measles in England and Wales</h2>
+<ul>
+<li>We revisit a classic measles data set, weekly case reports in 954 urban centers in England and Wales during the pre-vaccine era (1950–1963).</li>
+<li>We examine questions regarding:</li>
+</ul>
+<pre><code>-  measles extinction and recolonization
+-  transmission rates
+-  seasonality
+-  resupply of susceptibles</code></pre>
+<ul>
+<li>We use a model that</li>
+</ul>
+<pre><code>1.  expresses our current understanding of measles dynamics
+2.  includes a long list of mechanisms that have been proposed and demonstrated in the literature
+3.  cannot be fit by previous likelihood-based methods</code></pre>
+<ul>
+<li>We examine data from large and small towns using the same model, something no existing methods have been able to do.</li>
+<li>We ask: does our perspective on this disease change when we expect the models to explain the data in detail?</li>
+<li>What bigger lessons can we learn regarding inference for dynamical systems?</li>
+</ul>
+</section>
+</section>
+<section id="data-sets" class="level1">
+<h1>Data sets</h1>
+<section id="data-sets-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="data-sets-1">Data sets</h2>
+<ul>
+<li>He, Ionides, &amp; King, <em>J. R. Soc. Interface</em> (2010)</li>
+<li>Twenty towns, including</li>
+</ul>
+<pre><code>-  10 largest
+-  10 smaller, chosen at random</code></pre>
+<ul>
+<li>Population sizes: 2k–3.4M</li>
+<li>Weekly case reports, 1950–1963</li>
+<li>Annual birth records and population sizes, 1944–1963</li>
+</ul>
+</section>
+<section id="map-of-cities-in-the-analysis" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="map-of-cities-in-the-analysis">Map of cities in the analysis</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/map-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="city-case-counts-i-smallest-8-cities" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="city-case-counts-i-smallest-8-cities">City case counts I: smallest 8 cities</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/dataplot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="city-case-counts-ii-largest-8-cities" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="city-case-counts-ii-largest-8-cities">City case counts II: largest 8 cities</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/dataplot2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="modeling" class="level1">
+<h1>Modeling</h1>
+<section id="continuous-time-markov-process-model" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="continuous-time-markov-process-model">Continuous-time Markov process model</h2>
+
+</section>
+<section id="continuous-time-markov-process-model-1" class="level2">
+<h2 class="anchored" data-anchor-id="continuous-time-markov-process-model-1">Continuous-time Markov process model</h2>
+<ul>
+<li>Covariates:</li>
+</ul>
+<pre><code>-  $B(t) = \text{birth rate, from data}$
+-  $N(t) = \text{population size, from data}$</code></pre>
+<ul>
+<li>Entry into susceptible class: <span class="math display">\[\mu_{BS}(t) = (1-c)\,B(t-\tau)+c\,\delta(t-\lfloor t\rfloor)\,\int_{t-1}^{t}\,B(t-\tau-s)\,ds\]</span></li>
+</ul>
+<pre><code>-  $c = \text{cohort effect}$
+-  $\tau = \text{school-entry delay}$
+-  $\lfloor t \rfloor = \text{most recent 1 September before}\ t$</code></pre>
+<ul>
+<li>Force of infection: <span class="math display">\[\mu_{SE}(t) = \tfrac{\beta(t)}{N(t)}\,(I+\iota)^{\alpha}\,\zeta(t)\]</span></li>
+</ul>
+<pre><code>-  $\iota = \text{imported infections}$
+-  $\zeta(t) = \text{Gamma white noise with intensity}\,\sigma_{SE}$ [@He2010,Bhadra2011]
+-  school-term transmission:
+  $$\beta(t) = \begin{cases}\beta_0\,\big(1+a(1-p)/p\big) &amp;\text{during term}\\\beta_0\,(1-a) &amp;\text{during vacation}\end{cases}$$
+  
+  -  $a= \text{amplitude of seasonality}$
+  -  $p=0.7589$ is the fraction of the year children are in school.
+  -  The factor $(1-p)/p$ ensures that the average transmission rate is $\beta_0$.
+  </code></pre>
+<ul>
+<li>Overdispersed binomial measurement model: <span class="math inline">\(\mathrm{cases}_t\,\vert\,\Delta{N}_{IR}=z_t \sim \dist{Normal}{\rho\,z_t,\rho\,(1-\rho)\,z_t+(\psi\,\rho\,z_t)^2}\)</span></li>
+</ul>
+</section>
+</section>
+<section id="model-implementation-in-pomp" class="level1">
+<h1>Model implementation in pomp</h1>
+<section id="implementation-in-pomp" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="implementation-in-pomp">Implementation in pomp</h2>
+<ul>
+<li>Codes that implement the model in pomp are to be found on <a href="./codes.R">the course website</a>.</li>
+<li>In those codes, we first load the needed packages and set the random seed, to allow reproducibility.</li>
+<li>Note that the codes make heavy use of the ggplot2 plotting package and tidyverse methods.</li>
+<li>We also use the convenient R pipe syntax, <code>|&gt;</code>.</li>
+</ul>
+</section>
+<section id="data-and-covariates" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="data-and-covariates">Data and covariates</h2>
+<ul>
+<li>The data are measles reports from 20 cities in England and Wales.</li>
+<li>We also have information on the population sizes and birth-rates in these cities; we’ll treat these variables as covariates.</li>
+<li>The codes illustrate the pre-processing of the measles and demography data using London as an example.</li>
+</ul>
+<p>Measles case reports from London:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/data-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We smooth the covariates and delay the entry of newborns into the susceptible pool.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/covarplot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="the-partially-observed-markov-process-model" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="the-partially-observed-markov-process-model">The partially observed Markov process model</h2>
+<p>We require a simulator for our model. Notable complexities include:</p>
+<ol type="1">
+<li>Incorporation of the known birthrate.</li>
+<li>The birth-cohort effect: a specified fraction (<code>cohort</code>) of the cohort enter the susceptible pool all at once.</li>
+<li>Seasonality in the transmission rate: during school terms, the transmission rate is higher than it is during holidays.</li>
+<li>Extra-demographic stochasticity in the form of a Gamma white-noise term acting multiplicatively on the force of infection.</li>
+<li>Demographic stochasticity implemented using Euler-multinomial distributions.</li>
+</ol>
+</section>
+<section id="implementation-of-the-process-model" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="implementation-of-the-process-model">Implementation of the process model</h2>
+<p>Let’s walk through the rprocess C snippet.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  double beta, br, seas, foi, dw, births;
+  double rate[6], trans[6];
+
+  // cohort effect
+  if (fabs(t-floor(t)-251.0/365.0) &lt; 0.5*dt)
+    br = cohort*birthrate/dt + (1-cohort)*birthrate;
+  else
+    br = (1.0-cohort)*birthrate;</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  // term-time seasonality
+  t = (t-floor(t))*365.25;
+  if ((t&gt;=7 &amp;&amp; t&lt;=100) ||
+      (t&gt;=115 &amp;&amp; t&lt;=199) ||
+      (t&gt;=252 &amp;&amp; t&lt;=300) ||
+      (t&gt;=308 &amp;&amp; t&lt;=356))
+      seas = 1.0+amplitude*0.2411/0.7589;
+  else
+      seas = 1.0-amplitude;</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  // transmission rate
+  beta = R0*(gamma+mu)*seas;
+
+  // expected force of infection
+  foi = beta*pow(I+iota,alpha)/pop;
+
+  // white noise (extrademographic stochasticity)
+  dw = rgammawn(sigmaSE,dt);</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  rate[0] = foi*dw/dt;  // stochastic force of infection
+  rate[1] = mu;         // natural S death
+  rate[2] = sigma;      // rate of ending of latent stage
+  rate[3] = mu;         // natural E death
+  rate[4] = gamma;      // recovery
+  rate[5] = mu;         // natural I death</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  // Poisson births
+  births = rpois(br*dt);
+
+  // transitions between classes
+  reulermultinom(2, S, &amp;rate[0], dt, &amp;trans[0]);
+  reulermultinom(2, E, &amp;rate[2], dt, &amp;trans[2]);
+  reulermultinom(2, I, &amp;rate[4], dt, &amp;trans[4]);</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>  S += births   - trans[0] - trans[1];
+  E += trans[0] - trans[2] - trans[3];
+  I += trans[2] - trans[4] - trans[5];
+  R = pop - S - E - I;
+  W += (dw - dt)/sigmaSE;  // standardized i.i.d. white noise
+  C += trans[4];           // true incidence</code></pre>
+</div>
+</div>
+</section>
+<section id="process-model-observations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="process-model-observations">Process model observations</h2>
+<ul>
+<li>In the above, <code>C</code> represents the true incidence, i.e., the number of new infections occurring over an interval.</li>
+<li>Since recognized measles infections are quarantined, we argue that most infection occurs before case recognition so that true incidence is a measure of the number of individuals progressing from the I to the R compartment in a given interval.</li>
+</ul>
+</section>
+<section id="state-initializations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="state-initializations">State initializations</h2>
+<p>We complete the process model definition by specifying the distribution of initial unobserved states. The following codes assume that the fraction of the population in each of the four compartments is known.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  double m = pop/(S_0+E_0+I_0+R_0);
+  S = nearbyint(m*S_0);
+  E = nearbyint(m*E_0);
+  I = nearbyint(m*I_0);
+  R = nearbyint(m*R_0);
+  W = 0;
+  C = 0;</code></pre>
+</div>
+</div>
+</section>
+<section id="measurement-model" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="measurement-model">Measurement model</h2>
+<ul>
+<li>We’ll model both under-reporting and measurement error.</li>
+<li>We want <span class="math inline">\(\mathbb{E}[\mathrm{cases}|C] = \rho\,C\)</span>, where <span class="math inline">\(C\)</span> is the true incidence and <span class="math inline">\(0&lt;\rho&lt;1\)</span> is the reporting efficiency.</li>
+<li>We’ll also assume that <span class="math inline">\(\mathrm{Var}[\mathrm{cases}|C] = \rho\,(1-\rho)\,C + (\psi\,\rho\,C)^2\)</span>, where <span class="math inline">\(\psi\)</span> quantifies overdispersion.</li>
+<li>Note that when <span class="math inline">\(\psi=0\)</span>, the variance-mean relation is that of the binomial distribution. To be specific, we’ll choose <span class="math inline">\(\mathrm{cases}\;\vert\;C \sim f(\cdot\;\vert\;\rho,\psi,C)\)</span>, where <span class="math display">\[\begin{equation*}
+\begin{split}
+   f(c\;\vert\;\rho,\psi,C) = &amp;\Phi(c+\tfrac{1}{2},\rho\,C,\rho\,(1-\rho)\,C+(\psi\,\rho\,C)^2)\\
+   &amp;-\Phi(c-\tfrac{1}{2},\rho\,C,\rho\,(1-\rho)\,C+(\psi\,\rho\,C)^2).
+\end{split}
+    \end{equation*}\]</span> Here, <span class="math inline">\(\Phi(x,\mu,\sigma^2)\)</span> is the c.d.f. of the normal distribution with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>.</li>
+</ul>
+<p>The following computes <span class="math inline">\(\mathbb{P}[\mathrm{cases}|C]\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  double m = rho*C;
+  double v = m*(1.0-rho+psi*psi*m);
+  double tol = 0.0;
+  if (cases &gt; 0.0) {
+    lik = pnorm(cases+0.5,m,sqrt(v)+tol,1,0)
+           - pnorm(cases-0.5,m,sqrt(v)+tol,1,0) + tol;
+  } else {
+    lik = pnorm(cases+0.5,m,sqrt(v)+tol,1,0) + tol;
+  }
+  if (give_log) lik = log(lik);</code></pre>
+</div>
+</div>
+<p>The following codes simulate <span class="math inline">\(\mathrm{cases} | C\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  double m = rho*C;
+  double v = m*(1.0-rho+psi*psi*m);
+  double tol = 0.0;
+  cases = rnorm(m,sqrt(v)+tol);
+  if (cases &gt; 0.0) {
+    cases = nearbyint(cases);
+  } else {
+    cases = 0.0;
+  }</code></pre>
+</div>
+</div>
+</section>
+<section id="constructing-the-pomp-object" class="level2">
+<h2 class="anchored" data-anchor-id="constructing-the-pomp-object">Constructing the pomp object</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">t0=</span><span class="fu">with</span>(dat,<span class="dv">2</span><span class="sc">*</span>time[<span class="dv">1</span>]<span class="sc">-</span>time[<span class="dv">2</span>]),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">time=</span><span class="st">"time"</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rprocess=</span><span class="fu">euler</span>(rproc,<span class="at">delta.t=</span><span class="dv">1</span><span class="sc">/</span><span class="fl">365.25</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">rinit=</span>rinit,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">dmeasure=</span>dmeas,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmeasure=</span>rmeas,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">covar=</span><span class="fu">covariate_table</span>(covar,<span class="at">times=</span><span class="st">"time"</span>),</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">accumvars=</span><span class="fu">c</span>(<span class="st">"C"</span>,<span class="st">"W"</span>),</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">statenames=</span><span class="fu">c</span>(<span class="st">"S"</span>,<span class="st">"E"</span>,<span class="st">"I"</span>,<span class="st">"R"</span>,<span class="st">"C"</span>,<span class="st">"W"</span>),</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"R0"</span>,<span class="st">"mu"</span>,<span class="st">"sigma"</span>,<span class="st">"gamma"</span>,<span class="st">"alpha"</span>,<span class="st">"iota"</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"rho"</span>,<span class="st">"sigmaSE"</span>,<span class="st">"psi"</span>,<span class="st">"cohort"</span>,<span class="st">"amplitude"</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"S_0"</span>,<span class="st">"E_0"</span>,<span class="st">"I_0"</span>,<span class="st">"R_0"</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> m1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="estimation" class="level1">
+<h1>Estimation</h1>
+</section>
+<section id="he2010" class="level1">
+<h1><span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span></h1>
+<section id="estimates-from-he2010" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="estimates-from-he2010">Estimates from <span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span></h2>
+<p><span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span> estimated the parameters of this model. The full set of estimates is included in the <code>R</code> code accompanying this document, where they are read into a data frame called <code>mles</code>.</p>
+<p>We verify that we get the same likelihood as <span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doFuture)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multicore)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">.combine=</span>c,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">998468235</span>L)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dopar%</span> {</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pfilter</span>(m1,<span class="at">Np=</span><span class="dv">10000</span>,<span class="at">params=</span>theta)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> pfs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logmeanexp</span>(<span class="fu">logLik</span>(pfs),<span class="at">se=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          est            se 
+-3801.6339190     0.2186696 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="simulations" class="level1">
+<h1>Simulations</h1>
+<section id="simulations-at-the-mle" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="simulations-at-the-mle">Simulations at the MLE</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">simulate</span>(<span class="at">params=</span>theta,<span class="at">nsim=</span><span class="dv">3</span>,<span class="at">format=</span><span class="st">"d"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>time,<span class="at">y=</span>cases,<span class="at">group=</span>.id,<span class="at">color=</span>(.id<span class="sc">==</span><span class="st">"data"</span>)))<span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">color=</span><span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">facet_wrap</span>(<span class="sc">~</span>.id,<span class="at">ncol=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/sims1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="parameter-estimation" class="level1">
+<h1>Parameter estimation</h1>
+<section id="parameter-transformations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="parameter-transformations">Parameter transformations</h2>
+<ul>
+<li><p>The parameters are constrained to be positive, and some of them are constrained to lie between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>.</p></li>
+<li><p>We can turn the likelihood maximization problem into an unconstrained maximization problem by transforming the parameters.</p></li>
+<li><p>Specifically, to enforce positivity, we log transform, to constrain parameters to <span class="math inline">\((0,1)\)</span>, we logit transform, and to confine parameters to the unit simplex, we use the log-barycentric transformation.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pt <span class="ot">&lt;-</span> <span class="fu">parameter_trans</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">log=</span><span class="fu">c</span>(<span class="st">"sigma"</span>,<span class="st">"gamma"</span>,<span class="st">"sigmaSE"</span>,<span class="st">"psi"</span>,<span class="st">"R0"</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">logit=</span><span class="fu">c</span>(<span class="st">"cohort"</span>,<span class="st">"amplitude"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">barycentric=</span><span class="fu">c</span>(<span class="st">"S_0"</span>,<span class="st">"E_0"</span>,<span class="st">"I_0"</span>,<span class="st">"R_0"</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="model-diagnostics" class="level1">
+<h1>Model diagnostics</h1>
+<section id="arma-benchmark" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="arma-benchmark">ARMA benchmark</h2>
+<ul>
+<li>Linear, Gaussian auto-regressive moving-average (ARMA) models provide a flexible non-mechanistic benchmark comparison.</li>
+<li>We fit an ARMA(2,2) model to <span class="math inline">\(\log(y_n^*+1)\)</span> and correct the likelihood back to the untransformed data (see Lesson~6 for more details). This has <span class="math inline">\(p=5\)</span> parameters and a log-likelihood of <span class="math inline">\(\ell=-3958.3\)</span> for London.</li>
+<li>The SEIR model has <span class="math inline">\(\ell=-3804.9\)</span> with <span class="math inline">\(p=12\)</span>.</li>
+<li>Minimizing the AIC, <span class="math inline">\(2p-2\ell\)</span>, is equivalent to maximizing <span class="math inline">\(\ell-p\)</span>.</li>
+<li>The aim of mechanistic modeling is not to beat benchmarks, but falling far behind can diagnose problems.</li>
+<li>“Far” means many log units: differences of log-likelihoods are invariant to the scale of measurement; ratios of log-likelihoods are not.</li>
+</ul>
+</section>
+<section id="log-likelihood-anomalies" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="log-likelihood-anomalies">Log-likelihood anomalies</h2>
+<ul>
+<li><p>The benchmark and model log-likelihoods can both be decomposed as a sum of conditional log-likelihoods, <span class="math inline">\(\ell(\theta)=\sum_{n=1}^N \ell_n(\theta)\)</span> where <span class="math inline">\(\ell_n(\theta)=\log f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\)</span>.</p></li>
+<li><p>The {} for the model at time <span class="math inline">\(t_n\)</span> is the difference between the model conditional log-likelihood and that of the benchmark.</p></li>
+<li><p>Anomalies can be used similarly to regression residuals: they can indicate points where the model fails; patterns can reveal scope for mode improvement.</p></li>
+<li><p>Conditional log-likelihoods are not scale-invariant, but anomalies are.</p></li>
+</ul>
+</section>
+<section id="anomaly-plot-for-london" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="anomaly-plot-for-london">Anomaly plot for London</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/plot_anomalies-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:4in" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Here, the main anomalies are positive: the log-scale ARMA model is not good at explaining very low counts.</li>
+<li>Negative anomalies result if cases fail to drop when susceptibles should be depleted. These are not big anomalies.</li>
+<li>One major outlier was previously identified and “cleaned.”</li>
+</ul>
+</section>
+<section id="particle-filter-variance-for-london" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="particle-filter-variance-for-london">Particle filter variance for London</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/plot_pf_var-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:4in" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>The variance of the <code>pfilter</code> log-likelihood estimate is approximately the sum of the variances of the conditional log-likelihoods.</li>
+<li>Observations with high variance are numerically problematic.</li>
+<li>Here, none are larger than 1. We have 2000 particles here, which seems just enough, though more may be preferable.</li>
+</ul>
+</section>
+</section>
+<section id="findings" class="level1">
+<h1>Findings</h1>
+<section id="results-from-he2010" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="results-from-he2010">Results from <span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span></h2>
+<p>The <a href="./profile.html">linked document</a> shows how a likelihood profile can be constructed using IF2. The fitting procedure used is as follows:</p>
+<ul>
+<li>A large number of searches were started at points across the parameter space.</li>
+<li>Iterated filtering was used to maximize the likelihood.</li>
+<li>We obtained point estimates of all parameters for 20 cities.</li>
+<li>We constructed profile likelihoods to quantify uncertainty in London and Hastings.</li>
+</ul>
+</section>
+</section>
+<section id="notable-findings" class="level1">
+<h1>Notable findings</h1>
+<section id="imported-infections" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="imported-infections">Imported infections</h2>
+<p><span class="math display">\[\text{force of infection} = \mu_{SE}=\frac{\beta(t)}{N(t)}\,(I+\iota)^{\alpha}\,\zeta(t)\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/imports-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:4in" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="seasonality" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="seasonality">Seasonality</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/amplitude-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cohort-effect" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="cohort-effect">Cohort effect</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/cohort-effect-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="birth-delay" class="level2">
+<h2 class="anchored" data-anchor-id="birth-delay">Birth delay</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/delay-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Profile likelihood for birth-cohort delay, showing 95% and 99% critical values of the log likelihood.</p>
+</section>
+<section id="reporting-rate" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="reporting-rate">Reporting rate</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/report-rate-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="predicted-vs-observed-critical-community-size" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="predicted-vs-observed-critical-community-size">Predicted vs observed critical community size</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/fadeouts-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="problematic-results" class="level1">
+<h1>Problematic results</h1>
+<section id="r_0-estimates-inconsistent-with-literature" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="r_0-estimates-inconsistent-with-literature"><span class="math inline">\(R_0\)</span> estimates inconsistent with literature</h2>
+<ul>
+<li>Recall that <span class="math inline">\(R_0\)</span> : a measure of how communicable an infection is.</li>
+<li>Existing estimates of <span class="math inline">\(R_0\)</span> (c.&nbsp;15–20) come from two sources: serology surveys, and models fit to data using feature-based methods.</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/R0-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="parameter-estimates" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="parameter-estimates">Parameter estimates</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+
+</div>
+</div>
+<p><span class="math inline">\(r=\mathrm{cor}_{S}({\cdot},{N_{1950}})\)</span> (Spearman rank correlation)</p>
+</section>
+<section id="extrademographic-stochasticity" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="extrademographic-stochasticity">Extrademographic stochasticity</h2>
+<p><span class="math display">\[\mu_{SE}=\frac{\beta(t)}{N(t)}\,(I+\iota)\,\zeta(t)\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/env-noise-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:4in" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="questions" class="level2">
+<h2 class="anchored" data-anchor-id="questions">Questions</h2>
+<ul>
+<li>What does it mean that parameter estimates from the fitting disagree with estimates from other data?</li>
+<li>How can one interpret the correlation between infectious period and city size in the parameter estimates?</li>
+<li>How do we interpret the need for extrademographic stochasticity in this model?</li>
+</ul>
+</section>
+<section id="simulations-at-the-mle-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="simulations-at-the-mle-1">Simulations at the MLE</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/sims2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exercises" class="level1">
+<h1>Exercises</h1>
+<section id="reformulate-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="reformulate-the-model">Reformulate the model</h2>
+<ul>
+<li>Modify the <span class="citation" data-cites="He2010">He, Ionides, and King (<a href="#ref-He2010" role="doc-biblioref">2010</a>)</span> model to remove the cohort effect. Run simulations and compute likelihoods to convince yourself that the resulting codes agree with the original ones for <code>cohort = 0</code>.</li>
+<li>Now modify the transmission seasonality to use a sinusoidal form. How many parameters must you use? Fixing the other parameters at their MLE values, compute and visualize a profile likelihood over these parameters.</li>
+</ul>
+</section>
+<section id="extrademographic-stochasticity-1" class="level2">
+<h2 class="anchored" data-anchor-id="extrademographic-stochasticity-1">Extrademographic stochasticity</h2>
+<p>Set the extrademographic stochasticity parameter <span class="math inline">\(\sigma_{SE}=0\)</span>, set <span class="math inline">\(\alpha=1\)</span>, and fix <span class="math inline">\(\rho\)</span> and <span class="math inline">\(\iota\)</span> at their MLE values, then maximize the likelihood over the remaining parameters.</p>
+<ul>
+<li>How do your results compare with those at the MLE? Compare likelihoods but also use simulations to diagnose differences between the models.</li>
+</ul>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<section id="references-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="references-1">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-He2010" class="csl-entry" role="listitem">
+He, Daihai, Edward L. Ionides, and Aaron A. King. 2010. <span>“Plug-and-Play Inference for Disease Dynamics: Measles in Large and Small Populations as a Case Study.”</span> <em>J R Soc Interface</em> 7 (June): 271–83. <a href="https://doi.org/10.1098/rsif.2009.0151">https://doi.org/10.1098/rsif.2009.0151</a>.
+</div>
+<div id="ref-Rohani2010" class="csl-entry" role="listitem">
+Rohani, Pejman, and Aaron A. King. 2010. <span>“Never Mind the Length, Feel the Quality: The Impact of Long-Term Epidemiological Data Sets on Theory, Application and Policy.”</span> <em>Trends Ecol Evol</em> 25 (10): 611–18. <a href="https://doi.org/10.1016/j.tree.2010.07.010">https://doi.org/10.1016/j.tree.2010.07.010</a>.
+</div>
+</div>
+</section>
+<section id="license-acknowledgments-and-links" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
+<ul>
+<li><p>This lesson is prepared for the <a href="https://kingaa.github.io/sbied/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://www.biostat.washington.edu/suminst/sismid">SISMID</a>.</p></li>
+<li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
+<li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
+<li><p>Produced with R version 4.4.0 and pomp version 5.9.</p></li>
+<li><p>Compiled on 2024-06-17.</p></li>
+</ul>
+<p><a href="index.html">Back to Lesson</a></p>
+<p><a href="./codes.R"><code>R</code> codes for this lesson</a></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.54">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aaron A. King">
+<meta name="author" content="Edward L. Ionides">
+
+<title>Lesson 7: Case study: ebola – EpiSim</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">EpiSim</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Maximum likelihood estimation and iterated filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../metapop.html"> 
+<span class="menu-text">Meta population modelling</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>Beamer</a></li><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lesson 7: Case study: ebola</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aaron A. King </p>
+             <p>Edward L. Ionides </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<section id="objectives" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="objectives">Objectives</h2>
+<ol type="1">
+<li><pre><code>To explore the use of POMP models in the context of an outbreak of an
+emerging infectious disease.</code></pre></li>
+<li><pre><code>To demonstrate the use of diagnostic probes for model criticism.</code></pre></li>
+<li><pre><code>To illustrate some forecasting methods based on POMP models.</code></pre></li>
+<li><pre><code>To provide an example that can be modified to apply similar approaches
+to other outbreaks of emerging infectious diseases.</code></pre></li>
+</ol>
+<p></p>
+<p>This lesson follows <span class="citation" data-cites="King2015">King et al. (<a href="#ref-King2015" role="doc-biblioref">2015</a>)</span>, all codes for which are available on <a href="https://dx.doi.org/10.5061/dryad.r5f30">datadryad.org</a>.</p>
+</section>
+</section>
+<section id="west-africa-evd-outbreak" class="level1">
+<h1>2014 West Africa EVD outbreak</h1>
+<section id="an-emerging-infectious-disease-outbreak" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="an-emerging-infectious-disease-outbreak">An emerging infectious disease outbreak</h2>
+<p>Let’s situate ourselves at the beginning of October 2014. The WHO situation report contained data on the number of cases in each of Guinea, Sierra Leone, and Liberia. Key questions included:</p>
+<ol type="1">
+<li><pre><code>How fast will the outbreak unfold?</code></pre></li>
+<li><pre><code>How large will it ultimately prove?</code></pre></li>
+<li><pre><code>What interventions will be most effective?</code></pre></li>
+</ol>
+<p>As is to be expected in the case of a fast-moving outbreak of a novel pathogen in an underdeveloped country, the answers to these questions were sought in a context far from ideal:</p>
+<ul>
+<li>Case ascertainment is difficult and the case definition itself may be evolving.</li>
+<li>Surveillance effort is changing on the same timescale as the outbreak itself.</li>
+<li>The public health and behavioral response to the outbreak is rapidly changing.</li>
+</ul>
+</section>
+<section id="best-practices" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="best-practices">Best practices</h2>
+<ul>
+<li>The <span class="citation" data-cites="King2015">King et al. (<a href="#ref-King2015" role="doc-biblioref">2015</a>)</span> paper focused critical attention on the economical and therefore common practice of fitting deterministic transmission models to cumulative incidence data.</li>
+<li><pre><code>Specifically, @King2015 showed how this practice easily leads to overconfident prediction that, worryingly, can mask their own presence.</code></pre></li>
+<li><pre><code>The paper recommended the use of POMP models, for several reasons:</code></pre></li>
+</ul>
+<pre><code>- 
+  Such models can accommodate a wide range of hypothetical forms.
+- 
+  They can be readily fit to incidence data, especially during the exponential growth phase of an outbreak.
+- 
+  Stochastic models afford a more explicit treatment of uncertainty.
+- 
+  POMP models come with a number of diagnostic approaches built-in, which can be used to assess model misspecification.</code></pre>
+</section>
+</section>
+<section id="data-and-model" class="level1">
+<h1>Data and model</h1>
+</section>
+<section id="data" class="level1">
+<h1>Data</h1>
+<section id="situation-report-data" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="situation-report-data">Situation-report data</h2>
+<p>The data and pomp codes used to represent the transmission models are presented in <a href="./model.html">a supplement</a>.</p>
+<p>The data we focus on here are from the WHO Situation Report of 1 October 2014. Supplementing these data are population estimates for the three countries.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/plot-data-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="model" class="level1">
+<h1>Model</h1>
+<section id="seir-model-with-gamma-distributed-latent-period" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="seir-model-with-gamma-distributed-latent-period">SEIR model with gamma-distributed latent period</h2>
+<ul>
+<li>Many of the early modeling efforts used variants on the simple SEIR model.</li>
+<li><pre><code>Here, we'll focus on a variant that attempts a more careful description of the duration of the latent period.</code></pre></li>
+<li><pre><code>Specifically, this model assumes that the amount of time an infection remains latent is</code></pre></li>
+</ul>
+<pre><code>\begin{equation*}
+  \mathrm{LP} \sim \dist{Gamma}{m,\frac{1}{m\,\alpha}},
+\end{equation*}
+
+where $m$ is an integer.</code></pre>
+<ul>
+<li><pre><code>This means that the latent period has expectation $1/\alpha$ and variance $1/(m\,\alpha)$. In this document, we'll fix $m=3$.</code></pre></li>
+<li><pre><code>We implement Gamma distributions using the so-called *linear chain trick*.</code></pre></li>
+</ul>
+<p>The observations are modeled as a negative binomial process conditional on the number of infections. That is, if <span class="math inline">\(C_t\)</span> are the reported cases at week <span class="math inline">\(t\)</span> and <span class="math inline">\(H_t\)</span> is the true incidence, then we postulate that <span class="math inline">\(C_t | H_t\)</span> is negative binomial with</p>
+<p><span class="math display">\[\begin{equation*}
+    \expect{C_t|H_t} = \rho\,H_t\] and \[\var{C_t|H_t} = \rho\,H_t\,(1+k\,\rho\,H_t).
+  \end{equation*}\]</span></p>
+<p>The negative binomial process allows for overdispersion in the counts. This overdispersion is controlled by parameter <span class="math inline">\(k\)</span>.</p>
+</section>
+</section>
+<section id="parameter-estimates" class="level1">
+<h1>Parameter estimates</h1>
+<section id="parameter-estimates-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="parameter-estimates-1">Parameter estimates</h2>
+<ul>
+<li><span class="citation" data-cites="King2015">King et al. (<a href="#ref-King2015" role="doc-biblioref">2015</a>)</span> estimated parameters for this model for each country.</li>
+<li><pre><code>A Latin hypercube design was used to initiate a large number of iterated filtering runs.</code></pre></li>
+<li><pre><code>Profile likelihoods were computed for each country against the parameters $k$ (the measurement model overdispersion) and $R_0$ (the basic reproductive ratio).</code></pre></li>
+<li><pre><code>Full details are given [on the datadryad.org site](https://dx.doi.org/10.5061/dryad.r5f30).</code></pre></li>
+<li><pre><code>Codes for this document are [available here](./codes.R).
+The results of these calculations are loaded and displayed in the following.</code></pre></li>
+</ul>
+<ul>
+<li><pre><code>The following are plots of the profile likelihoods.
+The horizontal line represents the critical value of the likelihood ratio test for $p=0.01$.</code></pre></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/profiles-plots-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="model-criticism" class="level1">
+<h1>Model Criticism</h1>
+<section id="diagnostics-or-model-criticism" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="diagnostics-or-model-criticism">Diagnostics <em>or</em> Model Criticism</h2>
+<ul>
+<li><p>Parameter estimation is the process of finding the parameters that are “best”, in some sense, for a given model, from among the set of those that make sense for that model.</p></li>
+<li><p>Model selection, likewise, aims at identifying the “best” model, in some sense, from among a set of candidates.</p></li>
+<li><p>One can do both of these things more or less well, but no matter how carefully they are done, the best of a bad set of models is still bad.</p></li>
+<li><p>Let’s investigate the model here, at its maximum-likelihood parameters, to see if we can identify problems.</p></li>
+<li><p>The guiding principle in this is that, if the model is “good”, then the data are a plausible realization of that model.</p></li>
+<li><p>Therefore, we can compare the data directly against model simulations.</p></li>
+<li><p>Moreover, we can quantify the agreement between simulations and data in any way we like.</p></li>
+<li><p>Any statistic, or set of statistics, that can be applied to the data can also be applied to simulations.</p></li>
+<li><p>Shortcomings of the model should manifest themselves as discrepancies between the model-predicted distribution of such statistics and their value on the data.</p></li>
+<li><p>pomp provides tools to facilitate this process.</p></li>
+<li><p>Specifically, the <code>probe</code> function applies a set of user-specified summary statistics or <em>probes</em>, to the model and the data, and quantifies the degree of disagreement in several ways.</p></li>
+<li><pre><code>Let's see how this is done using the model for the Guinean outbreak.</code></pre></li>
+</ul>
+</section>
+</section>
+<section id="simulation-for-diagnosis" class="level1">
+<h1>Simulation for diagnosis</h1>
+<section id="model-simulations" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="model-simulations">Model simulations</h2>
+<p>From our profile-likelihood calculations, we extract the MLE:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>profs <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country<span class="sc">==</span><span class="st">"Guinea"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">==</span><span class="fu">max</span>(loglik)) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loglik,<span class="sc">-</span>loglik.se,<span class="sc">-</span>country,<span class="sc">-</span>profile) <span class="ot">-&gt;</span> <span class="fu">coef</span>(gin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here, <code>profs</code> contains the profile-likelihood calculations displayed previously and <code>gin</code> is a pomp object containing the model and data for Guinea.</p>
+<p>The following generates and plots some simulations on the same axes as the data.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>gin <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">date=</span><span class="fu">min</span>(dat<span class="sc">$</span>date)<span class="sc">+</span><span class="dv">7</span><span class="sc">*</span>(week<span class="dv">-1</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">is.data=</span><span class="fu">ifelse</span>(.id<span class="sc">==</span><span class="st">"data"</span>,<span class="st">"yes"</span>,<span class="st">"no"</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>date,<span class="at">y=</span>cases,<span class="at">group=</span>.id,<span class="at">color=</span>is.data,<span class="at">alpha=</span>is.data))<span class="sc">+</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color=</span><span class="st">"none"</span>,<span class="at">alpha=</span><span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="at">no=</span><span class="fu">gray</span>(<span class="fl">0.6</span>),<span class="at">yes=</span><span class="st">"red"</span>))<span class="sc">+</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_alpha_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="at">no=</span><span class="fl">0.5</span>,<span class="at">yes=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/diagnostics1b-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="diagnostic-probes" class="level1">
+<h1>Diagnostic probes</h1>
+<section id="diagnostic-probes-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="diagnostic-probes-1">Diagnostic probes</h2>
+<ul>
+<li><p>Does the data look like it could have come from the model?</p>
+<ul>
+<li>The simulations appear to be growing a bit more quickly than the data.</li>
+</ul></li>
+<li><p>Let’s try to quantify this.</p>
+<ul>
+<li>First, we’ll write a function that estimates the exponential growth rate by linear regression.</li>
+<li>Then, we’ll apply it to the data and to 500 simulations.</li>
+</ul></li>
+<li><p>In the following, <code>gin</code> is a pomp object containing the model and the data from the Guinea outbreak.</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>growth.rate <span class="ot">&lt;-</span> <span class="cf">function</span> (y) {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  cases <span class="ot">&lt;-</span> y[<span class="st">"cases"</span>,]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log1p</span>(cases)<span class="sc">~</span><span class="fu">seq_along</span>(cases))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unname</span>(<span class="fu">coef</span>(fit)[<span class="dv">2</span>])</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>gin <span class="sc">|&gt;</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">probe</span>(<span class="at">probes=</span><span class="fu">list</span>(<span class="at">r=</span>growth.rate),<span class="at">nsim=</span><span class="dv">500</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/diagnostics-growth-rate-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Do these results bear out our suspicion that the model and data differ in terms of growth rate?</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/diagnostics1b-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>The simulations also appear to be more highly variable around the trend than do the data.</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>growth.rate.plus <span class="ot">&lt;-</span> <span class="cf">function</span> (y) {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  cases <span class="ot">&lt;-</span> y[<span class="st">"cases"</span>,]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log1p</span>(cases)<span class="sc">~</span><span class="fu">seq_along</span>(cases))</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">r=</span><span class="fu">unname</span>(<span class="fu">coef</span>(fit)[<span class="dv">2</span>]),<span class="at">sd=</span><span class="fu">sd</span>(<span class="fu">residuals</span>(fit)))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>gin <span class="sc">|&gt;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">probe</span>(<span class="at">probes=</span><span class="fu">list</span>(growth.rate.plus),<span class="at">nsim=</span><span class="dv">500</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/diagnostics-growth-rate-and-sd-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><p>Do we see evidence for lack of fit of model to data?</p></li>
+<li><p>Let’s also look more carefully at the distribution of values about the trend using the 1st and 3rd quartiles.</p></li>
+<li><p>Also, it looks like the data are less jagged than the simulations. We can quantify this using the autocorrelation function (ACF).</p></li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>log1p.detrend <span class="ot">&lt;-</span> <span class="cf">function</span> (y) {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  cases <span class="ot">&lt;-</span> y[<span class="st">"cases"</span>,]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log1p</span>(cases)<span class="sc">~</span><span class="fu">seq_along</span>(cases))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  y[<span class="st">"cases"</span>,] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">residuals</span>(fit))</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  y</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>gin <span class="sc">|&gt;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">probe</span>(<span class="at">nsim=</span><span class="dv">500</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">probes=</span><span class="fu">list</span>(</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>      growth.rate.plus,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">probe_quantile</span>(<span class="at">var=</span><span class="st">"cases"</span>,<span class="at">prob=</span><span class="fu">c</span>(<span class="fl">0.25</span>,<span class="fl">0.75</span>)),</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">probe_acf</span>(<span class="at">var=</span><span class="st">"cases"</span>,<span class="at">lags=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">type=</span><span class="st">"correlation"</span>,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">transform=</span>log1p.detrend))) <span class="sc">|&gt;</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/diagnostics2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exercise" class="level1">
+<h1>Exercise</h1>
+<section id="the-sierra-leone-outbreak" class="level2">
+<h2 class="anchored" data-anchor-id="the-sierra-leone-outbreak">The Sierra Leone outbreak</h2>
+<p>Apply probes to investigate the extent to which the SEIR model above is an adequate description of the data from the Sierra Leone outbreak. Have a look at the probes provided with pomp: <code>?basic.probes</code>. Try also to come up with some informative probes of your own. Discuss the implications of your findings.</p>
+</section>
+</section>
+<section id="forecasting-using-pomp-models" class="level1">
+<h1>Forecasting using POMP models</h1>
+</section>
+<section id="sources-of-uncertainty" class="level1">
+<h1>Sources of uncertainty</h1>
+<section id="forecasting-and-forecasting-uncertainty" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="forecasting-and-forecasting-uncertainty">Forecasting and forecasting uncertainty</h2>
+<ul>
+<li>To this point in the course, we’ve focused on using POMP models to answer scientific questions, i.e., to compare alternative hypothetical explanations for the data in hand.</li>
+<li><pre><code>Of course, we can also use them to make forecasts.</code></pre></li>
+<li><pre><code>A set of key issues surrounds quantifying the forecast uncertainty.</code></pre></li>
+<li><pre><code>This arises from four sources:</code></pre></li>
+</ul>
+<pre><code>1. 
+  measurement error
+2. 
+  process noise
+3. 
+  parametric uncertainty
+4. 
+  structural uncertainty</code></pre>
+<ul>
+<li>Here, we’ll explore how we can account for the first three of these in making forecasts for the Sierra Leone outbreak.</li>
+</ul>
+</section>
+</section>
+<section id="forecasting-ebola-an-empirical-bayes-approach" class="level1">
+<h1>Forecasting Ebola: an empirical Bayes approach</h1>
+<section id="parameter-uncertainty" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="parameter-uncertainty">Parameter uncertainty</h2>
+<p>We take an <a href="https://en.wikipedia.org/wiki/Empirical_Bayes_method"><em>empirical Bayes</em></a> approach.</p>
+<p>First, we set up a collection of parameter vectors in a neighborhood of the maximum likelihood estimate containing the region of high likelihood.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>profs <span class="sc">|&gt;</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country<span class="sc">==</span><span class="st">"SierraLeone"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>country,<span class="sc">-</span>profile,<span class="sc">-</span>loglik.se) <span class="sc">|&gt;</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="fl">0.5</span><span class="sc">*</span><span class="fu">qchisq</span>(<span class="at">df=</span><span class="dv">1</span>,<span class="at">p=</span><span class="fl">0.99</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(parameter,value) <span class="sc">|&gt;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(parameter) <span class="sc">|&gt;</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">min=</span><span class="fu">min</span>(value),<span class="at">max=</span><span class="fu">max</span>(value)) <span class="sc">|&gt;</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(parameter<span class="sc">!=</span><span class="st">"loglik"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_to_rownames</span>(<span class="st">"parameter"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="ot">-&gt;</span> ranges</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sobol_design</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower=</span>ranges[,<span class="st">"min"</span>],</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper=</span>ranges[,<span class="st">"max"</span>],</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">nseq=</span><span class="dv">20</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>) <span class="ot">-&gt;</span> params</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/forecasts1d-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="process-noise-and-measurement-error" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="process-noise-and-measurement-error">Process noise and measurement error</h2>
+<p>Next, we carry out a particle filter at each parameter vector, which gives us estimates of both the likelihood and the filter distribution at that parameter value.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>    M1 <span class="ot">&lt;-</span> <span class="fu">ebolaModel</span>(<span class="st">"SierraLeone"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    M1 <span class="sc">|&gt;</span> <span class="fu">pfilter</span>(<span class="at">params=</span>p,<span class="at">Np=</span><span class="dv">2000</span>,<span class="at">save.states=</span><span class="cn">TRUE</span>) <span class="ot">-&gt;</span> pf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We extract the state variables at the end of the data for use as initial conditions for the forecasts.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>    pf <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">saved_states</span>() <span class="sc">|&gt;</span> <span class="do">## latent state for each particle</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tail</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span>        <span class="do">## last timepoint only</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">melt</span>() <span class="sc">|&gt;</span>         <span class="do">## reshape and rename the state variables</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_wider</span>() <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(.id) <span class="sc">|&gt;</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(<span class="at">S_0=</span>S, <span class="at">E_0=</span>E1<span class="sc">+</span>E2<span class="sc">+</span>E3, <span class="at">I_0=</span>I, <span class="at">R_0=</span>R) <span class="sc">|&gt;</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_longer</span>(<span class="sc">-</span>.id) <span class="sc">|&gt;</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">spread</span>(.id,value) <span class="sc">|&gt;</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">column_to_rownames</span>(<span class="st">"name"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.matrix</span>() <span class="ot">-&gt;</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The final states are now stored in <code>x</code>.</p>
+<p>We simulate forward from the initial condition, up to the desired forecast horizon, to give a forecast corresponding to the selected parameter vector. To do this, we first set up a matrix of parameters:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>    pp <span class="ot">&lt;-</span> <span class="fu">parmat</span>(<span class="fu">unlist</span>(p),<span class="fu">ncol</span>(x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, we generate simulations over the “calibration period” (i.e., the time interval over which we have data). We record the likelihood of the data given the parameter vector:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>    M1 <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">simulate</span>(<span class="at">params=</span>pp,<span class="at">format=</span><span class="st">"data.frame"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(.id,week,cases) <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">period=</span><span class="st">"calibration"</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">loglik=</span><span class="fu">logLik</span>(pf)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>      ) <span class="ot">-&gt;</span> calib</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we create a new pomp object for the forecasting.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>    M2 <span class="ot">&lt;-</span> M1</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">time</span>(M2) <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">time</span>(M1))<span class="sc">+</span><span class="fu">seq_len</span>(horizon)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">timezero</span>(M2) <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">time</span>(M1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We set the initial conditions to the ones determined above and perform forecast simulations.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>    pp[<span class="fu">rownames</span>(x),] <span class="ot">&lt;-</span> x</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    M2 <span class="sc">|&gt;</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">simulate</span>(<span class="at">params=</span>pp,<span class="at">format=</span><span class="st">"data.frame"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(.id,week,cases) <span class="sc">|&gt;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">period=</span><span class="st">"projection"</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">loglik=</span><span class="fu">logLik</span>(pf)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>      ) <span class="ot">-&gt;</span> proj</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We combine the calibration and projection simulations into a single data frame.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bind_rows</span>(calib,proj) <span class="ot">-&gt;</span> sims</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We repeat this procedure for each parameter vector, binding the results into a single data frame. See <a href="./codes.R">this lesson’s <code>R</code> script</a> for details.</p>
+<p>We give these prediction distributions weights proportional to the estimated likelihoods of the parameter vectors.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sims <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weight=</span><span class="fu">exp</span>(loglik<span class="sc">-</span><span class="fu">mean</span>(loglik))) <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(week,.id) <span class="ot">-&gt;</span> sims</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We verify that our effective sample size is large.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>sims <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(week<span class="sc">==</span><span class="fu">max</span>(week)) <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ess=</span><span class="fu">sum</span>(weight)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="fu">sum</span>(weight<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      ess
+ 10485.34</code></pre>
+</div>
+</div>
+<p>Finally, we compute quantiles of the forecast incidence.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>sims <span class="sc">|&gt;</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week,period) <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">p=</span><span class="fu">c</span>(<span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span>),</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">value=</span><span class="fu">wquant</span>(cases,<span class="at">weights=</span>weight,<span class="at">probs=</span>p),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">name=</span><span class="fu">c</span>(<span class="st">"lower"</span>,<span class="st">"median"</span>,<span class="st">"upper"</span>)</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>p) <span class="sc">|&gt;</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>() <span class="sc">|&gt;</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date=</span><span class="fu">min</span>(dat<span class="sc">$</span>date)<span class="sc">+</span><span class="dv">7</span><span class="sc">*</span>(week<span class="dv">-1</span>)) <span class="ot">-&gt;</span> simq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/forecast-plots-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exercise-1" class="level1">
+<h1>Exercise</h1>
+<section id="decomposing-the-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="decomposing-the-uncertainty">Decomposing the uncertainty</h2>
+<p>As we have discussed, the uncertainty shown in the forecasts above has three sources: parameter uncertainty, process noise, and measurement error. Show how you can break the total uncertainty into these three components. Produce plots similar to that above showing each of the components.</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<section id="references-1" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="references-1">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-King2015" class="csl-entry" role="listitem">
+King, Aaron A., Matthieu Domenech de Cellès, Felicia M. G. Magpantay, and Pejman Rohani. 2015. <span>“Avoidable Errors in the Modelling of Outbreaks of Emerging Pathogens, with Special Reference to <span>Ebola</span>.”</span> <em>Proc R Soc Lond B</em> 282 (1806): 20150347. <a href="https://doi.org/10.1098/rspb.2015.0347">https://doi.org/10.1098/rspb.2015.0347</a>.
+</div>
+</div>
+</section>
+<section id="license-acknowledgments-and-links" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
+<ul>
+<li><p>This lesson is prepared for the <a href="https://kingaa.github.io/sbied/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://www.biostat.washington.edu/suminst/sismid">SISMID</a>.</p></li>
+<li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
+<li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
+<li><p>Produced with <code>R</code> version 4.4.0 and pomp version 5.9.</p></li>
+<li><p>Compiled on 2024-06-17.</p></li>
+</ul>
+<p><a href="index.html">Back to Lesson</a></p>
+<p><a href="model.html">Model construction supplement</a></p>
+<p><a href="./codes.R"><code>R</code> codes for this lesson</a></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

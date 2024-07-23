@@ -2,9 +2,9 @@
   {
     "objectID": "likelihood.html",
     "href": "likelihood.html",
-    "title": "Simulation and Likelihood",
+    "title": "Likelihood",
     "section": "",
-    "text": "Model implementation in pomp\nCreating a pomp object with different components\nComputing likelihood using pfilter\n\n\noptions(warning = FALSE)\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(tidyr)\nlibrary(readr)\nlibrary(iterators)\nlibrary(pomp)\nlibrary(ggplot2)\nlibrary(foreach)\nlibrary(doParallel)\n\nLoading required package: parallel"
+    "text": "Lecture slides | PDF |\nReference Recording (2020,2021) | Video (112 min) |\nQuiz | PDF |\nR script for the lesson | R |\nSupplement: Deterministic latent process models and their role in benchmarking POMP models | HTML |\nSupplement: Monte Carlo Methods | PDF |\nSupplement: Likelihood by direct simulation: Consett measles example | HTML |\nSupplement: Standard errors via the observed Fisher information | HTML |\nSupplement: Bootstrap methods | HTML |\nSupplement: Direct maximization of the particle filter likelihood | HTML |\nWorked solution to Exercise 3.1 | HTML |\nWorked solution to Exercise 3.2 | HTML |\nWorked solution to Exercise 3.3 | HTML |"
   },
   {
     "objectID": "likelihood.html#summary",
@@ -53,7 +53,7 @@
     "href": "simulation.html",
     "title": "Simulation",
     "section": "",
-    "text": "Compartment model introduction\n\nSIR model, deterministic\nSIR model, stochastic\n\nModel with observations\n\nSIR model with a diagnosis compartment\n\nPartially Observed Markov Process (POMP)\n\nstate process and measurement model\nSIR model in a POMP model"
+    "text": "Lecture slides | PDF |\nReference Recording (2020) | Video (98 min) |\nQuiz | PDF |\nR script for the lesson | R |\nWorked solutions to the Exercises | HTML |"
   },
   {
     "objectID": "simulation.html#summary",
@@ -137,7 +137,7 @@
     "href": "iterated.html",
     "title": "Maximum likelihood estimation and iterated filtering",
     "section": "",
-    "text": "Model implementation in pomp\nCreating a pomp object with different componenets\nComputing likelihood using pfilter"
+    "text": "Lecture slides | PDF |\nReference Recording (2020,2021) | Video (110 min) |\nQuiz | PDF |\nR script for the lesson | R |\nWindows-safe R script for the lesson | R |\nSupplement: Tuning IF2 | HTML |\nWorked solution to Exercise 4.1 | HTML |\nWorked solution to Exercise 4.2 | HTML |\nWorked solution to Exercise 4.4 | HTML |\n                                         | |"
   },
   {
     "objectID": "iterated.html#summary",
@@ -173,5 +173,68 @@
     "title": "Maximum likelihood estimation and iterated filtering",
     "section": "Local search of the likelihood surface",
     "text": "Local search of the likelihood surface\nA “local search” means that we are looking for the maximum likelihood estimate (MLE) starting from ONE initial guess. Afterwards, by applying “local search” to a number of different initial guesses covering the reasonable parameter space, we can explore the likelihood surface and find the global MLE.\nA few parameters for iterated filtering need to be specified:\n\nthe random walk standard deviation, rw.sd for each parameter to be estimated\nthe cooling fraction every 50 iterations, cooling.fraction.50\nthe transmission rate \\(\\beta\\) will estimated in log scale (since \\(\\beta &gt; 0\\)) and the reporting ratio \\(\\rho\\) in logistic scale (since \\(0 &lt; \\rho &lt; 1\\))\nthe perturbation for \\(\\beta\\) and \\(\\rho\\) are both \\(0.02\\) (a very common and efficient choice from experience)\nfix cooling.fraction.50=0.5, such that after 50 mif2 iterations, the perturbation are reduced to half their original magnitudes\n\nNow we can repeat the mif2 algorithm for 20 times with the same initial guesses:\n\nforeach(i=1:20,.combine=c) %dopar% {\n  sird_measle |&gt;\n    mif2(\n      Np=2000, Nmif=50,\n      cooling.fraction.50=0.5,\n      rw.sd=rw_sd(Beta=0.02, rho=0.02),\n      partrans=parameter_trans(log=\"Beta\",logit=\"rho\"),\n      paramnames=c(\"Beta\",\"rho\")\n    )\n} -&gt; mifs_local\n\n\nIterated filtering diagnostics\n\nmifs_local |&gt;\n  traces() |&gt;\n  melt() |&gt;\n  ggplot(aes(x=iteration,y=value,group=.L1,color=factor(.L1)))+\n    geom_line() +\n    guides(color=\"none\") +\n    facet_wrap(~name,scales=\"free_y\")\n\n\n\n\n\n\n\n\nFrom the traces of the parameters, we can see that the iterated filtering algorithm has converged to a stable region after about 10 iterations. We can conclude that:\n\nour initial guesses are reasonable;\nthis Monte Carlo algorithm is stochastic and the results may vary from run to run.\n\n\n\nEstimating the likelihood\nThe diagnostic plot shows that the 20 replications of the iterated filtering algorithm have converged to a stable region after 50 iterations, and now we can compute the likelihood of the data given these 20 converged parameter vectors.\n\nbake(\"results_local.rds\", {\n  foreach(mf=mifs_local,.combine=rbind) %dopar% {\n    evals &lt;- replicate(10, logLik(pfilter(mf,Np=5000)))\n    ll &lt;- logmeanexp(evals,se=TRUE)\n    mf |&gt; coef() |&gt; bind_rows() |&gt;\n    bind_cols(loglik=ll[1],loglik.se=ll[2])\n  } -&gt; results_local\n}) -&gt; results_local\n\npairs(~loglik+Beta+rho,data=results_local,pch=16)\n\n\n\n\n\n\n\n\nThe scatter plot shows a hint of a “ridge” in the likelihood surface. However, the sampling is as yet too sparse to give a clear picture. There are things that we can try next:\n\nIncrease the number of iterations, Nmif, to confirm the convergence\nIncrease the number of particles, Np, to improve the accuracy of the estimates\nTry different initial guesses to explore the likelihood surface\n\n\nread_csv(\"measles_params.csv\") |&gt;\n  bind_rows(results_local) |&gt;\n  arrange(-loglik) |&gt;\n  write_csv(\"measles_params.csv\")\n\nRows: 1 Columns: 9\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\ndbl (9): Beta, gamma, rho, k, S0, I0, R0, loglik, loglik.se\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message."
+  },
+  {
+    "objectID": "instruction.html",
+    "href": "instruction.html",
+    "title": "Instruction",
+    "section": "",
+    "text": "Please read the appropriate sections below, which give specific instructions for installing and testing the software we will be using. First follow the instructions for “all users”, then those for your specific operating system (OS)."
+  },
+  {
+    "objectID": "instruction.html#all-users",
+    "href": "instruction.html#all-users",
+    "title": "Instruction",
+    "section": "All users",
+    "text": "All users\n\nInstall R and RStudio\nR and RStudio are free and open-source. You’ll need at least version 4.2.0 of R. Source code and binaries are available on CRAN (https://cran.r-project.org/). Install the latest version of RStudio from rstudio.com.\nFor Windows users, there is a video tutorial on the installation of R and Rstudio.\n\n\nInstall needed packages\nOpen a session in RStudio and run the following:\n\nupdate.packages()\nsource(\"https://kingaa.github.io/sbied/prep/packages.R\")\n\n[The &gt; is the command prompt; it is not part of the command. Also, the quotation marks are plain keyboard double quotes.]\nThe first command updates your installed packages. You may be prompted to specify a CRAN mirror: choose one geographically near you. In RStudio, you can also push the “Update” button on the “Packages” tab to accomplish this.\nThe second command runs a script on my website. It will install some needed packages if these are not already installed on your system."
+  },
+  {
+    "objectID": "instruction.html#windows-users",
+    "href": "instruction.html#windows-users",
+    "title": "Instruction",
+    "section": "Windows users",
+    "text": "Windows users\nIf your machine runs Windows, you must install Rtools. This will give you the ability to compile C code and dynamically link it into an R session.\nDownload Rtools from CRAN and install it. A video tutorial demonstrating how to install Rtools is available, as are detailed installation instructions. Note that, after installation, there is one more step to be completed.\nIt is essential that you install these tools before the course starts!"
+  },
+  {
+    "objectID": "instruction.html#macos-users",
+    "href": "instruction.html#macos-users",
+    "title": "Instruction",
+    "section": "MacOS users",
+    "text": "MacOS users\nSo that you can compile C code and dynamically link it into an R session, you will need to have the Xcode app installed. This is gratis and can be installed via the App Store or downloaded from developer.apple.com. Video tutorials demonstrating how to check if you need to install Xcode, how to install Xcode, and how to install pomp once you have installed Xcode are available.\nNote that you must go beyond merely installing the Xcode app. After you’ve installed the app, open a unix terminal (listed as the Terminal app under “Utilities” in the Finder) and run the following line\n\nxcode-select --install\n\nThis will install the “Command Line Tools” that are needed to compile native C codes. Running this command is tantamount to the part of the Xcode installation tutorial video where we complete the installation using the graphical user interface."
+  },
+  {
+    "objectID": "instruction.html#all-users-1",
+    "href": "instruction.html#all-users-1",
+    "title": "Instruction",
+    "section": "All users",
+    "text": "All users\n\nTest pomp\nOpen a session in RStudio and run the following:\n\nsource(\"https://kingaa.github.io/scripts/pompTest.R\")\n\nThis will check whether you can work with pomp.\nIf it fails, try the following:\n\nsource(\"https://kingaa.github.io/scripts/helloC.R\",echo=TRUE)\n\nIf this fails to give the “Hello!” message, you will need to follow the instructions below corresponding to your OS before re-trying the pompTest.R script."
+  },
+  {
+    "objectID": "instruction.html#troubleshooting",
+    "href": "instruction.html#troubleshooting",
+    "title": "Instruction",
+    "section": "Troubleshooting",
+    "text": "Troubleshooting\n\nLinux and unix users\nIf you have trouble with any of the scripts above, make sure you have the GNU compiler collection (GCC), including gfortran, installed on your computer. Linux distributions typically include this by default but it is not impossible that you have somehow avoided this.\n\n\nMacOS users\nIf the pompTest.R script fails because you cannot load pomp, try installing it from source. The easiest way to do this is to execute\n\ninstall.packages(\"pomp\",repos=\"https://kingaa.github.io/\")\n\nin an R session. You can also use the devtools package. Do\n\ninstall.packages(\"devtools\")\nlibrary(devtools)\ninstall_github(\"kingaa/pomp\")\n\nIf, while trying to install from source, you receive the error,\n\nmake: gfortran-8.2: No such file or directory\n\nor one that otherwise refers to gfortran, then it is likely that you do not have the necessary version of gfortran installed. Have a look at these instructions and contact me at the address above if these don’t work for you.\nSome users have reported receiving an error complaining that\n\n'stdlib.h' file not found\n\nThis indicates that the command-line tools from Xcode have not been properly installed. In a unix terminal, run\n\nxcode-select --install\n\nto correct this problem.\n\n\nWindows users\nYou have probably failed to install the Rtools correctly. Revisit the instructions above.\n\nPre-course instructions for Windows users (Video)\nPre-course instructions for MacOS users (Video)"
+  },
+  {
+    "objectID": "introduction.html",
+    "href": "introduction.html",
+    "title": "Introduction",
+    "section": "",
+    "text": "Lecture slides | PDF |\nReference Recording (2020,2021,2022) | Video (50 min) |\nAnother example (Ricker model)| HTML |\n\n\n\n\n\n\n\nHome page"
+  },
+  {
+    "objectID": "case study.html",
+    "href": "case study.html",
+    "title": "Case Study",
+    "section": "",
+    "text": "Lecture slides | PDF |\nR script for the lesson | R |"
+  },
+  {
+    "objectID": "metapop.html",
+    "href": "metapop.html",
+    "title": "Meta population modelling",
+    "section": "",
+    "text": "Lecture slides | PDF |\nR script for the lesson | R |"
   }
 ]

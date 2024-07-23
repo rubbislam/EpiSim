@@ -12,8 +12,8 @@ website:
       - simulation.qmd
       - likelihood.qmd
       - iterated.qmd
-      - influenza.qmd
-      - measles.qmd
+      - case study.qmd
+      - metapop.qmd
 
 editor: visual
 

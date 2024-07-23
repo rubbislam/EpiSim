@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.45">
+<meta name="generator" content="quarto-1.5.54">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -66,6 +66,24 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -110,15 +128,15 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./iterated.html"> 
-<span class="menu-text">Iterated</span></a>
+<span class="menu-text">Maximum likelihood estimation and iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./influenza.html"> 
-<span class="menu-text">Influenza</span></a>
+    <a class="nav-link" href="./case study.html"> 
+<span class="menu-text">Case Study</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./measles.html"> 
-<span class="menu-text">Measles</span></a>
+    <a class="nav-link" href="./metapop.html"> 
+<span class="menu-text">Meta population modelling</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -131,8 +149,14 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#home-page" id="toc-home-page" class="nav-link active" data-scroll-target="#home-page">Home page</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -156,8 +180,35 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<hr>
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 83%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">&nbsp;</th>
+<th style="text-align: center;">&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<div class="line-block">Lecture slides | <a href="_site/ref materials qmd/intro/slides.pdf">PDF</a> |<br>
+Reference Recording (2020,2021,2022) | <a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV">Video (50 min)</a> |<br>
+Another example (Ricker model)| <a href="_site/ref materials qmd/intro/ricker.html">HTML</a> |</div>
+<hr>
+<iframe width="0" height="0">
+</iframe>
+<iframe data-external="1" width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+</iframe>
+<hr>
+<section id="home-page" class="level3">
+<h3 class="anchored" data-anchor-id="home-page"><a href="https://rubbislam.quarto.pub/episim/">Home page</a></h3>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -252,7 +303,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

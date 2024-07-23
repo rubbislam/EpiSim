@@ -25,18 +25,175 @@
     "simulation.html": "007b35c4"
   },
   "ref materials qmd/pfilter/main.qmd": {
-    "main.tex": "a27951b3"
+    "main.tex": "a27951b3",
+    "main.html": "41b45df7"
   },
   "ref materials qmd/stochsim/main.qmd": {
-    "main.tex": "6f4aed51"
+    "main.tex": "6f4aed51",
+    "main.html": "0099f875"
   },
   "ref materials qmd/pfilter/monteCarlo.qmd": {
-    "monteCarlo.tex": "27fdfe46"
+    "monteCarlo.tex": "27fdfe46",
+    "monteCarlo.html": "1802ae58"
   },
   "ref materials qmd/mif/main.qmd": {
     "main.tex": "14b400d1"
   },
   "ref materials qmd/intro/main.qmd": {
-    "main.tex": "e904c1c3"
+    "main.tex": "e904c1c3",
+    "main.html": "b3d93038"
+  },
+  "metapop.qmd": {
+    "metapop.html": "f08dd34f"
+  },
+  "ref materials qmd/misc/protips.qmd": {
+    "protips.html": "4c4a6d13"
+  },
+  "ref materials qmd/misc/debug.qmd": {
+    "debug.html": "dfd9f343"
+  },
+  "ref materials qmd/misc/windows.qmd": {
+    "windows.html": "0291cf10"
+  },
+  "ref materials qmd/misc/index.md": {
+    "index.html": "396cd220"
+  },
+  "ref materials qmd/misc/bake.qmd": {
+    "bake.html": "386c852c"
+  },
+  "ref materials qmd/LICENSE.md": {
+    "LICENSE.html": "b67e6b22"
+  },
+  "ref materials qmd/prep/pre_post_tests.md": {
+    "pre_post_tests.html": "3007e571"
+  },
+  "ref materials qmd/prep/form.md": {
+    "form.html": "a6717947"
+  },
+  "ref materials qmd/prep/advance.md": {
+    "advance.html": "b2a0d213"
+  },
+  "ref materials qmd/prep/slack.md": {
+    "slack.html": "26b20b25"
+  },
+  "ref materials qmd/prep/index.md": {
+    "index.html": "1cff3908"
+  },
+  "ref materials qmd/stochsim/exer_ctmc_ode.qmd": {
+    "exer_ctmc_ode.html": "dac8b86d"
+  },
+  "ref materials qmd/stochsim/quiz_main.qmd": {
+    "quiz_main.html": "73354de7"
+  },
+  "ref materials qmd/stochsim/seir3_exercise.qmd": {
+    "seir3_exercise.html": "faa7c30d"
+  },
+  "ref materials qmd/stochsim/exercises.qmd": {
+    "exercises.html": "0b0d2918"
+  },
+  "ref materials qmd/stochsim/index.md": {
+    "index.html": "7be416a8"
+  },
+  "ref materials qmd/acknowledge.md": {
+    "acknowledge.html": "a03d8fc8"
+  },
+  "ref materials qmd/intro/index.md": {
+    "index.html": "86c543f6"
+  },
+  "ref materials qmd/intro/example.qmd": {
+    "example.html": "a495aeb4"
+  },
+  "ref materials qmd/contacts/main.qmd": {
+    "main.html": "7116c3da"
+  },
+  "ref materials qmd/contacts/exercises.qmd": {
+    "exercises.html": "d5eac5e6"
+  },
+  "ref materials qmd/contacts/index.md": {
+    "index.html": "901030c3"
+  },
+  "ref materials qmd/measles/main.qmd": {
+    "main.html": "f303b228"
+  },
+  "ref materials qmd/measles/quiz_main.qmd": {
+    "quiz_main.html": "72e957cd"
+  },
+  "ref materials qmd/measles/index.md": {
+    "index.html": "f1de0030"
+  },
+  "ref materials qmd/measles/profile.qmd": {
+    "profile.html": "08de4fcb"
+  },
+  "ref materials qmd/TODO.md": {
+    "TODO.html": "1f886820"
+  },
+  "ref materials qmd/ebola/model.qmd": {
+    "model.html": "eef8bec1"
+  },
+  "ref materials qmd/ebola/main.qmd": {
+    "main.html": "60dd5ec0"
+  },
+  "ref materials qmd/ebola/index.md": {
+    "index.html": "0dd4e913"
+  },
+  "ref materials qmd/metapop/main.qmd": {
+    "main.html": "cf43f100"
+  },
+  "ref materials qmd/index.md": {
+    "index.html": "85c5fbf2"
+  },
+  "ref materials qmd/pfilter/pf-in-Nelder-Mead.qmd": {
+    "pf-in-Nelder-Mead.html": "c9b29b63"
+  },
+  "ref materials qmd/pfilter/bootstrap.qmd": {
+    "bootstrap.html": "662faae3"
+  },
+  "ref materials qmd/pfilter/expense.qmd": {
+    "expense.html": "5831b747"
+  },
+  "ref materials qmd/pfilter/Q_slice.qmd": {
+    "Q_slice.html": "a3beb77c"
+  },
+  "ref materials qmd/pfilter/quiz_main.qmd": {
+    "quiz_main.html": "46c91d5a"
+  },
+  "ref materials qmd/pfilter/deterministic.qmd": {
+    "deterministic.html": "a1a28bb8"
+  },
+  "ref materials qmd/pfilter/index.md": {
+    "index.html": "20e30deb"
+  },
+  "ref materials qmd/pfilter/loglikest.qmd": {
+    "loglikest.html": "8a6803a9"
+  },
+  "ref materials qmd/pfilter/directSimulation.qmd": {
+    "directSimulation.html": "45db3ed1"
+  },
+  "ref materials qmd/pfilter/fisherSE.qmd": {
+    "fisherSE.html": "43f063bb"
+  },
+  "ref materials qmd/polio/convergence-exercise.qmd": {
+    "convergence-exercise.html": "8084d16a"
+  },
+  "ref materials qmd/polio/demography-exercise.qmd": {
+    "demography-exercise.html": "e8141cea"
+  },
+  "ref materials qmd/polio/starting-values-exercise.qmd": {
+    "starting-values-exercise.html": "614183db"
+  },
+  "ref materials qmd/polio/main.qmd": {
+    "main.html": "56a01d93"
+  },
+  "ref materials qmd/polio/initial-values-exercise.qmd": {
+    "initial-values-exercise.html": "84fa5b78"
+  },
+  "ref materials qmd/polio/algorithmic-parameters-exercise.qmd": {
+    "algorithmic-parameters-exercise.html": "fc09e8e6"
+  },
+  "case study.qmd": {
+    "case study.html": "23e84c13"
+  },
+  "ref materials qmd/mif/workflow zian.qmd": {
+    "workflow-zian.tex": "d634e42d"
   }
 }

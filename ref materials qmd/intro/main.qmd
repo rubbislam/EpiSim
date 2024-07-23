@@ -68,11 +68,26 @@ source("../_includes/setup.R", local = knitr::knit_global())
 
 ## Zian
 
-## Please introduce yourselves
+::: columns
+::: {.column width="50%"}
+```{=tex}
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/zian photo.jpg}
+  \end{center}
+```
+:::
 
--   Name
--   Position (e.g. "I am a post-doc in so and so's lab at this university")
--   Something you did this summer that you enjoyed
+::: {.column width="50%"}
+
+- PhD Student at UCLA's Department of Biostatistics
+- Supervisor: Dr. Gang Li
+- Research Interests:
+  - Infectious disease modeling
+  - Causal inference in survival outcomes
+- Hobby: Tennis, (Watching) British soccer
+
+:::
+:::
 
 ## Course objectives
 
