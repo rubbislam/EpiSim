@@ -1,0 +1,16 @@
+knitr
+ggplot2
+foreach
+future
+doFuture
+microbenchmark
+pomp
+tidyverse
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+lubridate
