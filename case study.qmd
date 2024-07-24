@@ -1,18 +1,20 @@
 ---
-title: "Case Study"
-toc: true
-engine: knitr
-filters:
-  - pseudocode
-pseudocode:
-  caption-prefix: "Algorithm"
-  reference-prefix: "Algorithm"
-  caption-number: true
+title: "Case study: Meta population modelling"
+author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+params:
+  prefix: metapop
 ---
 
-| &nbsp;          | &nbsp;                                                                            |
-|:----------------|:---------------------------------------------------------------------------------:|
+|     |     |
+|:----|:---:|
+| Meta-population slides \| [PDF](slides/metapop/main.pdf) \|
+| **R** script for Meta-population \| [**R**](slides/metapop/main.R) \|
 
-| Lecture slides  | [PDF](_site/ref materials qmd/metapop/slides.pdf)                                                                |
-| **R** script for the lesson              | [**R**](_site/ref materials qmd/metapop/main.R)                                                               |
-----------------------
+------------------------------------------------------------------------

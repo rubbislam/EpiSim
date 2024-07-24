@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Aaron A. King and Edward L. Ionides">
+
+<title>EpiSim - Tuning IF2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">EpiSim</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../instruction.html" rel="" target="">
+ <span class="menu-text">Instruction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../introduction.html" rel="" target="">
+ <span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../simulation.html" rel="" target="">
+ <span class="menu-text">Simulation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../likelihood.html" rel="" target="">
+ <span class="menu-text">Likelihood</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../iterated.html" rel="" target="">
+ <span class="menu-text">Iterated filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../case study.html" rel="" target="">
+ <span class="menu-text">Case study</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#number-of-particles" id="toc-number-of-particles" class="nav-link active" data-scroll-target="#number-of-particles">Number of particles</a></li>
+  <li><a href="#perturbations" id="toc-perturbations" class="nav-link" data-scroll-target="#perturbations">Perturbations</a></li>
+  <li><a href="#cooling-schedule" id="toc-cooling-schedule" class="nav-link" data-scroll-target="#cooling-schedule">Cooling schedule</a></li>
+  <li><a href="#parameter-transformations" id="toc-parameter-transformations" class="nav-link" data-scroll-target="#parameter-transformations">Parameter transformations</a></li>
+  <li><a href="#maximizing-the-likelihood-in-stages" id="toc-maximizing-the-likelihood-in-stages" class="nav-link" data-scroll-target="#maximizing-the-likelihood-in-stages">Maximizing the likelihood in stages</a></li>
+  <li><a href="#general-remarks" id="toc-general-remarks" class="nav-link" data-scroll-target="#general-remarks">General remarks</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a>
+  <ul class="collapse">
+  <li><a href="#assessing-and-improving-algorithmic-parameters" id="toc-assessing-and-improving-algorithmic-parameters" class="nav-link" data-scroll-target="#assessing-and-improving-algorithmic-parameters">Assessing and improving algorithmic parameters</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Tuning IF2</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aaron A. King and Edward L. Ionides </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<style type="text/css">
+div .nb {
+    background-color: #ffeca3;
+    border-style: solid;
+    border-width: 2;
+    border-color: #00274c;
+    padding: 1em;
+}
+hr {
+    border-width: 3;
+    border-color: #00274c;
+}
+</style>
+</div>
+<p>Produced with <strong>R</strong> version 4.3.2 and <strong>pomp</strong> version 5.10.</p>
+<section id="number-of-particles" class="level2">
+<h2 class="anchored" data-anchor-id="number-of-particles">Number of particles</h2>
+<ul>
+<li>The initial parameter swarm, <span class="math inline">\(\{ \Theta^0_j, j=1,\dots,J\}\)</span>, usually consists of <span class="math inline">\(J\)</span> identical replications of some starting parameter vector.</li>
+<li><span class="math inline">\(J\)</span> is set to be sufficient for particle filtering. Because the addition of random perturbations acts to combat particle depletion, it is typically possible to take <span class="math inline">\(J\)</span> substantially smaller than the value needed to obtain precise likelihood estimates via <code>pfilter</code>. By the time of the last iteration (<span class="math inline">\(m=M\)</span>) one should not have effective sample size close to 1.</li>
+</ul>
+</section>
+<section id="perturbations" class="level2">
+<h2 class="anchored" data-anchor-id="perturbations">Perturbations</h2>
+<ul>
+<li>Perturbations are usually chosen to be multivariate normal, with <span class="math inline">\(\sigma_m\)</span> being a scale factor for iteration <span class="math inline">\(m\)</span>: <span class="math display">\[h_n(\theta|\varphi;\sigma) \sim N[\varphi, \sigma^2_m V_n].\]</span></li>
+<li><span class="math inline">\(V_n\)</span> is usually taken to be diagonal, <span class="math display">\[ V_n = \left( \begin{array}{ccccc}
+v_{1,n}^2 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\
+0 &amp; v_{2,n}^2 &amp;  0 &amp; \cdots &amp; 0 \\
+0 &amp; 0 &amp; v_{3,n}^2 &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+0 &amp; 0 &amp; 0 &amp; \cdots &amp; v_{p,n}^2 \end{array}\right).\]</span></li>
+<li>If <span class="math inline">\(\theta_i\)</span> is a parameter that affects the dynamics or observations throughout the time series, it is called a <strong>regular parameter</strong>, and it is often appropriate to specify <span class="math display">\[v_{i,n} = v_i.\]</span></li>
+<li>If <span class="math inline">\(\theta_j\)</span> is a parameter that affects only the initial conditions of the dynamic model, it is called an <strong>initial value parameter</strong> (IVP) and it is appropriate to specify <span class="math display">\[v_{j,n} = \left\{\begin{array}{ll} v_j &amp; \mbox{if $n=0$} \\0 &amp; \mbox{if $n&gt;0$} \end{array}\right.\]</span></li>
+<li>If <span class="math inline">\(\theta_k\)</span> is a break-point parameter that models how the system changes at time <span class="math inline">\(t_q\)</span>, then <span class="math inline">\(\theta_k\)</span> is like an IVP at time <span class="math inline">\(t_q\)</span> and it is appropriate to specify <span class="math display">\[v_{j,n} = \left\{\begin{array}{ll} v_j &amp; \mbox{if $n=q$} \\    0 &amp; \mbox{if $n\neq q$} \end{array}\right.\]</span></li>
+</ul>
+</section>
+<section id="cooling-schedule" class="level2">
+<h2 class="anchored" data-anchor-id="cooling-schedule">Cooling schedule</h2>
+<ul>
+<li><span class="math inline">\(\sigma_{1:M}\)</span> is called a <strong>cooling schedule</strong>, following a thermodynamic analogy popularized by <a href="https://en.wikipedia.org/wiki/Simulated_annealing">simulated annealing</a>. As <span class="math inline">\(\sigma_m\)</span> becomes small, the system cools toward a “freezing point”. If the algorithm is working successfully, the freezing point should be close to the lowest-energy state of the system, i.e., the MLE. Typical choices of the cooling schedule are geometric, <span class="math inline">\(\sigma_m = \alpha^m\)</span>, and hyperbolic, <span class="math inline">\(\sigma_m \propto 1/(1+\alpha\,m)\)</span>. In <code>mif2</code>, the cooling schedule is parameterized by <span class="math inline">\(\sigma_{50}\)</span>, the cooling fraction after 50 IF2 iterations.</li>
+</ul>
+</section>
+<section id="parameter-transformations" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-transformations">Parameter transformations</h2>
+<ul>
+<li>It is generally helpful to transform the parameters so that (on the estimation scale) they are real-valued, unconstrained, and have uncertainty on the order of 1 unit. For example, one typically takes a logarithmic transformation of positive parameters and a logistic transformation of <span class="math inline">\([0,1]\)</span> valued parameters.</li>
+<li>On such a scale, it is surprisingly often effective to take <span class="math display">\[v_i \sim 0.02\]</span> for regular parameters (RPs) and <span class="math display">\[v_j \sim 0.1\]</span> for initial value parameters (IVPs).</li>
+</ul>
+</section>
+<section id="maximizing-the-likelihood-in-stages" class="level2">
+<h2 class="anchored" data-anchor-id="maximizing-the-likelihood-in-stages">Maximizing the likelihood in stages</h2>
+<ul>
+<li>Early on in an investigation, one might take <span class="math inline">\(M=100\)</span> and <span class="math inline">\(\sigma_M=0.1\)</span>. This allows for a relatively broad search of the parameter space.</li>
+<li>As the investigation proceeds, and one finds oneself in the heights of the likelihood surface, one can refine the search. In doing so, it helps to examine diagnostic plots.</li>
+<li>In particular, one typically needs to reduce the magnitude of the perturbations (<code>rw.sd</code>) and perhaps adjust the cooling schedule (<code>cooling.fraction.50</code>) to eke out the last few units of log likelihood.</li>
+<li>Profile likelihood computations are not only valuable as a way of obtaining confidence intervals. It is often the case that by profiling, one simplifies the task of finding the MLE. Of course, the price that is paid is that a profile calculation requires multiple parallel IF2 computations.</li>
+</ul>
+</section>
+<section id="general-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="general-remarks">General remarks</h2>
+<ul>
+<li>It is remarkable that useful general advice exists for the choice of algorithmic parameters that should in principle be model- and data-specific. Here is one possible explanation: the precision of interest is often the second significant figure and there are often on the order of 100 observations (10 monthly observations would be too few to fit a mechanistic model; 1000 would be unusual for an epidemiological system).</li>
+</ul>
+<hr>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<section id="assessing-and-improving-algorithmic-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="assessing-and-improving-algorithmic-parameters">Assessing and improving algorithmic parameters</h3>
+<p>Develop your own heuristics to try to improve the performance of <code>mif2</code> in the <a href="./notes.pdf">Consett measles example</a>. Specifically, for a global optimization procedure carried out using random starting values in the specified box, let <span class="math inline">\(\hat\Theta_{\mathrm{max}}\)</span> be a random Monte Carlo estimate of the resulting MLE, and let <span class="math inline">\(\hat\theta\)</span> be the true (unknown) MLE. We can define the maximization error in the log likelihood to be <span class="math display">\[e = \ell(\hat\theta) - E[\ell(\hat\Theta_{\mathrm{max}})].\]</span> We cannot directly evaluate <span class="math inline">\(e\)</span>, since there is also Monte Carlo error in our evaluation of <span class="math inline">\(\ell(\theta)\)</span>, but we can compute it up to a known precision. Plan some code to estimates <span class="math inline">\(e\)</span> for a search procedure using a computational effort of <span class="math inline">\(JM=2\times 10^7\)</span>, comparable to that used for each mif computation in the global search. Discuss the strengths and weaknesses of this quantification of optimization success. See if you can choose <span class="math inline">\(J\)</span> and <span class="math inline">\(M\)</span> subject to this constraint, together with choices of <code>rw.sd</code> and the cooling rate, <code>cooling.fraction.50</code>, to arrive at a quantifiably better procedure. Computationally, you may not be readily able to run your full procedure, but you could run a quicker version of it.</p>
+<hr>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

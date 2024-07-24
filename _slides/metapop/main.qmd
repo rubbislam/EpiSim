@@ -1,0 +1,290 @@
+---
+title: "Case study: Spanish Flu in London, Birmingham, and Liverpool"
+author:
+  - Qianying (Ruby) Lin
+  - Spencer J. Fox
+  - Zian (Larry) Zhuang
+format: 
+  beamer:
+    classoption: "t"
+    # fontsize: "10pt"
+    link-citations: true
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    include-in-header: "../_includes/header.tex"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r load-packages, echo=FALSE}
+library(tidyverse)
+library(pomp)
+library(ggplot2)
+library(reshape2)
+```
+
+## Objectives
+
+1.    To explore the use of POMP models in the context of meta-populations and multiple waves.
+2.    To illustrate the use of POMP models in a more complex setting.
+3.    To demonstrate the use of diagnostic probes for model criticism.
+4.    To provide an example that can be modified to apply similar approaches to other outbreaks of emerging infectious diseases.
+
+\vspace{2ex}
+  
+<!-- This lesson follows @King2015, all codes for which are available on [datadryad.org](https://dx.doi.org/10.5061/dryad.r5f30). -->
+
+# 1918 Spanish Flu Pandemic
+
+## Emerging infectious disease pandemic {.allowframebreaks}
+
+-    The 1918 Spanish flu pandemic was one of the deadliest pandemics in human history.
+-    The pandemic lasted from January 1918 to December 1920, spreading to nearly every part of the world.
+-    The pandemic was caused by the H1N1 influenza A virus.
+-    The pandemic was responsible for the deaths of an estimated 50 million people worldwide.
+
+\framebreak
+
+Key questions included:
+
+1.    How fast will the pandemic unfold?
+2.    What are the common and differentiated characteristics of the pandemic in different cities?
+3.    How people will correspond to the pandemic?
+
+
+<!-- ## Best practices {.allowframebreaks} -->
+
+
+# Data and model
+
+## Weekly reported data {.allowframebreaks}
+
+
+```{r read-data}
+dat <- read_csv("1918flu_3cities_1wave.csv")
+head(dat)
+```
+
+\framebreak
+
+```{r plot, echo=FALSE, fig.width=6, fig.height=3, dpi=300}
+#| out-height: 90%
+dat |>
+  select(-date) |>
+  reshape2::melt(id.vars = "week") |>
+  ggplot(aes(x=week,y=value)) +
+  geom_line() +
+  scale_y_sqrt() +
+  facet_wrap(variable ~ .) +
+  labs(y="weekly cases",x="") +
+  theme_minimal()
+```
+
+## SIR model with behavioral response {.allowframebreaks}
+
+-   Social distancing is a common public health intervention.
+-   We model the effect of social distancing as a reduction in the transmission rate.
+-   We incorporate demographic and climatic features to model the spread of the disease.
+-   The SIR model with behavioral response is given by:
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=4.5cm]{../graphics/sir-metapop.png}
+\end{center}
+```
+
+
+\framebreak
+
+::: columns
+::: {.column width="40%"}
+```{=tex}
+\begin{equation*}
+\begin{aligned}
+  \deriv{S}{t} &= - \beta(t)\,S\,\frac{I}{N}\\
+  \deriv{I}{t} &= \beta(t)\,S\,\frac{I}{N} - \gamma\,I \\
+  \deriv{R}{t} &= (1-\phi)\,\gamma\,I \\
+  \deriv{D}{t} &= \phi\,\gamma\,I \\
+  \deriv{M}{t} &= g\,D \\
+  \deriv{P}{t} &= g\,D - \lambda\,P
+\end{aligned}
+\end{equation*}
+```
+:::
+
+::: {.column width="60%"}
+-   $S$, $I$, $R$: the susceptible, infectious, and recovered populations
+-   $D$: those who have lost of infectiousness and are progressing to death due to influenza or/and pneumonia
+-   $M$: those who have died
+-   $P$: general public's risk perception based on recent influenza deaths
+-   $N$: $N=S+I+R+D+M$, the constant total population size
+:::
+:::
+
+\framebreak
+
+The time-dependent transmission rate $\beta(t)$ consists of two components:
+
+```{=tex}
+\begin{equation}
+\beta(t) =\beta_{0}\cdot \left(1-\frac{P(t)}{N}\right)^{\kappa}
+\end{equation}
+```
+
+-   $\beta_{0}$: the baseline transmission rate
+-   $\left(1-\frac{P(t)}{N}\right)^{\kappa}$: represent the effect of reactive social distancing on transmission rate based on the public's risk perception $P(t)$
+
+\vfill
+
+The number of reported cases $C$ follows a Negative Binomial distribution, in London, Birmingham, and Liverpool, respectively, with ratio $\rho$ and over-dispersion parameter $k$, given the cumulative number of cases $H$:
+
+$$
+  C \sim \mathrm{NegBin}(\rho H,k)
+$$
+
+\framebreak
+
+-   Fixed parameters:
+    -   The total population sizes for London, Birmingham, and Liverpool are fixed at 
+    4484523, 919444, and 802940, respectively
+    -   $\gamma^{-1}$: the average infectious period, fixed at 4 days
+    -   $g^{-1}$: the mean time from loss-of-infectiousness to death, fixed at 8 days
+    
+-   Parameters to be estimated, initial conditions:
+    -   $\eta_L, \eta_B,\eta_L$: the initial fraction of susceptible individuals for London, Birmingham, and Liverpool, respectively
+    -   $\psi_L,\psi_B,\psi_L$: the initial fraction of infectious individuals for London, Birmingham, and Liverpool, respectively
+
+-   Parameters to be estimated, common features:
+    -   $\beta_{0}$: the baseline transmission rate
+    -   $\kappa$: the exponent of the social distancing effect
+    -   $\lambda$: the rate at which the public's risk perception decays
+
+# POMP setting
+
+## The implementation in `pomp`: the state process for meta-populations
+
+```{r meta-rproc}
+sir_meta <- Csnippet("
+  double *S = &S1, *I = &I1, *R = &R1, *D = &D1, *M = &M1;
+  double *P = &P1, *H = &H1; int N[3] = {N1, N2, N3};
+  double Beta, dN_SI, dN_IRD, dN_IR, dN_ID, dN_DM, dN_P;
+  for (int i = 0; i < 3; i++) {
+    Beta = beta0*pow(1-P[i]/N[i],kappa);
+    dN_SI = rbinom(S[i],1-exp(-Beta*I[i]/N[i]*dt));
+    dN_IRD = rbinom(I[i],1-exp(-gamma*dt));
+    dN_IR = nearbyint((1-phi)*dN_IRD); dN_ID = nearbyint(phi*dN_IRD);
+    dN_DM = rbinom(D[i],1-exp(-g*dt));
+    dN_P = rbinom(P[i],1-exp(-lambda*dt));
+    S[i] -= dN_SI; I[i] += dN_SI - dN_IRD; R[i] += dN_IR; 
+    D[i] += dN_ID - dN_DM; M[i] += dN_DM; P[i] += dN_DM - dN_P;
+    H[i] += dN_IRD;}
+")
+```
+
+
+## The implementation in `pomp`: the initial conditions
+
+```{r meta-init}
+sir_meta_rinit <- Csnippet("
+  double *S = &S1, *I = &I1, *R = &R1, *D = &D1, *M = &M1;
+  double *P = &P1, *H = &H1; int N[3] = {N1, N2, N3};
+  double eta[3] = {eta1, eta2, eta3};
+  double psi[3] = {psi1, psi2, psi3};
+  for (int i = 0; i < 3; i++) {
+    S[i] = nearbyint(N[i]*eta[i]); 
+    I[i] = nearbyint(N[i]*psi[i]); 
+    R[i] = nearbyint(N[i]*(1-eta[i]-psi[i]));
+    D[i] = M[i] = P[i] = H[i] = 0;
+  }
+")
+```
+
+
+## The implementation in `pomp`: the measurements
+
+```{r meta-meas}
+sir_meta_dmeas <- Csnippet("
+  double lik1, lik2, lik3;
+  lik1 = (ISNA(London)) ? dnbinom_mu(London,rho*H1,k,1) : 0;
+  lik2 = (ISNA(Birmingham)) ? dnbinom_mu(Birmingham,rho*H2,k,1) : 0;
+  lik3 = (ISNA(Liverpool)) ? dnbinom_mu(Liverpool,rho*H3,k,1) : 0;
+  lik = lik1 + lik2 + lik3;
+  lik = (give_log) ? lik : exp(lik);
+")
+
+sir_meta_rmeas <- Csnippet("
+  London = rnbinom_mu(k,rho*H1);
+  Birmingham = rnbinom_mu(k,rho*H2);
+  Liverpool = rnbinom_mu(k,rho*H3);
+")
+```
+
+## The implementation in `pomp`: build the model {.allowframebreaks}
+
+```{r meta-pomp}
+dat |> select(-date) |>
+  pomp(
+    times = "week", t0 = 0, 
+    rprocess=euler(sir_meta,delta.t=1/7),
+    rinit=sir_meta_rinit, rmeasure=sir_meta_rmeas,
+    dmeasure=sir_meta_dmeas, accumvars = sprintf("H%d",1:3),
+    statenames=c(sprintf("S%d",1:3),sprintf("I%d",1:3),
+      sprintf("R%d",1:3), sprintf("D%d",1:3),sprintf("M%d",1:3),
+      sprintf("P%d",1:3),sprintf("H%d",1:3)),
+    paramnames=c(
+      "beta0","kappa","gamma","phi","g","lambda","rho","k", 
+      sprintf("N%d",1:3),sprintf("eta%d",1:3),sprintf("psi%d",1:3))
+  ) -> pomp_meta
+```
+
+\framebreak
+
+```{r meta-sim, eval=FALSE, purl=TRUE}
+params <- c(beta0 = 5, kappa = 5, gamma = 1/4, phi = 0.0119, g = 1/8, 
+  lambda = 1/2, rho = 0.05, k = 10, N1 = 4484523, N2 = 919444, 
+  N3 = 802940, eta1 = 0.2, eta2 = 0.2, eta3 = 0.2, 
+  psi1 = 0.0005, psi2 = 0.0005, psi3 = 0.0005)
+
+pomp_meta |> 
+  simulate(
+    params = params, nsim=20,format="data.frame",include.data=TRUE
+  ) |>
+  select(week,.id,London,Birmingham,Liverpool) |>
+  reshape2::melt(id.vars = c("week",".id")) |>
+  ggplot(aes(x=week, y=value, group=.id, color=.id=="data")) +
+  geom_line() + facet_wrap(variable ~ .) + 
+  theme_minimal() + guides(color="none")
+```
+
+
+\framebreak
+
+
+```{r, echo=FALSE, fig.width=6, fig.height=3, dpi=300}
+#| out-height: 90%
+<<meta-sim>>
+```
+
+

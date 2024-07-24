@@ -1,24 +1,33 @@
 ---
-title: "Introduction"
+title: "Introduction to Simulation-based Inference for Epidemiological Dynamics"
+author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+params:
+  prefix: intro
 ---
 
-----------------------
+------------------------------------------------------------------------
 
-| &nbsp;          | &nbsp;                                                                            |
-|:----------------|:---------------------------------------------------------------------------------:|
+|                                                                                                                                       |     |
+|:-----------------------------------|:----------------------------------:|
+| Lecture slides \| [PDF](slides/intro/main.pdf) \|                                                                               |     |
+| Reference Recording (2020,2021,2022) \| [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) \| |     |
+| Another example (Ricker model)\| [HTML](slides/intro/ricker.html) \|                                                            |     |
 
-| Lecture slides  | [PDF](_site/ref materials qmd/intro/slides.pdf)                                                                |
-| Reference Recording (2020,2021,2022) | [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) |
-| Another example (Ricker model)| [HTML](_site/ref materials qmd/intro/ricker.html)                                                               |
-----------------------
+------------------------------------------------------------------------
 
-<iframe width="0" height="0"></iframe>
+<iframe width="0" height="0">
 
-<iframe data-external=1 width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</iframe>
 
+<iframe data-external="1" width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 
+</iframe>
 
-
-
----
-### [Home page](https://rubbislam.quarto.pub/episim/)
+------------------------------------------------------------------------

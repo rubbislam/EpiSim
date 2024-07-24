@@ -195,5 +195,197 @@
   },
   "ref materials qmd/mif/workflow zian.qmd": {
     "workflow-zian.tex": "d634e42d"
+  },
+  "slides/intro/main.qmd": {
+    "main.html": "b0b26207",
+    "main.tex": "08786e30"
+  },
+  "slides/mif/main.qmd": {
+    "main.tex": "2dbab3f1",
+    "main.html": "e0da93d5"
+  },
+  "slides/mif/Q_fit_seir.qmd": {
+    "Q_fit_seir.html": "da49b027"
+  },
+  "slides/mif/if2_settings.qmd": {
+    "if2_settings.html": "d3137752"
+  },
+  "slides/mif/quiz_main.qmd": {
+    "quiz_main.html": "f3f0c7d2"
+  },
+  "slides/mif/Q_fit_all.qmd": {
+    "Q_fit_all.html": "1d92071b"
+  },
+  "slides/mif/Q_error_in_rprocess.qmd": {
+    "Q_error_in_rprocess.html": "ce297229"
+  },
+  "slides/mif/workflow zian.qmd": {
+    "workflow zian.html": "d202bfec"
+  },
+  "slides/misc/protips.qmd": {
+    "protips.html": "0275da80"
+  },
+  "slides/misc/debug.qmd": {
+    "debug.html": "6c6cf64c"
+  },
+  "slides/misc/windows.qmd": {
+    "windows.html": "0686e1f6"
+  },
+  "slides/misc/index.md": {
+    "index.html": "3068ce65"
+  },
+  "slides/misc/bake.qmd": {
+    "bake.html": "9341dfce"
+  },
+  "slides/LICENSE.md": {
+    "LICENSE.html": "f1c2110e"
+  },
+  "slides/prep/pre_post_tests.md": {
+    "pre_post_tests.html": "a20d22d1"
+  },
+  "slides/prep/form.md": {
+    "form.html": "bc118377"
+  },
+  "slides/prep/advance.md": {
+    "advance.html": "c68e947b"
+  },
+  "slides/prep/slack.md": {
+    "slack.html": "17aa3c5f"
+  },
+  "slides/prep/index.md": {
+    "index.html": "642e3b41"
+  },
+  "slides/stochsim/exer_ctmc_ode.qmd": {
+    "exer_ctmc_ode.html": "8cf5228a"
+  },
+  "slides/stochsim/main.qmd": {
+    "main.html": "2b11167c",
+    "main.tex": "ef62eb64"
+  },
+  "slides/stochsim/quiz_main.qmd": {
+    "quiz_main.html": "b5c23909"
+  },
+  "slides/stochsim/seir3_exercise.qmd": {
+    "seir3_exercise.html": "1032c2ae"
+  },
+  "slides/stochsim/exercises.qmd": {
+    "exercises.html": "5905a602"
+  },
+  "slides/stochsim/index.md": {
+    "index.html": "77fe05b4"
+  },
+  "slides/acknowledge.md": {
+    "acknowledge.html": "6b0d15ce"
+  },
+  "slides/intro/index.md": {
+    "index.html": "bf09b2fd"
+  },
+  "slides/intro/example.qmd": {
+    "example.html": "c1979298"
+  },
+  "slides/contacts/main.qmd": {
+    "main.html": "60cdb005"
+  },
+  "slides/contacts/exercises.qmd": {
+    "exercises.html": "0d80ec66"
+  },
+  "slides/contacts/index.md": {
+    "index.html": "23ea431b"
+  },
+  "slides/measles/main.qmd": {
+    "main.html": "265819f6"
+  },
+  "slides/measles/quiz_main.qmd": {
+    "quiz_main.html": "f39bccff"
+  },
+  "slides/measles/index.md": {
+    "index.html": "a7cd178f"
+  },
+  "slides/measles/profile.qmd": {
+    "profile.html": "ce07b7c8"
+  },
+  "slides/TODO.md": {
+    "TODO.html": "09a075f5"
+  },
+  "slides/ebola/model.qmd": {
+    "model.html": "457d1ba0"
+  },
+  "slides/ebola/main.qmd": {
+    "main.html": "5131524d"
+  },
+  "slides/ebola/index.md": {
+    "index.html": "ae9f5784"
+  },
+  "slides/metapop/main.qmd": {
+    "main.html": "9667dea6",
+    "main.tex": "5ed4f1fe"
+  },
+  "slides/index.md": {
+    "index.html": "6d1ecd17"
+  },
+  "slides/pfilter/monteCarlo.qmd": {
+    "monteCarlo.html": "5b342912"
+  },
+  "slides/pfilter/pf-in-Nelder-Mead.qmd": {
+    "pf-in-Nelder-Mead.html": "e3cb2d00"
+  },
+  "slides/pfilter/bootstrap.qmd": {
+    "bootstrap.html": "c15ffb8d"
+  },
+  "slides/pfilter/expense.qmd": {
+    "expense.html": "f8bdcb04"
+  },
+  "slides/pfilter/Q_slice.qmd": {
+    "Q_slice.html": "e0356ff8"
+  },
+  "slides/pfilter/main.qmd": {
+    "main.html": "51906932",
+    "main.tex": "966ea42b"
+  },
+  "slides/pfilter/quiz_main.qmd": {
+    "quiz_main.html": "7bf36cd0"
+  },
+  "slides/pfilter/deterministic.qmd": {
+    "deterministic.html": "c56dec98"
+  },
+  "slides/pfilter/index.md": {
+    "index.html": "34aebe6e"
+  },
+  "slides/pfilter/loglikest.qmd": {
+    "loglikest.html": "0194f6d1"
+  },
+  "slides/pfilter/directSimulation.qmd": {
+    "directSimulation.html": "4a6e0048"
+  },
+  "slides/pfilter/fisherSE.qmd": {
+    "fisherSE.html": "3fc8f0a7"
+  },
+  "slides/polio/convergence-exercise.qmd": {
+    "convergence-exercise.html": "805d03d1"
+  },
+  "slides/polio/demography-exercise.qmd": {
+    "demography-exercise.html": "9583249a"
+  },
+  "slides/polio/starting-values-exercise.qmd": {
+    "starting-values-exercise.html": "f41aadb0"
+  },
+  "slides/polio/main.qmd": {
+    "main.html": "8c70129c",
+    "main.tex": "94aabe98"
+  },
+  "slides/polio/initial-values-exercise.qmd": {
+    "initial-values-exercise.html": "241d25ff"
+  },
+  "slides/polio/algorithmic-parameters-exercise.qmd": {
+    "algorithmic-parameters-exercise.html": "46a89bd9"
+  },
+  "slides/mif/Q_check_code.qmd": {
+    "Q_check_code.html": "d4b498f4"
+  },
+  "slides/polio/index.md": {
+    "index.html": "5d4f3453"
+  },
+  "slides/mif/index.md": {
+    "index.html": "8e0d78ae"
   }
 }

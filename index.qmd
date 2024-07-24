@@ -1,7 +1,6 @@
 ---
 title: "Simulation-based Inference for Epidemiological Dynamics"
-author: "Spencer J. Fox, Qianying (Ruby) Lin, Zian Zhuang"
-date: Jun 11, 2024
+author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
 toc: true
 format:
   html:
@@ -40,14 +39,10 @@ This module introduces statistical inference techniques and computational method
 
 4.  Iterated filtering: theory and practice.
 
-5.  Case study: measles. Recurrent epidemics, long time series, covariates, extra-demographic stochasticity, interpretation of parameter estimates.
+5.  Case study: 1918 Spanish Flu in three cities of UK
 
-6.  Case study: polio. Workflow for a real research problem.
+6.  Case study:
 
-7.  Case study: Ebola. Model diagnostics and forecasting.
-
-8.  Case study: HIV and fluctuating sexual contact rates. Panel data.
-
-## Credits
+## Acknowledgements
 
 This website and all the materials are adapted from <https://kingaa.github.io/sbied/>. We would like send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) for creating this wonderful course and for helping us developing our own version.

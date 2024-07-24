@@ -1,5 +1,8 @@
 project:
   type: website
+  render:
+    - "*.qmd"
+    - "!slides/"
 
 website:
   title: "EpiSim"
@@ -7,13 +10,18 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - instruction.qmd
-      - introduction.qmd
-      - simulation.qmd
-      - likelihood.qmd
-      - iterated.qmd
-      - case study.qmd
-      - metapop.qmd
+      - href: instruction.qmd
+        text: Instruction
+      - href: introduction.qmd
+        text: Introduction
+      - href: simulation.qmd
+        text: Simulation
+      - href: likelihood.qmd
+        text: Likelihood
+      - href: iterated.qmd
+        text: Iterated filtering
+      - href: case study.qmd
+        text: Case study
 
 editor: visual
 

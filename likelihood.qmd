@@ -1,32 +1,39 @@
 ---
-title: "Likelihood"
-toc: true
-format:
-  html:
-    embed-resources: true
-    code-background: true
-engine: knitr
+title: "Likelihood-based inference for POMP models"
+author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+params:
+  prefix: likelihood
 ---
 
-| &nbsp;                                                                                     | &nbsp;                                                                                      |
-|:-------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------:|
+|     |     |
+|:----|:---:|
+| Lecture slides \| [PDF](slides/pfilter/main.pdf) \|
+| Reference Recording (2020,2021) \| [Video (112 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8) \|
+| Quiz \| [PDF](slides/pfilter/quiz.pdf) \|
+| **R** script for the lesson \| [**R**](slides/pfilter/main.R) \|
+| Supplement: Deterministic latent process models and their role in benchmarking POMP models \| [HTML](slides/pfilter/deterministic.html) \|
+| Supplement: Monte Carlo Methods \| [PDF](slides/pfilter/monteCarlo.pdf) \|
+| Supplement: Likelihood by direct simulation: Consett measles example \| [HTML](slides/pfilter/directSimulation.html) \|
+| Supplement: Standard errors via the observed Fisher information \| [HTML](slides/pfilter/fisherSE.html) \|
+| Supplement: Bootstrap methods \| [HTML](slides/pfilter/bootstrap.html) \|
+| Supplement: Direct maximization of the particle filter likelihood \| [HTML](slides/pfilter/pf-in-Nelder-Mead.html) \|
+| Worked solution to Exercise 3.1 \| [HTML](slides/pfilter/Q_slice.html) \|
+| Worked solution to Exercise 3.2 \| [HTML](slides/pfilter/expense.html) \|
+| Worked solution to Exercise 3.3 \| [HTML](slides/pfilter/loglikest.html) \|
 
-| Lecture slides                                                                             | [PDF](../_site/ref materials qmd/pfilter/main.pdf)                                                                           |
-| Reference Recording (2020,2021)                                                                      | [Video (112 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8) |
-| Quiz                                                                                       | [PDF](../_site/ref materials qmd/pfilter/quiz.pdf)                                                                             |
-| **R** script for the lesson                                                                | [**R**](../_site/ref materials qmd/pfilter/main.R)                                                                             |
-| Supplement: Deterministic latent process models and their role in benchmarking POMP models | [HTML](../_site/ref materials qmd/pfilter/deterministic.html)                                                                  |
-| Supplement: Monte Carlo Methods                                                            | [PDF](../_site/ref materials qmd/pfilter/monteCarlo.pdf)                                                                       |
-| Supplement: Likelihood by direct simulation: Consett measles example                       | [HTML](../_site/ref materials qmd/pfilter/directSimulation.html)                                                               |
-| Supplement: Standard errors via the observed Fisher information                            | [HTML](../_site/ref materials qmd/pfilter/fisherSE.html)                                                                       |
-| Supplement: Bootstrap methods                                                              | [HTML](../_site/ref materials qmd/pfilter/bootstrap.html)                                                                      |
-| Supplement: Direct maximization of the particle filter likelihood                          | [HTML](../_site/ref materials qmd/pfilter/pf-in-Nelder-Mead.html)                                                            |
-| Worked solution to Exercise 3.1                                                            | [HTML](../_site/ref materials qmd/pfilter/Q_slice.html)                                                                        |
-| Worked solution to Exercise 3.2                                                            | [HTML](../_site/ref materials qmd/pfilter/expense.html)                                                                        |
-| Worked solution to Exercise 3.3                                                            | [HTML](../_site/ref materials qmd/pfilter/loglikest.html)                                                                      |
+------------------------------------------------------------------------
 
-----------------------
+<iframe width="0" height="0">
 
-<iframe width="0" height="0"></iframe>
+</iframe>
 
-<iframe data-external=1 width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe data-external="1" width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+
+</iframe>
