@@ -20,6 +20,8 @@ website:
         text: Likelihood
       - href: iterated.qmd
         text: Iterated filtering
+      - href: pmcmc.qmd
+        text: pmcmc
       - href: case study.qmd
         text: Case study
 
