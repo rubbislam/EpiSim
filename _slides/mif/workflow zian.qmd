@@ -1,26 +1,36 @@
 ---
 title: "Workflow part"
 author:
-  - Zian Zhuang
+  - Qianying (Ruby) Lin
+  - Spencer J. Fox
+  - Zian (Larry) Zhuang
 format: 
   beamer:
+    classoption: "t"
+    # fontsize: "11pt"
+    link-citations: true
     keep_tex: true
     slide_level: 2
     section-titles: false
     aspectratio: 169
-    beameroptions:
-      - setbeamertemplate: "footline[frame number]"
-      - setbeamertemplate: "navigation symbols{}"
+    include-in-header: "../_includes/header.tex"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
   html:
-    toc: false
+    toc: true
   pdf:
-    toc: false
+    toc: true
 editor_options: 
   chunk_output_type: console
-bibliography: ["../sbied.bib"] 
+bibliography: ["../sbied.bib"]
 ---
 
-# Workflow {.allowframebreaks}
 
 ```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
@@ -29,77 +39,122 @@ source("../_includes/setup.R", local = knitr::knit_global())
 ```{r doFuture,echo=FALSE,cache=FALSE}
 library(pomp)
 library(doFuture)
+library(tidyverse)
 library(microbenchmark)
 plan(multisession)
 set.seed(2488820)
 ```
 
-data- initialization-
+
+# Workflow Summary {.allowframebreaks}
+
+1. **Data Preparation and Model Specification**
+    - **Data Initialization**: Visualize the initial data to get a sense of the disease outbreak dynamics. 
+    - **Model Definition**: Implement the defined SIR model in `pomp`
+      - Set up a stochastic SIR (Susceptible, Infected, Recovered) model using custom C snippets for state transitions and measurements.
+      - Specify the measurement, process, and initialization functions along with model parameters.
+
+2. **Preliminary Analysis**
+    - **Simulation and Visualization**: Simulate the SIR model to visualize potential outcomes and compare to data.
+    - **Likelihood Estimation**: Evaluate the likelihood and Effective Sample Size of the initial parameter estimates using particle filtering.
+
+3. **Local Optimization**
+    - **Iterated Filtering for Local Maximum**: Apply iterated filtering to find a local maximum near the initial guesses.
+    - **Diagnostics and Visualization**: Diagnose the iterated filtering process and visualize parameter traces to assess convergence.
+
+4. **Global Optimization**
+    - **Set Up for Global Search**: Define a parameter space for global optimization.
+    - **Global Search Execution**: Conduct global optimization using multiple starting points to ensure robustness of the findings.
+    - **Result Compilation**: Compile and compare results from global searches, focusing on the best parameter estimates.
+
+5. **Profile Likelihood Estimation**
+    - **Parameter Profiling**: For each parameter, perform profiling to map the likelihood landscape and establish confidence intervals.
+    - **Visualization of Profile Likelihoods**: Visualize the profile likelihoods to understand parameter sensitivity and uncertainty.
+
+6. **Final Model Evaluation**
+    - **Model Predictions**: Use the best-fitting parameters to simulate the model outcomes and compare these against observed data.
+    - **Visualization of Predictions**: Create visualizations to compare the model predictions with actual data, highlighting the prediction intervals.
+    
+7. **Documentation and Storage**
+    - **Record-Keeping**: All intermediate and final results should be stored in CSV files for further analysis or reproducibility of the study.
+
+# Example: measles {.allowframebreaks}
+
+# Data initialization {.allowframebreaks}
 
 ```{r meas-data1}
 library(tidyverse)
-read_csv(paste0("https://kingaa.github.io/sbied/stochsim/", 
-  "Measles_Consett_1948.csv")) |> 
-  select(week,reports=cases) -> meas
+read_csv("https://kingaa.github.io/sbied/pfilter/Measles_Consett_1948.csv") |>
+  select(week,reports=cases) |>
+  filter(week<=42) -> meas
 meas |> as.data.frame() |> head(n=3)
 ```
 
-```{r meas-data2,echo=FALSE,fig.width=6, fig.height=3}
+
+
+```{r meas-data2, fig.width=5, fig.height=1.5, dpi=300}
 meas |>
   ggplot(aes(x=week,y=reports)) +
   geom_line() +
   geom_point()
 ```
 
-```{r}
-meas |> pomp(times="week",t0=0) -> measSIR
-```
 
-R、c-dmeasure rmeasure-
+
+# Model Definition {.allowframebreaks}
+
+## Set up a stochastic SIR model {.allowframebreaks}
 
 ```{r}
 sir_stoch <- Csnippet("
   double dN_SI = rbinom(S,1-exp(-Beta*I/N*dt));
   double dN_IR = rbinom(I,1-exp(-Gamma*dt));
-  S -= dN_SI;
-  I += dN_SI - dN_IR;
-  R += dN_IR;
-  H += dN_IR;
-")
+  S -= dN_SI; I += dN_SI - dN_IR;
+  R += dN_IR; H += dN_IR;"
+)
+sir_init <- Csnippet("
+  S = nearbyint(Eta*N);
+  I = 1;
+  R = nearbyint((1-Eta)*N);
+  H = 0;"
+)
 ```
 
-```{r more-csnips}
-    sir_rinit <- Csnippet("
-      S = nearbyint(Eta*N);
-      I = 1;
-      R = nearbyint((1-Eta)*N);
-      H = 0;
-    ")
-    sir_dmeas <- Csnippet("
-      lik = dnbinom_mu(reports,k,Rho*H,give_log);
-    ")
-    sir_rmeas <- Csnippet("
-      reports = rnbinom_mu(k,Rho*H);
-    ")
+\framebreak
+
+```{r}
+dmeas <- Csnippet("
+  lik = dnbinom_mu(reports,k,Rho*H,give_log);"
+)
+
+rmeas <- Csnippet("
+  reports = rnbinom_mu(k,Rho*H);"
+)
 ```
 
-become pomp-
+\framebreak
+
+## Specifying model components in `pomp` {.allowframebreaks}
 
 ```{r sir_pomp}
-measSIR  %>% 
+meas |>
   pomp(
+    times="week",t0=0,
     rprocess=euler(sir_stoch,delta.t=1/7),
-    rinit=sir_rinit,
-    rmeasure=sir_rmeas,
-    dmeasure=sir_dmeas,
+    rinit=sir_init,
+    rmeasure=rmeas,
+    dmeasure=dmeas,
+    emeasure=emeas,
     accumvars="H",
     statenames=c("S","I","R","H"),
-    paramnames=c("Beta","Gamma","N","Eta","Rho","k"),
+    paramnames=c("Beta","Gamma","Eta","Rho","k","N"),
     params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000)
   ) -> measSIR
 ```
 
-simulation/likelihood with the initial guess
+# Preliminary Analysis {.allowframebreaks}
+
+## Simulation with the initial guess {.allowframebreaks}
 
 ```{r, fig.width=8, fig.height=1.5}
 measSIR |>
@@ -108,35 +163,53 @@ measSIR |>
   geom_line() + guides(color="none")
 ```
 
-check likelihood and ess
+---
 
-```{r}
+## Check likelihood and ess {.allowframebreaks}
+
+Evaluate the likelihood and Effective Sample Size (ESS) of the initial parameter estimates using particle filtering
+
+
+```{r, fig.width=5, fig.height=2}
 pf <- measSIR |> pfilter(Np=5000)
-plot(pf)
 min(pf@eff.sample.size)
 ```
 
-```{r}
+ESS refers to the number of particles that effectively contribute to the approximation of the posterior distribution.
+
+---
+
+```{r, fig.width=7, fig.height=4}
+plot(pf)
+```
+
+
+---
+
+Use repeated particle filtering to refine estimates
+ 
+```{r pf2}
 foreach(i=1:10,.combine=c,
   .options.future=list(seed=TRUE)) %dofuture% {
   measSIR |> pfilter(Np=5000)
 } -> pf
 pf |> logLik() |> logmeanexp(se=TRUE) -> L_pf
 L_pf
+``` 
 
-# Building up a picture of the likelihood surface II ?
+Then we get likelihood at a single point. Store this point, together with the estimated likelihood and SE:
+
+```{r init_csv,cache=FALSE}
 pf[[1]] |> coef() |> bind_rows() |>
-  bind_cols(loglik=L_pf[1],loglik.se=L_pf[2])
+  bind_cols(loglik=L_pf[1],loglik.se=L_pf[2]) |>
+  write_csv("measles_params.csv")
 ```
 
+# Local Optimization (IF2)
 
+Apply iterated filtering to find a local maximum near the initial guesses
 
-Effective Sample Size refers to the number of particles that effectively contribute to the approximation of the posterior distribution.
-
-
-local maximum (IF2)
-
-```{r}
+```{r local_search,eval=FALSE,purl=FALSE}
 foreach(i=1:20,.combine=c,
   .options.future=list(seed=482947940)
 ) %dofuture% {
@@ -150,29 +223,457 @@ foreach(i=1:20,.combine=c,
       paramnames=c("Beta","Rho","Eta")
     )
 } -> mifs_local
+``` 
+
+
+
+```{r local_search_eval,echo=FALSE}
+bake(file="local_search.rds",{
+  <<local_search>>
+  attr(mifs_local,"ncpu") <- nbrOfWorkers()
+  mifs_local
+}) -> mifs_local
+t_loc <- attr(mifs_local,"system.time")
+ncpu_loc <- attr(mifs_local,"ncpu")
 ```
 
-Iterated filtering diagnostics 
 
-```{r}
+---
+
+## Diagnostics and Visualization {.allowframebreaks} 
+
+
+```{r local_search_plot}
 mifs_local |>
   traces() |>
   melt() |>
   ggplot(aes(x=iteration,y=value,group=.L1,color=factor(.L1)))+
   geom_line()+
   guides(color="none")+
-  facet_wrap(~name,scales="free_y")
+  facet_wrap(~name,scales="free_y") -> plot
+```
+
+---
+
+```{r local_search_plot2,fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+plot
+```
+
+
+
+# Global Optimization 
+
+## Set Up for Global Search {.allowframebreaks} 
+
+1. likelihood maximizations from diverse starting points. 
+2. A large box in parameter space. 
+3. expect to see stable conclusions with starting values drawn randomly from this box
+
+```{r cluster_setup,include=FALSE,purl=TRUE}
+if (file.exists("CLUSTER.R")) {
+  source("CLUSTER.R")
+}
+```
+
+```{r global_search1}
+set.seed(2062379496) 
+
+runif_design(
+  lower=c(Beta=5,Rho=0.2,Eta=0),
+  upper=c(Beta=80,Rho=0.9,Eta=1),
+  nseq=400
+) -> guesses
+mf1 <- mifs_local[[1]]
+```
+
+---
+
+## Global Search {.allowframebreaks} 
+
+```{r echo=FALSE,eval=FALSE}
+fixed_params <- c(N=38000, Gamma=2, k=10)
+```
+
+
+```{r global_search2,eval=FALSE,purl=FALSE}
+foreach(guess=iter(guesses,"row"), .combine=rbind,
+  .options.future=list(seed=1270401374)
+) %dofuture% {
+  mf1 |>
+    mif2(params=c(guess,fixed_params)) |>
+    mif2(Nmif=100) -> mf
+  replicate(
+    10,
+    mf |> pfilter(Np=5000) |> logLik()
+  ) |>
+    logmeanexp(se=TRUE) -> ll
+  mf |> coef() |> bind_rows() |>
+    bind_cols(loglik=ll[1],loglik.se=ll[2])
+} -> results
+``` 
+
+```{r global_search_eval,include=FALSE}
+bake(file="global_search.rds",
+  dependson=guesses,{
+    <<global_search2>>
+    attr(results,"ncpu") <- nbrOfWorkers()
+    results
+  }) |>
+  filter(is.finite(loglik)) -> results
+t_global <- attr(results,"system.time")
+ncpu_global <- attr(results,"ncpu")
+``` 
+
+---
+
+```{r cache=FALSE,include=FALSE}
+read_csv("measles_params.csv") |>
+  bind_rows(results) |>
+  filter(is.finite(loglik)) |>
+  arrange(-loglik) |>
+  write_csv("measles_params.csv")
+```
+
+Then get the best result
+
+```{r mle_global}
+results |> filter(loglik==max(loglik))
+```
+
+---
+
+## Diagnostics and Visualization {.allowframebreaks} 
+
+Again, we attempt to visualize the global geometry of the likelihood surface using a scatterplot matrix. Then plot contains both the starting values (grey) and the IF2 estimates (red).
+
+```{r pairs_global1,fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+read_csv("measles_params.csv") |>
+  filter(loglik>max(loglik)-50) |>
+  bind_rows(guesses) |>
+  mutate(type=if_else(is.na(loglik),"guess","result")) |>
+  arrange(type) -> all
+```
+
+---
+
+```{r pairs_global11,fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+pairs(~loglik+Beta+Eta+Rho, data=all, pch=16, cex=0.3,
+  col=ifelse(all$type=="guess",grey(0.5),"red"))
+```
+
+---
+
+The projections of the estimates give us ``poor man`s profiles'':
+
+```{r pairs_global2, fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+all |>
+  filter(type=="result") |>
+  filter(loglik>max(loglik)-10) |>
+  ggplot(aes(x=Eta,y=loglik))+
+  geom_point()+
+  labs(
+    x=expression(Eta),
+    title="poor man's profile likelihood"
+  ) -> plot
+```
+
+---
+
+```{r pairs_global3, fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+plot
+```
+
+---
+
+# Profile Likelihood Estimation 
+
+## For the first parameter {.allowframebreaks} 
+
+first bound the uncertainty by putting a box around the highest-likelihood
+
+```{r eta_profile1a}
+read_csv("measles_params.csv") |>
+  filter(loglik>max(loglik)-20,loglik.se<2) |>
+  sapply(range) -> box
+box
+```
+
+ 
+---
+
+Within this box, we’ll choose some random starting points
+
+```{r eta_profile1b, fig.width=4, fig.height=2, dpi=300}
+freeze(seed=1196696958,
+  profile_design(
+    Eta=seq(0.01,0.95,length=40),
+    lower=box[1,c("Beta","Rho")],
+    upper=box[2,c("Beta","Rho")],
+    nprof=15, type="runif"
+  )) -> guesses
+```
+
+---
+
+```{r}
+plot(guesses)
+```
+
+---
+
+Now, we’ll start one independent sequence of iterated filtering operations from each of these points.
+
+```{r eta_profile2,eval=FALSE,purl=FALSE}
+foreach(guess=iter(guesses,"row"), .combine=rbind,
+  .options.future=list(seed=830007657)
+) %dofuture% {
+  mf1 |>
+    mif2(params=c(guess,fixed_params),
+      rw.sd=rw_sd(Beta=0.02,Rho=0.02)) |>
+    mif2(Nmif=100,cooling.fraction.50=0.3) -> mf
+  replicate(
+    10,
+    mf |> pfilter(Np=5000) |> logLik()) |>
+    logmeanexp(se=TRUE) -> ll
+  mf |> coef() |> bind_rows() |>
+    bind_cols(loglik=ll[1],loglik.se=ll[2])
+} -> results
+```
+
+```{r eta_profile2_eval,include=FALSE}
+mf1 <- mifs_local[[1]]
+bake(file="eta_profile.rds",
+  dependson=guesses,{
+    <<eta_profile2>>
+    attr(results,"ncpu") <- nbrOfWorkers()
+    results
+  }) -> results
+t_eta <- attr(results,"system.time")
+ncpu_eta <- attr(results,"ncpu")
+```
+
+---
+
+### Visualizing profile likelihood {.allowframebreaks}
+
+```{r eta_profile_database, echo=FALSE, cache=FALSE}
+read_csv("measles_params.csv") |>
+  bind_rows(results) |>
+  filter(is.finite(loglik)) |>
+  arrange(-loglik) |>
+  write_csv("measles_params.csv")
+```
+
+```{r eta_profile_pairs, fig.width=8, fig.height=6, dpi=300}
+#| out-height: 70%
+read_csv("measles_params.csv") |> filter(loglik>max(loglik)-10) -> all
+pairs(~loglik+Beta+Eta+Rho,data=all,pch=16)
+```
+
+---
+
+Focusing on the top of the surface
+
+```{r eta_profile_plot2, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+results |>
+  filter(is.finite(loglik)) |>
+  group_by(round(Eta,5)) |>
+  filter(rank(-loglik)<3) |>
+  ungroup() |>
+  filter(loglik>max(loglik)-20) |>
+  ggplot(aes(x=Eta,y=loglik))+
+  geom_point() + xlab(expression(eta)) -> plot
+``` 
+
+---
+
+```{r eta_profile_plot22, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+plot 
+```
+
+---
+
+estimate $\eta$ with 95% CI using these data
+
+```{r eta_profile_plot3, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+maxloglik <- max(results$loglik,na.rm=TRUE)
+ci.cutoff <- maxloglik-0.5*qchisq(df=1,p=0.95)
+
+results |>
+  filter(is.finite(loglik)) |>
+  group_by(round(Eta,5)) |>
+  filter(rank(-loglik)<3) |>
+  ungroup() |>
+  ggplot(aes(x=Eta,y=loglik))+
+  geom_point() + xlab(expression(eta)) +
+  geom_smooth(method="loess",span=0.25)+
+  geom_hline(color="red",yintercept=ci.cutoff)+
+  lims(y=maxloglik-c(5,0)) -> plot
+```
+
+---
+
+```{r eta_profile_plot33, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+plot
+```
+
+---
+
+```{r eta_ci}
+results |>
+  filter(is.finite(loglik)) |>
+  filter(loglik>max(loglik)-0.5*qchisq(df=1,p=0.95)) |> 
+  summarize(min=min(Eta),max=max(Eta)) -> Eta_ci
+```
+
+Then we know $\eta$ is in the `r signif(Eta_ci$min,2)`--`r signif(Eta_ci$max,2)`% range (95% CI).
+
+---
+
+## For the later parameters
+
+for next parameter, we can initialize the IF2 computations at points we have already established have high likelihoods.
+
+```{r rho_profile1}
+read_csv("measles_params.csv") |>
+  group_by(cut=round(Rho,2)) |>
+  filter(rank(-loglik)<=10) |>
+  ungroup() |>
+  arrange(-loglik) |>
+  select(-cut,-loglik,-loglik.se) -> guesses
+```
+
+---
+
+then again, generate the profile likelihood
+
+```{r rho_profile2,eval=FALSE,purl=FALSE}
+foreach(guess=iter(guesses,"row"), .combine=rbind,
+  .options.future=list(seed=2105684752)
+) %dofuture% {
+  mf1 |>
+    mif2(params=guess,
+      rw.sd=rw_sd(Beta=0.02,Eta=ivp(0.02))) |>
+    mif2(Nmif=100,cooling.fraction.50=0.3) |>
+    mif2() -> mf
+  replicate(
+    10,
+    mf |> pfilter(Np=5000) |> logLik()) |>
+    logmeanexp(se=TRUE) -> ll
+  mf |> coef() |> bind_rows() |>
+    bind_cols(loglik=ll[1],loglik.se=ll[2])
+} -> results
+```
+
+```{r rho_profile_eval,include=FALSE}
+mf1 <- mifs_local[[1]]
+bake(file="rho_profile.rds",
+  dependson=guesses,{
+    <<rho_profile2>>
+    attr(results,"ncpu") <- nbrOfWorkers()
+    results
+  }) -> results
+t_rho <- attr(results,"system.time")
+ncpu_rho <- attr(results,"ncpu")
+```
+
+```{r include=FALSE,cache=FALSE}
+read_csv("measles_params.csv") |>
+  bind_rows(results) |>
+  filter(is.finite(loglik)) |>
+  arrange(-loglik) |>
+  write_csv("measles_params.csv")
+``` 
+
+---
+
+### Visualizing profile likelihood {.allowframebreaks}
+
+```{r prof-rho1, echo=FALSE, fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+results |> filter(is.finite(loglik)) -> results
+
+pairs(~loglik+Beta+Eta+Rho,data=results,pch=16)
+```
+
+---
+
+```{r echo=FALSE, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 80%
+results |>
+  filter(loglik>max(loglik)-10,loglik.se<1) |>
+  group_by(round(Rho,2)) |>
+  filter(rank(-loglik)<3) |>
+  ungroup() |>
+  ggplot(aes(x=Rho,y=loglik))+
+  geom_point() + xlab(expression(rho)) +
+  geom_hline(
+    color="red",
+    yintercept=max(results$loglik)-0.5*qchisq(df=1,p=0.95)
+  )
+```
+
+--- 
+
+```{r rho_ci}
+results |>
+  filter(loglik>max(loglik)-0.5*qchisq(df=1,p=0.95)) |>
+  summarize(min=min(Rho),max=max(Rho)) -> rho_ci
+```
+
+Then we know reporting efficiencies $\rho$ is in the `r signif(100*rho_ci$min,2)`--`r signif(100*rho_ci$max,2)`% range (95% CI).
+
+
+---
+
+## The investigation continues\dots.
+
+# Check predictions {.allowframebreaks}
+
+After all these analyses, we would like to visualize how exactly the model 
+with the MLEs matches the data.
+We can do it by plotting the simulations with 95\% the prediction interval.
+
+```{r}
+read_csv("measles_params.csv") |>
+  filter(loglik == max(loglik)) |>
+  select(-loglik, -loglik.se) -> best.params
+
+measSIR |>
+  simulate(
+    params=unlist(best.params),
+    nsim=1000, format="data.frame", include.data=TRUE
+  ) -> sims
+```
+
+ 
+
+```{r viz-predictions, fig.height=4, fig.width=6, dpi=300}
+#| out-height: 80%
+sims |>
+  mutate(data=.id=="data") |>
+  group_by(week,data) |>
+  reframe(
+    p=c(0.025,0.5,0.975),
+    value=wquant(reports,probs=p),
+    name=c("lo","med","up")
+  ) |>
+  select(-p) |> pivot_wider() |> ungroup() |>
+  ggplot(aes(x=week,y=med,color=data,fill=data,ymin=lo,ymax=up))+
+  geom_line()+ geom_ribbon(alpha=0.2,color=NA) +
+  labs(y="reports")+
+  theme_bw() + guides(color="none",fill="none")
 ```
 
 
 
 
-based on the results, check the starting guess,
-
-Then perform global maximum check likelihood get point est
-
-do profile and obtain CI
-
-check likelihood and ess
-
-then prediction and compare with the observation

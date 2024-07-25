@@ -43,5 +43,5 @@ read_csv("https://kingaa.github.io/sbied/pfilter/Measles_Consett_1948.csv") |>
     accumvars="H",
     statenames=c("S","I","R","H"),
     paramnames=c("Beta","Gamma","Eta","Rho","k","N"),
-    params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000)
+    params=c(Beta=15,Gamma=2,Rho=0.5,k=10,Eta=0.06,N=38000)
   ) -> measSIR
