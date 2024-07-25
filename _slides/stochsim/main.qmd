@@ -594,7 +594,7 @@ sir_stoch <- function (S, I, R, N, Beta, Gamma, delta.t, ...) {
 ```
 
 - Note that, for a deterministic SIR model:
-```{r rproc_det1, eval=FALSE}
+```{r rproc_det1, eval=FALSE, purl=FALSE}
 dN_SI <- Beta*S*I/N*delta.t
 dN_IR <- Gamma*I*delta.t
 ```
