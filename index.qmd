@@ -39,7 +39,7 @@ This module introduces statistical inference techniques and computational method
 
 4.  [Iterated filtering: theory and practice.](https://rubbislam.quarto.pub/episim/iterated.html)
 
-5.  [Bayesian statistics and PMCMC in pomp](https://rubbislam.quarto.pub/episim/pmcmc.html)
+5.  [Bayesian statistics and PMCMC in pomp](https://rubbislam.quarto.pub/episim/Bayesian.html)
 
 6.  [Case study: 1918 Spanish Flu in three cities of UK](https://rubbislam.quarto.pub/episim/case%20study.html)
 
