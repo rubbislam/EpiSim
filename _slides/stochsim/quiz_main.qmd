@@ -16,47 +16,26 @@ set.seed(1350254336)
 knitr::opts_chunk$set(highlight=FALSE)
 ```
 
-
-
 # Q1
-Scientifically, our conclusions should not depend on the units of measurement we use, but we can make errors if we don't get the details right.
-Suppose our data are two years of weekly aggregated case reports of a disease and we have a continuous-time model solved numerically by an Euler timestep of size $dt$.
-Which of the following is a correct explanation of our options for properly implementing this in a pomp object called `po`?
 
-1.  \label{#A13a}
-  The measurement times, `time(po)`, should be in units of weeks, such as $1,2,\dots,104$.
-  The latent process can be modeled using arbitrary time units, say days or weeks or years.
-  The units of $dt$ should match the time units of the {\bf latent} process.
-2.  \label{#A13b}
-  The measurement times, `time(po)`, should be in units of weeks, such as $1,2,\dots,104$.
-  The latent process can be modeled using arbitrary time units, say days or weeks or years.
-  The units of $dt$ should be in weeks (in practice, usually a fraction of a week) to match the units of the {\bf measurement} times.
-3.  \label{#A13c} The measurement times do not have to be in units of weeks.
-  For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$.
-  The latent process and $dt$ should use the same units of time as the measurement times.
-4.  \label{#A13d}
-  The measurement times do not have to be in units of weeks.
-  For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$.
-  The latent process can also use arbitrary units of time, which do not necessarily match the units of the measurement times.
-  The units of $dt$ should match the units used for the {\bf latent} process.
-5.  \label{#A13e}
-  The measurement times do not have to be in units of weeks.
-  For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$.
-  The latent process can also use arbitrary units of time, which do not necessarily match the units of the measurement times.
-  The units of $dt$ should match the units used for the {\bf measurement} times.
+Scientifically, our conclusions should not depend on the units of measurement we use, but we can make errors if we don't get the details right. Suppose our data are two years of weekly aggregated case reports of a disease and we have a continuous-time model solved numerically by an Euler timestep of size $dt$. Which of the following is a correct explanation of our options for properly implementing this in a pomp object called `po`?
 
+1.  \label{#A13a} The measurement times, `time(po)`, should be in units of weeks, such as $1,2,\dots,104$. The latent process can be modeled using arbitrary time units, say days or weeks or years. The units of $dt$ should match the time units of the {\bf latent} process.
+2.  \label{#A13b} The measurement times, `time(po)`, should be in units of weeks, such as $1,2,\dots,104$. The latent process can be modeled using arbitrary time units, say days or weeks or years. The units of $dt$ should be in weeks (in practice, usually a fraction of a week) to match the units of the {\bf measurement} times.
+3.  \label{#A13c} The measurement times do not have to be in units of weeks. For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$. The latent process and $dt$ should use the same units of time as the measurement times.
+4.  \label{#A13d} The measurement times do not have to be in units of weeks. For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$. The latent process can also use arbitrary units of time, which do not necessarily match the units of the measurement times. The units of $dt$ should match the units used for the {\bf latent} process.
+5.  \label{#A13e} The measurement times do not have to be in units of weeks. For example, we could use `time(po)`=$1/52$, $2/52$, $\dots, 2$. The latent process can also use arbitrary units of time, which do not necessarily match the units of the measurement times. The units of $dt$ should match the units used for the {\bf measurement} times.
 
 ## solution
-  \@ref(A13c).
-  For scientific calculations, you generally have to pick an arbitrary set of units and use it consistently.
-  In `pomp`, this means that you have to use the same units for measurement times and within the latent process.
-  For example, if your measurement times are in days (7,14,$\dots$) then rate parameters should have units $\mathrm{day}^{-1}$.
-  A latent transition with mean duration 1 week would have corresponding rate $1/7 \mathrm{day}^{-1}$. 
 
+\@ref(A13c). For scientific calculations, you generally have to pick an arbitrary set of units and use it consistently. In `pomp`, this means that you have to use the same units for measurement times and within the latent process. For example, if your measurement times are in days (7,14,$\dots$) then rate parameters should have units $\mathrm{day}^{-1}$. A latent transition with mean duration 1 week would have corresponding rate $1/7 \mathrm{day}^{-1}$.
 
 \newpage
+
 # Q2
+
 Suppose you obtain the following error message when you build your pomp model using C snippets.
+
 ```{r Q10-error-message,echo=FALSE}
 cat("
 Error: error in building shared-object library from C snippets: in ‘Cbuilder’: compilation error:
@@ -84,21 +63,18 @@ In system2(command = R.home(\"bin/R\"), args = c(\"CMD\", \"SHLIB\", \"-c\",  :
  /tmp/RtmpFkkeCQ/24104/pomp_068eedfcaf62b1e391363bbdd99fbe8c.c 2>&1' had status 1
 ")
 ```
+
 Which of the following is a plausible cause for this error?
 
 1.  \label{#A10a} Using R syntax within a C function that has the same name as an R function.
 2.  \label{#A10b} A parameter is missing from the `paramnames` argument to `pomp`.
-3.  \label{#A10c} Indexing past the end of an array because C labels indices starting at 0. 
+3.  \label{#A10c} Indexing past the end of an array because C labels indices starting at 0.
 4.  \label{#A10d} Using `beta` as a parameter name when it is a declared C function.
 5.  \label{#A10e} A missing semicolon at the end of a line.
 
-
-
 ## solution
-  \@ref(A10e).
-  The error message was produced by the code below.
-  `pomp` passes on the C compiler error message for you to inspect.
-  Note the missing semicolon in the next-to-last line.
+
+\@ref(A10e). The error message was produced by the code below. `pomp` passes on the C compiler error message for you to inspect. Note the missing semicolon in the next-to-last line.
 
 ```{r Q10-error-code,eval=F}
   sir1 <- sir()
@@ -121,11 +97,12 @@ Which of the following is a plausible cause for this error?
   )    
 ```
 
-
-
 \newpage
+
 # Q3
+
 Suppose you obtain the following error message when you build your pomp model using C snippets.
+
 ```{r Q11-error-message,echo=FALSE}
 cat("
 Error: error in building shared-object library from C snippets: in ‘Cbuilder’: compilation error: 
@@ -156,17 +133,18 @@ In system2(command = R.home(\"bin/R\"), args = c(\"CMD\", \"SHLIB\", \"-c\",  :
 5324/pomp_b675d99e691eda865610f570058ea3be.c 2>&1' had status 1
 ")
 ```
+
 Which of the following is a plausible cause for this error?
 
 1.  \label{#A11a} Using R syntax within a C function that has the same name as an R function.
 2.  \label{#A11b} A parameter is missing from the `paramnames` argument to `pomp`.
-3.  \label{#A11c} Indexing past the end of an array because C labels indices starting at 0. 
+3.  \label{#A11c} Indexing past the end of an array because C labels indices starting at 0.
 4.  \label{#A11d} Using `beta` as a parameter name when it is a declared C function.
 5.  \label{#A11e} A missing semicolon at the end of a line.
 
-
 ## solution
-  \@ref(A11b). The code generating this error is below. Here, `pop` is intended to be passed as a parameter, but it is missing from the `paramnames` argument. It could alternatively be defined as a global variable using the `globals` argument to `pomp`.
+
+\@ref(A11b). The code generating this error is below. Here, `pop` is intended to be passed as a parameter, but it is missing from the `paramnames` argument. It could alternatively be defined as a global variable using the `globals` argument to `pomp`.
 
 ```{r Q11-error-code,eval=F}
   sir3 <- pomp(
@@ -186,13 +164,14 @@ Which of the following is a plausible cause for this error?
     W = 0;"
     )
   )    
-```    
-
-
+```
 
 \newpage
+
 # Q4
+
 Suppose you obtain the following error message when you build your pomp model using C snippets.
+
 ```{r Q12-error-message,echo=FALSE}
 cat("
 Error: in ‘simulate’: error in building shared-object library from C snippets: in ‘Cbuilder’:
@@ -217,21 +196,18 @@ In system2(command = R.home(\"bin/R\"), args = c(\"CMD\", \"SHLIB\", \"-c\",  :
  /tmp/RtmpFkkeCQ/24104/pomp_4fc43714a7a9ebddf896bbc51635d211.c 2>&1' had status 1
 ")
 ```
+
 Which of the following is a plausible cause for this error?
 
 1.  \label{#A12a} Using R syntax within a C function that has the same name as an R function.
 2.  \label{#A12b} A parameter is missing from the `paramnames` argument to `pomp`.
-3.  \label{#A12c} Indexing past the end of an array because C labels indices starting at 0. 
+3.  \label{#A12c} Indexing past the end of an array because C labels indices starting at 0.
 4.  \label{#A12d} Using `beta` as a parameter name when it is a declared C function.
 5.  \label{#A12e} A missing semicolon at the end of a line.
 
-
 ## solution
-  \@ref(A12a).
-  The code producing the error is below.
-  Within C snippets, the C versions of R distribution functions are available but they have slightly different syntax from their more familiar R children.
-  A complete reference guide to R's C interface \underline{[can be found here](https://cran.r-project.org/doc/manuals/r-release/R-exts.html\#The-R-API)}.
-  In particular, the C form of R's distribution functions is \underline{[fully described here](https://cran.r-project.org/doc/manuals/r-release/R-exts.html\#Distribution-functions)}.
+
+\@ref(A12a). The code producing the error is below. Within C snippets, the C versions of R distribution functions are available but they have slightly different syntax from their more familiar R children. A complete reference guide to R's C interface \underline{[can be found here](https://cran.r-project.org/doc/manuals/r-release/R-exts.html\#The-R-API)}. In particular, the C form of R's distribution functions is \underline{[fully described here](https://cran.r-project.org/doc/manuals/r-release/R-exts.html\#Distribution-functions)}.
 
 ```{r Q12-error-code,eval=F}
   sir4 <- simulate(
@@ -253,32 +229,30 @@ Which of the following is a plausible cause for this error?
   )
 ```
 
-
-
-
-
 \newpage
+
 # Q5
-Let $V_n$ be a Markov process and let $W_n=h(V_n)$ for some function $h$.
-Which of the following statements are true?
+
+Let $V_n$ be a Markov process and let $W_n=h(V_n)$ for some function $h$. Which of the following statements are true?
 
 1.  $W_n$ is a Markov process for all choices of $h$.
+
 2.  $W_n$ is a Markov process for some choices of $h$.
+
 3.  $W_n$ is not a Markov process for any choice of $h$.
+
 4.  If $V_n=(X_n,Y_n)$ where $X_n$ and $Y_n$ are a POMP, and $h(X_n,Y_n)=X_n$ then $W_n$ is a Markov process.
+
 5.  If $V_n=(X_n,Y_n)$ where $X_n$ and $Y_n$ are a POMP, and $h(X_n,Y_n)=Y_n$ then $W_n$ is a Markov process.
 
+6.  i,iv,v
 
+7.  ii,iv \label{#A1b}
 
-1.  i,iv,v
-2.  ii,iv \label{#A1b}
-3.  ii,v
-4.  iii
-5.  None of them
+8.  ii,v
 
+9.  iii
+
+10. None of them
 
 ## solution
-
-
-
-

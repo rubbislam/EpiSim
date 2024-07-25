@@ -3,6 +3,10 @@ project:
   render:
     - "*.qmd"
     - "!slides/"
+    - "slides/!polio"
+    - "slides/!ebola"
+    - "slides/!measles"
+    - "slides/!contacts"
 
 website:
   title: "EpiSim"

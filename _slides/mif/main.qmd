@@ -126,7 +126,7 @@ set.seed(1350254336)
 
 ```{=tex}
 \begin{center}
-  \includegraphics[height=8cm]{../graphics/lec4 table.png}
+  \includegraphics[height=6cm]{../graphics/lec4 table.png}
 \end{center}
 ```
 # Iterated filtering in theory

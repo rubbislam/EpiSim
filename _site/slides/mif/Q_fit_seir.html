@@ -161,6 +161,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -288,7 +292,7 @@ MathJax = {
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">==</span><span class="fu">max</span>(loglik)) <span class="sc">|&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loglik,<span class="sc">-</span>loglik.se) <span class="ot">-&gt;</span> <span class="fu">coef</span>(measSEIR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Rows: 4175 Columns: 8
+<pre><code>Rows: 1299 Columns: 8
 ── Column specification ────────────────────────────────────
 Delimiter: ","
 dbl (8): Beta, Gamma, Rho, k, Eta, N, loglik, loglik.se

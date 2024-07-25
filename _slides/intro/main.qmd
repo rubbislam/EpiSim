@@ -26,6 +26,9 @@ format:
 editor_options: 
   chunk_output_type: console
 bibliography: ["../sbied.bib"]
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 

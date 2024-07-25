@@ -180,6 +180,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -210,7 +214,7 @@ MathJax = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Partially worked solution to the “Rethinking the boarding school flu” exercise</h1>
+<h1 class="title"><p>Partially worked solution to the “Rethinking the boarding school flu” exercise</p></h1>
 </div>
 
 
@@ -249,7 +253,7 @@ MathJax = {
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/seir3_model_613e28ebdd6de053ec1962694c596520">
+<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/seir3_model_11b4b195c385393756f5618e77a35432">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -259,10 +263,10 @@ MathJax = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">rprocess=</span><span class="fu">euler</span>(<span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="st">      double N = 763;</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">      double t1 = rbinom(S,1-exp(-Beta*I/N*dt));</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st">      double t2 = rbinom(E,1-exp(-mu_E*dt));</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">      double t3 = rbinom(I,1-exp(-mu_I*dt));</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">      double t4 = rbinom(R1,1-exp(-mu_R1*dt));</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">      double t5 = rbinom(R2,1-exp(-mu_R2*dt));</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st">      double t2 = rbinom(E,1-exp(-Mu_E*dt));</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">      double t3 = rbinom(I,1-exp(-Mu_I*dt));</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">      double t4 = rbinom(R1,1-exp(-Mu_R1*dt));</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">      double t5 = rbinom(R2,1-exp(-Mu_R2*dt));</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">      S  -= t1;</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="st">      E  += t1 - t2;</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="st">      I  += t2 - t3;</span></span>
@@ -276,24 +280,24 @@ MathJax = {
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="st">      R1 = 0;</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="st">      R2 = 0;"</span>),</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">dmeasure=</span><span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="st">      lik = dpois(B,rho*R1+1e-6,give_log);"</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="st">      lik = dpois(B,Rho*R1+1e-6,give_log);"</span>),</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmeasure=</span><span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="st">      B = rpois(rho*R1+1e-6);"</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="st">      B = rpois(Rho*R1+1e-6);"</span>),</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">statenames=</span><span class="fu">c</span>(<span class="st">"S"</span>,<span class="st">"E"</span>,<span class="st">"I"</span>,<span class="st">"R1"</span>,<span class="st">"R2"</span>),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_E"</span>,<span class="st">"mu_I"</span>,<span class="st">"mu_R1"</span>,<span class="st">"mu_R2"</span>,<span class="st">"rho"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"Mu_E"</span>,<span class="st">"Mu_I"</span>,<span class="st">"Mu_R1"</span>,<span class="st">"Mu_R2"</span>,<span class="st">"Rho"</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> flu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>How many parameters can reasonably be fixed? How many must be estimated? Obtain some ballpark estimates of the parameters and simulate to see if you can plausibly explain the data as a realization of this model.</p>
 <p><span class="math inline">\(1/\mu_{R_1}\)</span> is the average duration of the bed confinement period and <span class="math inline">\(1/\mu_{R_2}\)</span> is the average duration of convalescence. As discussed above, the data can tell us something about the rough magnitude of these quantities:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/fixedparams_0b670956397f98f114da4c5e8698ade5">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(bsflu,<span class="fu">c</span>(<span class="at">mu_R1=</span><span class="dv">1</span><span class="sc">/</span>(<span class="fu">sum</span>(B)<span class="sc">/</span><span class="dv">512</span>),<span class="at">mu_R2=</span><span class="dv">1</span><span class="sc">/</span>(<span class="fu">sum</span>(C)<span class="sc">/</span><span class="dv">512</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/fixedparams_bf593af7ce7545b959beb72fae55b7d1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(bsflu,<span class="fu">c</span>(<span class="at">Mu_R1=</span><span class="dv">1</span><span class="sc">/</span>(<span class="fu">sum</span>(B)<span class="sc">/</span><span class="dv">512</span>),<span class="at">Mu_R2=</span><span class="dv">1</span><span class="sc">/</span>(<span class="fu">sum</span>(C)<span class="sc">/</span><span class="dv">512</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    mu_R1     mu_R2 
+<pre><code>    Mu_R1     Mu_R2 
 0.3324675 0.5541126 </code></pre>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/simulations_ab6162c65428ebbf6caad04bd4e9a51b">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(flu) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">5</span>,<span class="at">mu_E=</span><span class="fl">0.5</span>,<span class="at">mu_I=</span><span class="dv">1</span>,<span class="at">mu_R1=</span><span class="fl">0.33</span>,<span class="at">mu_R2=</span><span class="fl">0.55</span>,<span class="at">rho=</span><span class="fl">0.95</span>)</span>
+<div class="cell" data-layout-align="center" data-hash="tmp/seir3_exercise/cache/simulations_0d61eeb0ab518130c4f4914a7a780744">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(flu) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">5</span>,<span class="at">Mu_E=</span><span class="fl">0.5</span>,<span class="at">Mu_I=</span><span class="dv">1</span>,<span class="at">Mu_R1=</span><span class="fl">0.33</span>,<span class="at">Mu_R2=</span><span class="fl">0.55</span>,<span class="at">Rho=</span><span class="fl">0.95</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>flu <span class="sc">|&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="ot">-&gt;</span> simdat</span>
@@ -316,7 +320,6 @@ MathJax = {
 <p>How do these simulations compare to the ones from earlier models?</p>
 <p>How are they improved?</p>
 <p>In what ways do they still leave something to be desired?</p>
-<hr>
 </section>
 <section id="references" class="level2">
 

@@ -180,6 +180,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -221,7 +225,7 @@ MathJax = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Implementing a POMP model from scratch</h1>
+<h1 class="title"><p>Implementing a POMP model from scratch</p></h1>
 </div>
 
 
@@ -243,7 +247,7 @@ MathJax = {
 </header>
 
 <hr>
-<p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,bGlicmFyeShwb21wKQoKbG9jIDwtIHVybCgiaHR0cHM6Ly9raW5nYWEuZ2l0aHViLmlvL3NiaWVkL2ludHJvL3BhcnVzLmNzdiIpCmRhdCA8LSByZWFkLmNzdihsb2MpCmhlYWQoZGF0KQpwbG90KHBvcH55ZWFyLGRhdGE9ZGF0LHR5cGU9J28nKQoKbGlicmFyeShwb21wKQpwYXJ1cyA8LSBwb21wKGRhdCx0aW1lcz0ieWVhciIsdDA9MTk1OSkKCnBsb3QocGFydXMpCgpzdG9jaFN0ZXAgPC0gQ3NuaXBwZXQoIgogIGUgPSBybm9ybSgwLHNpZ21hKTsKICBOID0gcipOKmV4cCgtYypOK2UpOwoiKQpwb21wKHBhcnVzLHJwcm9jZXNzPWRpc2NyZXRlX3RpbWUoc3RlcC5mdW49c3RvY2hTdGVwLGRlbHRhLnQ9MSksCiAgICAgcGFyYW1uYW1lcz1jKCJyIiwiYyIsInNpZ21hIiksc3RhdGVuYW1lcz1jKCJOIiwiZSIpKSAtPiBwYXJ1cwoKc2ltIDwtIHNpbXVsYXRlKHBhcnVzLHBhcmFtcz1jKE5fMD0xLGVfMD0wLHI9MTIsYz0xLHNpZ21hPTAuNSksCiAgICAgICAgICAgICAgICBmb3JtYXQ9ImRhdGEuZnJhbWUiKQpwbG90KE5+eWVhcixkYXRhPXNpbSx0eXBlPSdvJykKCnJtZWFzIDwtIENzbmlwcGV0KCJwb3AgPSBycG9pcyhwaGkqTik7IikKCmRtZWFzIDwtIENzbmlwcGV0KCJsaWsgPSBkcG9pcyhwb3AscGhpKk4sZ2l2ZV9sb2cpOyIpCgpwb21wKHBhcnVzLHJtZWFzdXJlPXJtZWFzLGRtZWFzdXJlPWRtZWFzLHN0YXRlbmFtZXM9YygiTiIpLHBhcmFtbmFtZXM9YygicGhpIikpIC0+IHBhcnVzCgpjb2VmKHBhcnVzKSA8LSBjKE5fMD0xLGVfMD0wLHI9MjAsYz0xLHNpZ21hPTAuMSxwaGk9MjAwKQpsaWJyYXJ5KGdncGxvdDIpCnNpbXMgPC0gc2ltdWxhdGUocGFydXMsbnNpbT0zLGZvcm1hdD0iZCIsaW5jbHVkZS5kYXRhPVRSVUUpCmdncGxvdChkYXRhPXNpbXMsbWFwcGluZz1hZXMoeD15ZWFyLHk9cG9wKSkrZ2VvbV9saW5lKCkrCiAgZmFjZXRfd3JhcCh+LmlkLG5jb2w9MSxzY2FsZXM9ImZyZWVfeSIpCgpza2VsIDwtIENzbmlwcGV0KCJETiA9IHIqTipleHAoLWMqTik7IikKCnBhcnVzIDwtIHBvbXAocGFydXMsc2tlbGV0b249bWFwKHNrZWwpLHBhcmFtbmFtZXM9YygiciIsImMiKSxzdGF0ZW5hbWVzPWMoIk4iKSkKCnRyYWogPC0gdHJhamVjdG9yeShwYXJ1cyxwYXJhbXM9YyhOXzA9MSxyPTEyLGM9MSksZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT1zaW0sdHlwZT0nbycpCmxpbmVzKE5+eWVhcixkYXRhPXRyYWosdHlwZT0nbCcsY29sPSdyZWQnKQoKcGxvdChwYXJ1cykKCnggPC0gc2ltdWxhdGUocGFydXMpCgpjbGFzcyh4KQpwbG90KHgpCgp5IDwtIGFzLmRhdGEuZnJhbWUocGFydXMpCmhlYWQoeSkKaGVhZChzaW11bGF0ZShwYXJ1cyxmb3JtYXQ9ImRhdGEuZnJhbWUiKSkKCnggPC0gc2ltdWxhdGUocGFydXMsbnNpbT0xMCkKY2xhc3MoeCkKc2FwcGx5KHgsY2xhc3MpCnggPC0gc2ltdWxhdGUocGFydXMsbnNpbT0xMCxmb3JtYXQ9ImRhdGEuZnJhbWUiKQpoZWFkKHgpCnN0cih4KQoKbGlicmFyeShnZ3Bsb3QyKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09OSxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKQpnZ3Bsb3QoZGF0YT14LGFlcyh4PXllYXIseT1wb3AsZ3JvdXA9LmlkLGNvbG9yPSguaWQ9PSJkYXRhIikpKSsKICBnZW9tX2xpbmUoKStndWlkZXMoY29sb3I9Im5vbmUiKSsKICBmYWNldF93cmFwKH4uaWQsbmNvbD0yKQoKeSA8LSB0cmFqZWN0b3J5KHBhcnVzLGZvcm1hdD0iZGF0YS5mcmFtZSIpCnBsb3QoTn55ZWFyLGRhdGE9eSx0eXBlPSJsIikKCmNvZWYocGFydXMpCgp0aGV0YSA8LSBjb2VmKHBhcnVzKQp0aGV0YVtjKCJyIiwiTl8wIildIDwtIGMoNSwzKQp5IDwtIHRyYWplY3RvcnkocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KE5+eWVhcixkYXRhPWFzLmRhdGEuZnJhbWUoeSksdHlwZT0nbCcpCnggPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KHgsdmFyPSJwb3AiKQoKY29lZihwYXJ1cyxjKCJyIiwiTl8wIiwic2lnbWEiKSkgPC0gYygzOSwwLjUsMSkKY29lZihwYXJ1cykKcGxvdChzaW11bGF0ZShwYXJ1cyksdmFyPSJwb3AiKQo=" download="ricker.R">provided as a script</a>.</p>
+<p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,cGFyYW1zIDwtCmxpc3QocHJlZml4ID0gInJpY2tlciIpCgojIyAtLS0tcHJlbGltcyxpbmNsdWRlPUZBTFNFLHB1cmw9VFJVRSxjYWNoZT1GQUxTRS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShwb21wKQoKCiMjIC0tLS1wYXJ1cy1kYXRhLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpkYXQgPC0gcmVhZC5jc3YoInBhcnVzLmNzdiIpCmhlYWQoZGF0KQpwbG90KHBvcH55ZWFyLGRhdGE9ZGF0LHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1wb21wMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KHBvbXApCnBhcnVzIDwtIHBvbXAoZGF0LHRpbWVzPSJ5ZWFyIix0MD0xOTU5KQoKCiMjIC0tLS1wYXJ1cy1wbG90MS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1wYXJ1cy1zaW0tZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzdG9jaFN0ZXAgPC0gQ3NuaXBwZXQoIgogIGUgPSBybm9ybSgwLHNpZ21hKTsKICBOID0gcipOKmV4cCgtYypOK2UpOwoiKQpwb21wKHBhcnVzLHJwcm9jZXNzPWRpc2NyZXRlX3RpbWUoc3RlcC5mdW49c3RvY2hTdGVwLGRlbHRhLnQ9MSksCiAgICAgcGFyYW1uYW1lcz1jKCJyIiwiYyIsInNpZ21hIiksc3RhdGVuYW1lcz1jKCJOIiwiZSIpKSAtPiBwYXJ1cwoKCiMjIC0tLS1yaWNrZXItZmlyc3Qtc2ltLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzaW0gPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPWMoTl8wPTEsZV8wPTAscj0xMixjPTEsc2lnbWE9MC41KSwKICAgICAgICAgICAgICAgIGZvcm1hdD0iZGF0YS5mcmFtZSIpCnBsb3QoTn55ZWFyLGRhdGE9c2ltLHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1ybWVhcy1kZWZuLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpybWVhcyA8LSBDc25pcHBldCgicG9wID0gcnBvaXMocGhpKk4pOyIpCgoKIyMgLS0tLXBhcnVzLWRtZWFzLWRlZm4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRtZWFzIDwtIENzbmlwcGV0KCJsaWsgPSBkcG9pcyhwb3AscGhpKk4sZ2l2ZV9sb2cpOyIpCgoKIyMgLS0tLXBhcnVzLWFkZC1tZWFzLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnBvbXAocGFydXMscm1lYXN1cmU9cm1lYXMsZG1lYXN1cmU9ZG1lYXMsc3RhdGVuYW1lcz1jKCJOIikscGFyYW1uYW1lcz1jKCJwaGkiKSkgLT4gcGFydXMKCgojIyAtLS0tcmlja2VyLWFkZC1wYXJhbXMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KY29lZihwYXJ1cykgPC0gYyhOXzA9MSxlXzA9MCxyPTIwLGM9MSxzaWdtYT0wLjEscGhpPTIwMCkKCiMjIC0tLS1yaWNrZXItc2Vjb25kLXNpbSxyZXN1bHRzPSdtYXJrdXAnLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KGdncGxvdDIpCnNpbXMgPC0gc2ltdWxhdGUocGFydXMsbnNpbT0zLGZvcm1hdD0iZCIsaW5jbHVkZS5kYXRhPVRSVUUpCmdncGxvdChkYXRhPXNpbXMsbWFwcGluZz1hZXMoeD15ZWFyLHk9cG9wKSkrZ2VvbV9saW5lKCkrCiAgZmFjZXRfd3JhcCh+LmlkLG5jb2w9MSxzY2FsZXM9ImZyZWVfeSIpCgoKIyMgLS0tLXBhcnVzLXNrZWwtZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnNrZWwgPC0gQ3NuaXBwZXQoIkROID0gcipOKmV4cCgtYypOKTsiKQoKCiMjIC0tLS1wYXJ1cy1hZGQtc2tlbC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwYXJ1cyA8LSBwb21wKHBhcnVzLHNrZWxldG9uPW1hcChza2VsKSxwYXJhbW5hbWVzPWMoInIiLCJjIiksc3RhdGVuYW1lcz1jKCJOIikpCgoKIyMgLS0tLXBhcnVzLWZpcnN0LXRyYWoscmVzdWx0cz0nbWFya3VwJy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnRyYWogPC0gdHJhamVjdG9yeShwYXJ1cyxwYXJhbXM9YyhOXzA9MSxyPTEyLGM9MSksZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT1zaW0sdHlwZT0nbycpCmxpbmVzKE5+eWVhcixkYXRhPXRyYWosdHlwZT0nbCcsY29sPSdyZWQnKQoKCiMjIC0tLS1wbG90LXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1zaW0tcmlja2VyMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjbGFzcyh4KQpwbG90KHgpCgoKIyMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnkgPC0gYXMuZGF0YS5mcmFtZShwYXJ1cykKaGVhZCh5KQpoZWFkKHNpbXVsYXRlKHBhcnVzLGZvcm1hdD0iZGF0YS5mcmFtZSIpKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTApCmNsYXNzKHgpCnNhcHBseSh4LGNsYXNzKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTAsZm9ybWF0PSJkYXRhLmZyYW1lIikKaGVhZCh4KQpzdHIoeCkKCgojIyAtLS0tZmlnLmhlaWdodD04LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShnZ3Bsb3QyKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09OSxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKQpnZ3Bsb3QoZGF0YT14LGFlcyh4PXllYXIseT1wb3AsZ3JvdXA9LmlkLGNvbG9yPSguaWQ9PSJkYXRhIikpKSsKICBnZW9tX2xpbmUoKStndWlkZXMoY29sb3I9Im5vbmUiKSsKICBmYWNldF93cmFwKH4uaWQsbmNvbD0yKQoKCiMjIC0tLS10cmFqLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp5IDwtIHRyYWplY3RvcnkocGFydXMsZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT15LHR5cGU9ImwiKQoKCiMjIC0tLS1jb2VmLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0aGV0YSA8LSBjb2VmKHBhcnVzKQp0aGV0YVtjKCJyIiwiTl8wIildIDwtIGMoNSwzKQp5IDwtIHRyYWplY3RvcnkocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KE5+eWVhcixkYXRhPWFzLmRhdGEuZnJhbWUoeSksdHlwZT0nbCcpCnggPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KHgsdmFyPSJwb3AiKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzLGMoInIiLCJOXzAiLCJzaWdtYSIpKSA8LSBjKDM5LDAuNSwxKQpjb2VmKHBhcnVzKQpwbG90KHNpbXVsYXRlKHBhcnVzKSx2YXI9InBvcCIpCgo=" download="ricker.R">provided as a script</a>.</p>
 <p>This document has its origins in the <a href="https://kingaa.github.io/pomp/vignettes/getting_started.html">Getting Started vignette</a>.</p>
 <hr>
 <section id="introduction" class="level2">
@@ -451,13 +455,13 @@ attr(,"package")
 </div>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate</span>(parus,<span class="at">format=</span><span class="st">"data.frame"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> year .id          N            e  pop
- 1960   1 8.12636695  0.099381681 1576
- 1961   1 0.04483505 -0.069244309   13
- 1962   1 0.99568721  0.149545696  215
- 1963   1 7.31369271 -0.005974641 1466
- 1964   1 0.09517929 -0.023780791   16
- 1965   1 1.71890090 -0.006874986  369</code></pre>
+<pre><code> year .id         N           e  pop
+ 1960   1 9.1439633  0.21736164 1860
+ 1961   1 0.0213599  0.08889717    7
+ 1962   1 0.4816859  0.14140459   91
+ 1963   1 6.0260722  0.01251207 1244
+ 1964   1 0.2576642 -0.12185347   41
+ 1965   1 3.7992732 -0.04716028  774</code></pre>
 </div>
 </div>
 <p>We can also run multiple simulations simultaneously:</p>
@@ -477,22 +481,22 @@ attr(,"package")
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">nsim=</span><span class="dv">10</span>,<span class="at">format=</span><span class="st">"data.frame"</span>)</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> year .id        N           e  pop
- 1960   1 6.856137 -0.07058805 1390
- 1960   2 8.140251  0.10108878 1658
- 1960   3 8.222663  0.11116184 1678
- 1960   4 8.029353  0.08737172 1559
- 1960   5 5.644764 -0.26500395 1105
- 1960   6 6.514466 -0.12170697 1277</code></pre>
+<pre><code> year .id        N            e  pop
+ 1960   1 7.629663  0.036311409 1495
+ 1960   2 7.671070  0.041723859 1549
+ 1960   3 7.366985  0.001276301 1473
+ 1960   4 7.500441  0.019229572 1519
+ 1960   5 6.986760 -0.051715352 1433
+ 1960   6 6.731571 -0.088923739 1351</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   270 obs. of  5 variables:
  $ year: num  1960 1960 1960 1960 1960 1960 1960 1960 1960 1960 ...
  $ .id : Ord.factor w/ 10 levels "1"&lt;"2"&lt;"3"&lt;"4"&lt;..: 1 2 3 4 5 6 7 8 9 10 ...
- $ N   : num  6.86 8.14 8.22 8.03 5.64 ...
- $ e   : num  -0.0706 0.1011 0.1112 0.0874 -0.265 ...
- $ pop : num  1390 1658 1678 1559 1105 ...</code></pre>
+ $ N   : num  7.63 7.67 7.37 7.5 6.99 ...
+ $ e   : num  0.03631 0.04172 0.00128 0.01923 -0.05172 ...
+ $ pop : num  1495 1549 1473 1519 1433 ...</code></pre>
 </div>
 </div>
 <p>Also,</p>

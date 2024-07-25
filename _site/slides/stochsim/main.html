@@ -182,6 +182,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -679,7 +683,7 @@ MathJax = {
 <ul>
 <li>Note that, for a deterministic SIR model:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rproc_det1_3980f478a2a4c700a7fe05aec84cd303">
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/rproc_det1_1ae102bfb59d686dc8a9baeba826ef05">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dN_SI <span class="ot">&lt;-</span> Beta<span class="sc">*</span>S<span class="sc">*</span>I<span class="sc">/</span>N<span class="sc">*</span>delta.t</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dN_IR <span class="ot">&lt;-</span> Gamma<span class="sc">*</span>I<span class="sc">*</span>delta.t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -889,19 +893,21 @@ MathJax = {
 <li><p>Remember to add a semicolon (<code>;</code>) after each line to ensure proper syntax.</p></li>
 <li><p>C snippets for the initializer and measurement model are:</p></li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/more-csnips_cc41afdf30a4801dd4bf13ffc374723f">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>    sir_rinit <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">      S = nearbyint(Eta*N);</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">      I = 1;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">      R = nearbyint((1-Eta)*N);</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="st">      H = 0;</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    sir_dmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="st">      lik = dnbinom_mu(reports,k,Rho*H,give_log);</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    sir_rmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="st">      reports = rnbinom_mu(k,Rho*H);</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/more-csnips_32311a7edea108e2be79ccbe1c58f1d9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sir_rinit <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">  S = nearbyint(Eta*N);</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">  I = 1;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">  R = nearbyint((1-Eta)*N);</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="st">  H = 0;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>sir_dmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="st">  lik = dnbinom_mu(reports,k,Rho*H,give_log);</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sir_rmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="st">  reports = rnbinom_mu(k,Rho*H);</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li><p>No need to define the type for likelihood <code>(lik)</code> here, as it is already predefined.</p></li>
@@ -951,7 +957,8 @@ MathJax = {
 <li><p>To check the code is working properly, we simulate. This requires us to assign parameters. A little thought will get us some ballpark estimates.</p></li>
 <li><p>Recall that <span class="math inline">\(\Rzero\)</span> is the expected number of secondary infections resulting from one primary infection introduced into a fully susceptible population. For an SIR infection, one has that <span class="math inline">\(\Rzero\approx\frac{L}{A}\)</span>, where <span class="math inline">\(L\)</span> is the lifespan of a host and <span class="math inline">\(A\)</span> is the mean age of infection. Analysis of age-stratified serology data establish that the mean age of infection for measles during this period was around 4–5yr <span class="citation" data-cites="Anderson1991">(<a href="#ref-Anderson1991" role="doc-biblioref">Anderson and May 1991</a>)</span>. Assuming a lifespan of 60–70yr, we have <span class="math inline">\(\Rzero\approx 15\)</span>.</p></li>
 <li><p>The basic theory of SIR epidemics gives the final-size equation, <span class="math display">\[\Rzero = -\frac{\log{(1-f)}}{f},\]</span> where <span class="math inline">\(f\)</span> is the final size of the epidemic—the fraction of those susceptible at the beginning of the outbreak who ultimately become infected. For <span class="math inline">\(\Rzero&gt;5\)</span>, this equation predicts that <span class="math inline">\(f&gt;0.99\)</span>.</p></li>
-<li><p>In the data, it looks like there were a total of <span class="math inline">\(521\)</span> infections. Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\)</span>, so that <span class="math inline">\(\eta=\frac{S_0}{N}\approx0.027\)</span>.</p></li>
+<li><p>In the data, it looks like there were a total of <span class="math inline">\(521\)</span> infections.<br>
+Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\)</span>, so that <span class="math inline">\(\eta=\frac{S_0}{N}\approx0.027\)</span>.</p></li>
 <li><p>If the infectious period is roughly 2 weeks, then <span class="math inline">\(1/\mu_{IR} \approx 2~\text{wk}\)</span> and <span class="math inline">\(\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}\)</span>.</p></li>
 </ul>
 <div class="cell" data-layout-align="center" data-hash="tmp//cache/sir_sim1_plot_90bdd51357b74660ece896862b20ce0f">
@@ -1114,8 +1121,8 @@ MathJax = {
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
-<section id="references-1" class="level2 allowframebreaks">
-<h2 class="allowframebreaks anchored" data-anchor-id="references-1">References</h2>
+<section id="references-1" class="level2">
+<h2 class="anchored" data-anchor-id="references-1">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-Anderson1991" class="csl-entry" role="listitem">
 Anderson, R. M., and R. M. May. 1991. <em>Infectious Diseases of Humans</em>. Oxford: Oxford Univesity Press.
@@ -1128,14 +1135,14 @@ Bretó, Carles, Daihai He, Edward L. Ionides, and Aaron A. King. 2009. <span>“
 <section id="license-acknowledgments-and-links" class="level2">
 <h2 class="anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
 <ul>
-<li><p>This lesson is prepared for the <a href="https://kingaa.github.io/sbied/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://www.biostat.washington.edu/suminst/sismid">SISMID</a>.</p></li>
+<li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
 <li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
 <li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
 <li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
-<li><p>Compiled on 2024-06-16.</p></li>
+<li><p>Compiled on 2024-07-24.</p></li>
 </ul>
 <p><a href="index.html">Back to Lesson</a></p>
-<p><a href="main.R"><code>R</code> codes for this lesson</a></p>
+<p><a href="./main.R"><code>R</code> code for this lesson</a></p>
 
 
 </section>

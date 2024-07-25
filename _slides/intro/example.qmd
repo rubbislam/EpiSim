@@ -1,10 +1,11 @@
 ---
-title: Implementing a POMP model from scratch
+title: |
+  Implementing a POMP model from scratch
 author: Aaron A. King and Edward L. Ionides
 output:
   html_document:
     toc: yes
-    toc_depth: 2
+    toc_depth: 4
     includes:
       after_body:
       - ../_includes/supp_bottom.html
@@ -13,6 +14,8 @@ bibliography: ../sbied.bib
 csl: ../jss.csl
 ---
 
+
+\newcommand\dist[2]{\mathrm{#1}\left(#2\right)}
 \newcommand\prob[1]{\mathbb{P}\left[{#1}\right]}
 \newcommand\expect[1]{\mathbb{E}\left[{#1}\right]}
 \newcommand\var[1]{\mathrm{Var}\left[{#1}\right]}

@@ -47,7 +47,7 @@ library(doFuture)
 Construct the pomp object for the Consett measles example
 
 ```{r model-construct}
-source("https://kingaa.github.io/sbied/pfilter/model.R")
+source("model_measSIR.R")
 ```
 
 Now run particle filters of several sizes, measuring the amount of time elapses for each one.

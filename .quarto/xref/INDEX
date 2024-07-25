@@ -324,7 +324,8 @@
     "index.html": "6d1ecd17"
   },
   "slides/pfilter/monteCarlo.qmd": {
-    "monteCarlo.html": "5b342912"
+    "monteCarlo.html": "5b342912",
+    "monteCarlo.tex": "c1129697"
   },
   "slides/pfilter/pf-in-Nelder-Mead.qmd": {
     "pf-in-Nelder-Mead.html": "e3cb2d00"
@@ -390,5 +391,18 @@
   },
   "Bayesian.qmd": {
     "Bayesian.html": "0d44bbf4"
+  },
+  "slides/intro/ricker.qmd": {
+    "ricker.html": "63bb6861"
+  },
+  "slides/bayes/main.qmd": {
+    "main.html": "c5ed8c72",
+    "main.tex": "65ec708f"
+  },
+  "slides/mif/workflow1.qmd": {
+    "workflow1.html": "90625fd5"
+  },
+  "slides/mif/workflow.qmd": {
+    "workflow.html": "50d83b1a"
   }
 }

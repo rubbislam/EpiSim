@@ -182,6 +182,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -439,21 +443,21 @@ In practice, we can test this claim on examples.</p>
 <h2 class="allowframebreaks anchored" data-anchor-id="if2-algorithm-pseudocode">IF2 algorithm pseudocode</h2>
 <p><strong>Input:</strong></p>
 <ul>
-<li>simulators for <span class="math inline">\(f_{X_0}(x_0;\theta)\)</span> and <span class="math inline">\(f_{X_n|X_{n-1}}(x_n| x_{n-1}; \theta)\)</span>\</li>
-<li>evaluator for <span class="math inline">\(f_{Y_n|X_n}(y_n| x_n;\theta)\)</span>\</li>
-<li>data, <span class="math inline">\(y^*_{1:N}\)</span>\</li>
+<li>simulators for <span class="math inline">\(f_{X_0}(x_0;\theta)\)</span> and <span class="math inline">\(f_{X_n|X_{n-1}}(x_n| x_{n-1}; \theta)\)</span></li>
+<li>evaluator for <span class="math inline">\(f_{Y_n|X_n}(y_n| x_n;\theta)\)</span></li>
+<li>data, <span class="math inline">\(y^*_{1:N}\)</span></li>
 </ul>
 <p></p>
 <ul>
-<li>number of iterations, {mif = }<span class="math inline">\(M\)</span>\</li>
-<li>number of particles, {p = }<span class="math inline">\(J\)</span>\</li>
-<li>initial parameter swarm, {arams = }<span class="math inline">\(\{\Theta^0_j, j=1,\dots,J\}\)</span>\</li>
-<li>random walk standard deviation for each parameter, {w.sd}, squared to construct a diagonal variance matrix, <span class="math inline">\(V_n\)</span>\</li>
-<li>cooling fraction in 50 iterations, <span class="math inline">\(a\)</span>\</li>
+<li>number of iterations, = <span class="math inline">\(M\)</span></li>
+<li>number of particles, = <span class="math inline">\(J\)</span></li>
+<li>initial parameter swarm, = <span class="math inline">\(\{\Theta^0_j, j=1,\dots,J\}\)</span></li>
+<li>random walk standard deviation for each parameter, , squared to construct a diagonal variance matrix, <span class="math inline">\(V_n\)</span></li>
+<li>cooling fraction in 50 iterations, = <span class="math inline">\(a\)</span></li>
 </ul>
 <p><strong>Output:</strong></p>
 <ul>
-<li>final parameter swarm, <span class="math inline">\(\{\Theta^M_j, j=1,\dots,J\}\)</span>\</li>
+<li>final parameter swarm, <span class="math inline">\(\{\Theta^M_j, j=1,\dots,J\}\)</span></li>
 </ul>
 <p><strong>Procedure:</strong></p>
 <ol type="1">
@@ -593,7 +597,7 @@ In practice, we can test this claim on examples.</p>
 -274.2571683    0.8639223 </code></pre>
 </div>
 </div>
-<p>In 3.28 seconds, using 10 cores, we obtain an unbiased likelihood estimate of -274.3 with a Monte Carlo standard error of 0.86.</p>
+<p>In 4.32 seconds, using 10 cores, we obtain an unbiased likelihood estimate of -274.3 with a Monte Carlo standard error of 0.86.</p>
 </section>
 <section id="building-up-a-picture-of-the-likelihood-surface" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="building-up-a-picture-of-the-likelihood-surface">Building up a picture of the likelihood surface</h2>
@@ -1066,7 +1070,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="fl">0.5</span><span class="sc">*</span><span class="fu">qchisq</span>(<span class="at">df=</span><span class="dv">1</span>,<span class="at">p=</span><span class="fl">0.95</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">min=</span><span class="fu">min</span>(Rho),<span class="at">max=</span><span class="fu">max</span>(Rho)) <span class="ot">-&gt;</span> rho_ci</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The data appear to be consistent with reporting efficiencies in the 3.4–16% range (95% CI).</p>
+<p>The data appear to be consistent with reporting efficiencies in the 3.4–50% range (95% CI).</p>
 </section>
 <section id="the-investigation-continues." class="level2">
 <h2 class="anchored" data-anchor-id="the-investigation-continues.">The investigation continues.</h2>
@@ -1363,14 +1367,14 @@ Toni, Tina, David Welch, Natalja Strelkowa, Andreas Ipsen, and Michael P. H. Stu
 </div>
 </div>
 </section>
-<section id="license-acknowledgments-and-links" class="level2 allowframebreaks">
-<h2 class="allowframebreaks anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
+<section id="license-acknowledgments-and-links" class="level2">
+<h2 class="anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
 <ul>
-<li><p>This lesson is prepared for the <a href="https://kingaa.github.io/sbied/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://www.biostat.washington.edu/suminst/sismid">SISMID</a>.</p></li>
+<li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
 <li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
 <li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
 <li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
-<li><p>Compiled on 2024-06-17.</p></li>
+<li><p>Compiled on 2024-07-24.</p></li>
 </ul>
 <p><a href="index.html">Back to Lesson</a></p>
 <p><a href="./main.R"><code>R</code> code for this lesson</a></p>

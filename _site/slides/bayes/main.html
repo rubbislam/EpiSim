@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Qianying (Ruby) Lin">
+<meta name="author" content="Spencer J. Fox">
+
+<title>EpiSim - Bayesian statistics and pomp</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">EpiSim</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../instruction.html" rel="" target="">
+ <span class="menu-text">Instruction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../introduction.html" rel="" target="">
+ <span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../simulation.html" rel="" target="">
+ <span class="menu-text">Simulation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../likelihood.html" rel="" target="">
+ <span class="menu-text">Likelihood</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../iterated.html" rel="" target="">
+ <span class="menu-text">Iterated filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../case study.html" rel="" target="">
+ <span class="menu-text">Case study</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>Beamer</a></li><li><a href="main.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bayesian statistics and pomp</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-contents">
+             <p>Qianying (Ruby) Lin </p>
+             <p>Spencer J. Fox </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="lecture-outline" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-outline">Lecture outline</h2>
+<ol type="1">
+<li>Motivating Bayesian statistics</li>
+<li>Short introduction to Bayesian statistics and theory</li>
+<li>Introduction to MCMC</li>
+<li>Introduction to PMCMC</li>
+<li>Simple influenza case study</li>
+</ol>
+</section>
+<section id="what-we-have-covered-so-far" class="level2">
+<h2 class="anchored" data-anchor-id="what-we-have-covered-so-far">What we have covered so far</h2>
+<p><span class="math display">\[p(y|\theta)\]</span></p>
+<ul>
+<li><span class="math inline">\(y\)</span> can be thought of as your data or observations</li>
+<li><span class="math inline">\(\theta\)</span> can be thought of as the model or parameter values</li>
+<li>Called the “Likelihood”</li>
+</ul>
+</section>
+<section id="issues-with-maximum-likelihood-estimation-mle" class="level2">
+<h2 class="anchored" data-anchor-id="issues-with-maximum-likelihood-estimation-mle">Issues with maximum likelihood estimation (MLE)</h2>
+<ul>
+<li>Assumes results occur with some given “frequency” over period time or replicates/repeated experiments
+<ul>
+<li>If we had the same outbreak hundreds of time, what proportion of them would provide confidence intervals that contain the true value for the <span class="math inline">\(R_0\)</span></li>
+</ul></li>
+<li>Some difficulties in constraining parameter values based on outside data, information, or expert opinion</li>
+<li>Just not really intuitive…
+<ul>
+<li>We typically want to say something about the parameters based on the data, <span class="math inline">\(p(\theta|y)\)</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="bayesian-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="bayesian-statistics">Bayesian statistics</h2>
+<ul>
+<li>Bayes theorem provides an intuitive framework to update parameter estimates based on both prior knowledge and experimental data</li>
+<li>End result is a posterior distribution, <span class="math inline">\(p(\theta|y)\)</span>, directly describing the parameter and model of interest</li>
+<li>Easy to communicate results
+<ul>
+<li>“The reproduction number is estimated to be x, with a 95% credible interval from y to z”</li>
+</ul></li>
+<li>Issues
+<ul>
+<li>Computationally expensive</li>
+<li>Without enough data, prior can bias posterior distribution, but this is what you want!</li>
+</ul></li>
+</ul>
+</section>
+<section id="bayes-theorem-1" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-theorem-1">Bayes theorem 1</h2>
+<p><span class="math display">\[p(\theta|y) = \frac{p(y|\theta)p(\theta)}{p(y)}\]</span></p>
+<ul>
+<li><span class="math inline">\(p(\theta|y)\)</span> is the posterior distribution</li>
+<li><span class="math inline">\(p(y|\theta)\)</span> is the likelihood</li>
+<li><span class="math inline">\(p(\theta)\)</span> is the prior distribution</li>
+<li><span class="math inline">\(p(y)\)</span> is the marginal distribution (sometimes called a normalizing constant as it doesn’t depend on the parameters)</li>
+</ul>
+</section>
+<section id="bayes-theorem-2" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-theorem-2">Bayes theorem 2</h2>
+<p><span class="math display">\[p(\theta|y) = \frac{p(y|\theta)p(\theta)}{p(y)}\]</span></p>
+<ul>
+<li><span class="math inline">\(p(y) = \int p(y|\theta) p(\theta) d\theta\)</span></li>
+<li>Probability of observing <span class="math inline">\(y\)</span> marginal over all possible values of <span class="math inline">\(\theta\)</span></li>
+<li>Typically is very difficult to calculate</li>
+<li>The good news is that <span class="math inline">\(p(y)\)</span> is a constant</li>
+</ul>
+</section>
+<section id="bayes-theorem-3" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-theorem-3">Bayes theorem 3</h2>
+<p><span class="math display">\[p(\theta|y) \propto p(y|\theta)p(\theta)\]</span></p>
+<ul>
+<li>Since <span class="math inline">\(p(y)\)</span> is a constant, the posterior distribution is proportional to the likelihood times the prior</li>
+<li>If we can solve this we can get the posterior distribution because <span class="math inline">\(\int p(\theta|y)d\theta = 1\)</span></li>
+<li>Intuitively our parameter estimates are based on a combination of our observations <span class="math inline">\(p(y|\theta)\)</span> and our prior beliefs <span class="math inline">\(p(\theta)\)</span></li>
+<li>Only need to sample from the likelihood and prior distribution to get the posterior</li>
+</ul>
+</section>
+<section id="how-do-we-do-so" class="level2">
+<h2 class="anchored" data-anchor-id="how-do-we-do-so">How do we do so?</h2>
+<ul>
+<li>Many ways to do so (and many software packages), but we’re only going to talk about one…</li>
+<li>Markov chain Monte Carlo (MCMC) is a class of algorithms used to draw samples from a probability distribution</li>
+<li>Will not cover the theoretical details, but will attempt to motivate</li>
+</ul>
+</section>
+<section id="assume-you-have-an-unknown-probability-distribution-hill-to-explore-how-would-you-do-so" class="level2">
+<h2 class="anchored" data-anchor-id="assume-you-have-an-unknown-probability-distribution-hill-to-explore-how-would-you-do-so">Assume you have an unknown probability distribution (hill) to explore… How would you do so?</h2>
+<ul>
+<li>You don’t know where it is in parameter space</li>
+<li>You don’t know it’s shape</li>
+</ul>
+</section>
+<section id="mcmc-robot-rules" class="level2">
+<h2 class="anchored" data-anchor-id="mcmc-robot-rules">MCMC Robot Rules</h2>
+
+</section>
+<section id="mcmc-robot-rules-actual" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="mcmc-robot-rules-actual">MCMC Robot Rules (actual)</h2>
+
+</section>
+<section id="mcmc-demonstration-httpsplewis.github.ioappletsmcmc-robot" class="level2 allowframebreaks">
+<h2 class="allowframebreaks anchored" data-anchor-id="mcmc-demonstration-httpsplewis.github.ioappletsmcmc-robot">MCMC Demonstration (https://plewis.github.io/applets/mcmc-robot/)</h2>
+
+</section>
+<section id="steps-for-metropolis-hastings-mcmc" class="level2">
+<h2 class="anchored" data-anchor-id="steps-for-metropolis-hastings-mcmc">Steps for Metropolis-Hastings MCMC</h2>
+<ol type="1">
+<li>Choose a reasonable starting place for parameters (<span class="math inline">\(\theta\)</span>)</li>
+<li>Propose new parameter values (<span class="math inline">\(\theta'\)</span>)</li>
+<li>Calculate the proposal probability <span class="math inline">\(\alpha\)</span></li>
+<li>Accept (change parameters to <span class="math inline">\(\theta'\)</span>) or reject (keep parameters at <span class="math inline">\(\theta\)</span>) with probability <span class="math inline">\(\alpha\)</span></li>
+<li>Repeat steps 2-5 for as many MCMC iterations as desired</li>
+</ol>
+</section>
+<section id="steps-for-metropolis-hastings-mcmc-1" class="level2">
+<h2 class="anchored" data-anchor-id="steps-for-metropolis-hastings-mcmc-1">Steps for Metropolis-Hastings MCMC</h2>
+<ol type="1">
+<li>Choose a reasonable starting place for parameters (<span class="math inline">\(\theta\)</span>)</li>
+<li>Propose new parameter values (<span class="math inline">\(\theta'\)</span>)</li>
+<li>Calculate the proposal probability <span class="math inline">\(\alpha\)</span></li>
+<li>Accept (change parameters to <span class="math inline">\(\theta'\)</span>) or reject (keep parameters at <span class="math inline">\(\theta\)</span>)</li>
+<li>Repeat steps 2-5 for as many MCMC iterations as desired</li>
+</ol>
+<p>Where <span class="math display">\[\alpha = \text{min}(1, \rho)\]</span> and <span class="math display">\[\rho = \frac{p(\theta'|y)}{p(\theta|y)} \cdot \frac{G(\theta|\theta')}{G(\theta'|\theta)}\]</span></p>
+</section>
+<section id="rho-equals-the-ratio-of-posterior-distributions-multiplied-by-the-proposal-probability-ratio" class="level2">
+<h2 class="anchored" data-anchor-id="rho-equals-the-ratio-of-posterior-distributions-multiplied-by-the-proposal-probability-ratio"><span class="math inline">\(\rho\)</span> equals the ratio of posterior distributions multiplied by the proposal probability ratio</h2>
+<p><span class="math display">\[\rho = \frac{p(\theta'|y)}{p(\theta|y)} \cdot \frac{G(\theta|\theta')}{G(\theta'|\theta)}\]</span> </p>
+<ul>
+<li>For symmetric proposal distributions (random walks) <span class="math inline">\(\frac{G(\theta|\theta')}{G(\theta'|\theta)} = 1\)</span></li>
+<li>Notice that the posterior denominators from before (<span class="math inline">\(p(y)\)</span>) cancel each other out in this ratio</li>
+</ul>
+</section>
+<section id="we-can-simplify-the-acceptance-probability-significantly" class="level2">
+<h2 class="anchored" data-anchor-id="we-can-simplify-the-acceptance-probability-significantly">We can simplify the acceptance probability significantly</h2>
+<p><span class="math display">\[\rho = \frac{p(y|\theta')p(\theta')}{p(y|\theta)p(\theta)}\]</span> </p>
+<ul>
+<li>Only depends on the likelihood and prior probabilities</li>
+</ul>
+</section>
+<section id="prior-parameter-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="prior-parameter-distributions">Prior parameter distributions</h2>
+<ul>
+<li>Prior distributions assign probabilities to specific parameter values and are created separately for every parameter</li>
+<li>Other than strict constraints, we expect the data and likelihood to drive the posterior distribution, but always good idea to check the impact the prior distributions have in a sensitivity analysis</li>
+</ul>
+</section>
+<section id="three-main-types-of-prior-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="three-main-types-of-prior-distributions">Three main types of prior distributions</h2>
+<ol type="1">
+<li>Informative priors craft a distribution based on previous scientific studies
+<ul>
+<li>Typically only used if a specific quantity is well known from outside data (e.g.&nbsp;the infection fatality rate or infectious period)</li>
+</ul></li>
+<li>Weakly informative priors craft a distribution with reasonable constraints
+<ul>
+<li>Used for regularization (e.g.&nbsp;to “suggest” that a parameter is most likely to be positive)</li>
+</ul></li>
+<li>Uninformative (flat priors) assign equal probabilities across a range of plausible values
+<ul>
+<li>Can constrain parameters to be strictly positive or in biologically/epidemiologically relevant range</li>
+<li>Not always “uninformative”</li>
+</ul></li>
+</ol>
+</section>
+<section id="questions-about-mcmc" class="level2">
+<h2 class="anchored" data-anchor-id="questions-about-mcmc">Questions about MCMC?</h2>
+</section>
+<section id="pmcmc" class="level2">
+<h2 class="anchored" data-anchor-id="pmcmc">PMCMC</h2>
+<p><span class="math display">\[p(y|\theta)p(\theta)\]</span></p>
+<ul>
+<li>Standard MCMC algorithm assumes a deterministic likelihood</li>
+<li>When process stochasticisty is included we use the particle filter to obtain likelihood</li>
+<li>Particle filter (Sequential Monte Carlo procedure) approximates <span class="math inline">\(p(y|\theta)\)</span>, but with variability
+<ul>
+<li>Can complicate things a bit, but usually not an issue</li>
+</ul></li>
+</ul>
+</section>
+<section id="further-pmcmc-resources" class="level2">
+<h2 class="anchored" data-anchor-id="further-pmcmc-resources">Further PMCMC resources</h2>
+<ul>
+<li>For an awesome field-specific explanation
+<ul>
+<li><a href="https://doi.org/10.1016/j.epidem.2019.100363">Introduction to particle Markov-chain Monte Carlo for disease dynamics modellers</a></li>
+</ul></li>
+<li>For some considerations with modeling and inference
+<ul>
+<li><a href="https://www.sciencedirect.com/science/article/pii/S1755436519300441">Choices and trade-offs in inference with infectious disease models</a></li>
+</ul></li>
+<li>For an example of how it has been used in recent epidemiological literature
+<ul>
+<li><a href="https://www.medrxiv.org/content/10.1101/2024.01.10.24301116v1">Estimating SARS-CoV-2 transmission parameters between coinciding outbreaks in a university population and the surrounding community</a></li>
+</ul></li>
+<li>For working with pmcmc in the <code>pomp</code> package
+<ul>
+<li><a href="https://kingaa.github.io/pomp/vignettes/getting_started.html#Sampling_the_posterior_using_particle_Markov_chain_Monte_Carlo">Getting started with pomp</a></li>
+</ul></li>
+</ul>
+</section>
+<section id="considerations-for-moving-from-mif2-to-pmcmc-in-pomp" class="level2">
+<h2 class="anchored" data-anchor-id="considerations-for-moving-from-mif2-to-pmcmc-in-pomp">Considerations for moving from <code>mif2</code> to <code>pmcmc</code> in <code>pomp</code></h2>
+<ol type="1">
+<li>Specify the prior distributions for all parameters</li>
+<li>Use the <code>pmcmc()</code> function</li>
+<li>Use MCMC diagnostics to check convergence, etc.</li>
+</ol>
+</section>
+<section id="influenza-boarding-school-example" class="level2">
+<h2 class="anchored" data-anchor-id="influenza-boarding-school-example">Influenza boarding school example</h2>
+<ul>
+<li>1978 influenza epidemic in boarding school that infected much of the school</li>
+<li>Data are actually kids in beds, but we are assuming it’s new infections</li>
+</ul>
+<div class="cell" data-layout-align="center" data-fig.dim="[6,3]" data-hash="tmp//cache/boardingplot_91eac49ad062a43950b53d297542a01f">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="tmp//figure/boardingplot-1.png" style="height:60.0%" width="1800" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="modeling-as-an-sir-model-with-reporting-of-new-infections" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-as-an-sir-model-with-reporting-of-new-infections">Modeling as an SIR model with reporting of new infections</h2>
+
+</section>
+<section id="modeling-as-an-sir-model-with-reporting-of-new-infections-1" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-as-an-sir-model-with-reporting-of-new-infections-1">Modeling as an SIR model with reporting of new infections</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-1_21a30a14ee899f9f737f8cc3a6758494">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>rproc <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="st">  double N = 2000;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">  double t1 = rbinom(S,1-exp(-Beta*I/N*dt));</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">  double t2 = rbinom(I,1-exp(-mu_I*dt));</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">  S  -= t1;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">  I  += t1 - t2;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="st">  NI += t1;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="st">  R += t2;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>rmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">  B = rpois(rho*NI+1e-6);</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="specifying-the-prior-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="specifying-the-prior-distribution">Specifying the prior distribution</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/prior-ex_c7aa08f98929f47e65bdf599fa181ccd">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>priorDens <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">  lik = dunif(Beta, 1, 4, 1) +</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">        dunif(mu_I, 0.5, 3, 1) +</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">        dunif(rho, 0.5, 1, 1);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">  if (!give_log) lik = exp(lik);</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Add the densities (probabilities) for each parameter value independently</li>
+<li>Include the same log functionality used before</li>
+<li>We are specifying a plausible range of values for each parameter here</li>
+</ul>
+</section>
+<section id="running-an-mcmc-chain" class="level2">
+<h2 class="anchored" data-anchor-id="running-an-mcmc-chain">Running an MCMC chain</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/pmcmc-fxn_e705df214c6d0aaf34541bcdd432e792">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>flu <span class="sc">|&gt;</span> <span class="do">## Standard pomp object that has already been created </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">dprior =</span> priorDens, <span class="do">## Prior specified from previous slide</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> sim_params, <span class="do">## Parameter starting point</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_I"</span>,<span class="st">"rho"</span>)) <span class="sc">|&gt;</span> <span class="do">## Parameter names</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmcmc</span>(<span class="at">Nmcmc =</span> <span class="dv">10000</span>, <span class="do">## Number of MCMC iterations</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">Np =</span> <span class="dv">200</span>, <span class="do">## Number of particles to use</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">proposal =</span> <span class="fu">mvn_diag_rw</span>(<span class="at">rw.sd =</span> <span class="fu">c</span>(<span class="at">Beta=</span><span class="fl">0.3</span>, <span class="at">mu_I=</span><span class="fl">0.3</span>, <span class="at">rho=</span><span class="fl">0.1</span>))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> test_mcmc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="proposal-distributions-in-pomp" class="level2">
+<h2 class="anchored" data-anchor-id="proposal-distributions-in-pomp">Proposal distributions in <code>pomp</code></h2>
+<ul>
+<li><code>mvn_diag_rw(rw.sd)</code> - you provide the standard deviations for the proposals for each parameter</li>
+<li><code>mvn_rw(rw.var)</code> - you provide the variance/covariance matrix for proposals</li>
+<li><code>mvn_rw_adaptive()</code> - you provide either of the above and it attempts to automatically “tune” parameters to achieve good MCMC mixing</li>
+</ul>
+</section>
+<section id="typically-you-need-to-test-different-values-initially" class="level2">
+<h2 class="anchored" data-anchor-id="typically-you-need-to-test-different-values-initially">Typically you need to test different values initially</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/pmcmc-fxn2_1e309da5a3db08a5ca2e7bc42af39418">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flu <span class="sc">|&gt;</span> <span class="do">## Standard pomp object that has already been created </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">dprior =</span> priorDens, <span class="do">## Prior specified from previous slide</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> sim_params, <span class="do">## Parameter starting point</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_I"</span>,<span class="st">"rho"</span>)) <span class="sc">|&gt;</span> <span class="do">## Parameter names</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmcmc</span>(<span class="at">Nmcmc =</span> <span class="dv">10000</span>, <span class="do">## Number of MCMC iterations</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">Np =</span> <span class="dv">200</span>, <span class="do">## Number of particles to use</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">proposal =</span> <span class="fu">mvn_diag_rw</span>(<span class="at">rw.sd =</span> <span class="fu">c</span>(<span class="at">Beta=</span><span class="fl">0.3</span>, <span class="at">mu_I=</span><span class="fl">0.3</span>, <span class="at">rho=</span><span class="fl">0.1</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> test_mcmc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="diagnosing-chain-mixing" class="level2">
+<h2 class="anchored" data-anchor-id="diagnosing-chain-mixing">Diagnosing chain mixing</h2>
+
+</section>
+<section id="diagnosing-chain-mixing---autocorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="diagnosing-chain-mixing---autocorrelation">Diagnosing chain mixing - autocorrelation</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/autocorr_bdf084f330ed768177bed7ab1d6e8048">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coda)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>test_mcmc <span class="sc">|&gt;</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">traces</span>() <span class="sc">|&gt;</span>  </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autocorr.diag</span>(<span class="at">lags=</span><span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           loglik log.prior      Beta      mu_I       rho
+Lag 10  0.8603731 0.9990001 0.8845398 0.8810328 0.8023407
+Lag 50  0.5396487 0.9950005 0.5445343 0.5645781 0.3971658
+Lag 100 0.3494610 0.9900010 0.3271410 0.3358897 0.2386606
+            mu_R1
+Lag 10  0.9990001
+Lag 50  0.9950005
+Lag 100 0.9900010</code></pre>
+</div>
+</div>
+</section>
+<section id="second-step-often-uses-the-empirical-covariance-matrix-for-proposals-to-improve-mixing" class="level2">
+<h2 class="anchored" data-anchor-id="second-step-often-uses-the-empirical-covariance-matrix-for-proposals-to-improve-mixing">Second step often uses the empirical covariance matrix for proposals to improve mixing</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/pmcmc-fxn3_042b0f9b83aae45a124f5e06fac548ff">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>flu <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">dprior =</span> priorDens,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> sim_params, <span class="do">##Using the sim params as a starting spot</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_I"</span>,<span class="st">"rho"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmcmc</span>(<span class="at">Nmcmc =</span> <span class="dv">10000</span>, </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">Np =</span> <span class="dv">200</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">proposal =</span> <span class="fu">mvn_rw</span>(<span class="fu">covmat</span>(test_mcmc, <span class="at">thin =</span> <span class="dv">50</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> test_mcmc2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="improved-trace-plots" class="level2">
+<h2 class="anchored" data-anchor-id="improved-trace-plots">Improved trace plots!</h2>
+
+</section>
+<section id="improved-autocorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="improved-autocorrelation">Improved autocorrelation!</h2>
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/autocorr2_5e5aae04649d8e0d6b92215a729496a6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>test_mcmc2 <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">traces</span>() <span class="sc">|&gt;</span>  </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autocorr.diag</span>(<span class="at">lags=</span><span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            loglik log.prior         Beta        mu_I
+Lag 10  0.37014612 0.9990001  0.309750841  0.32244825
+Lag 50  0.02823492 0.9950005 -0.057939058 -0.03009082
+Lag 100 0.01502889 0.9900010 -0.005065156 -0.02058864
+                rho     mu_R1
+Lag 10   0.30978973 0.9990001
+Lag 50  -0.01285783 0.9950005
+Lag 100 -0.02784212 0.9900010</code></pre>
+</div>
+</div>
+</section>
+<section id="estimating-posterior-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-posterior-distributions">Estimating posterior distributions</h2>
+<ol type="1">
+<li>Once you are happy with the mixing of your <code>pmcmc</code> you are ready to do a run for estimating posteriors</li>
+<li>First randomly choose 3-5 starting parameter values (example uses Latin-hypercube sampling)</li>
+<li>Run (in parallel or not depending on computational time) a chain intialized with each</li>
+<li>Diagnose chain mixing with trace plots and Gelman-Rubin convergence diagnostic</li>
+<li>Remove the burn-in period and thin based on diagnostics</li>
+<li>Summarize parameter posterior distributions and credible intervals</li>
+</ol>
+</section>
+<section id="summary-process-for-pmcmc-in-pomp" class="level2">
+<h2 class="anchored" data-anchor-id="summary-process-for-pmcmc-in-pomp">Summary process for PMCMC in <code>pomp</code></h2>
+<ol type="1">
+<li>Create <code>pomp</code> object exactly as normal</li>
+<li>Create the prior distributions for parameters</li>
+<li>Run an initial <code>pmcmc</code> with <code>mvn_diag_rw</code> proposal to make sure it’s working and diagnose</li>
+<li>Randomly sample 3-5 parameter starting conditions</li>
+<li>Run a PMCMC chain with <code>mvn_rw()</code> proposal and the variance/covariance matrix from the first run for each of the initial parameter combinations</li>
+<li>Diagnose mixing and convergence (alter components as needed)</li>
+<li>Summarize parameters</li>
+</ol>
+</section>
+<section id="activity-how-do-stochastic-and-deterministic-models-differ" class="level2">
+<h2 class="anchored" data-anchor-id="activity-how-do-stochastic-and-deterministic-models-differ">Activity: how do stochastic and deterministic models differ?</h2>
+<ol type="1">
+<li>Go to https://plewis.github.io/applets/mcmc-robot/, and play with different MCMC parameters and variations</li>
+<li>Download the exercise code for the influenza boarding school example and test the impact of the following on mixing and traceplots:
+<ul>
+<li>Different parameters for the proposal distribution</li>
+<li>Different starting parameter values</li>
+<li>Different number of particles</li>
+</ul></li>
+</ol>
+</section>
+<section id="license-acknowledgments-and-links" class="level2">
+<h2 class="anchored" data-anchor-id="license-acknowledgments-and-links">License, acknowledgments, and links</h2>
+<ul>
+<li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
+<li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
+<li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
+<li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
+<li><p>Compiled on 2024-07-24.</p></li>
+</ul>
+<p><a href="index.html">Back to Lesson</a></p>
+<p><a href="./main.R"><code>R</code> code for this lesson</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

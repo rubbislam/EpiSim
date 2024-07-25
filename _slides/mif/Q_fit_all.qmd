@@ -70,12 +70,12 @@ coef(measSIR) |> mysignif(3) |> t() |> t() |> knitr::kable()
 
 ### Local search
 
-We'll begin, as in the [Lesson](./index.html), by performing a local search with only $N$ fixed.
+We'll begin, as in the [Lesson](../../index.html), by performing a local search with only $N$ fixed.
 The purpose of this is to evaluate the performance of the search algorithm, so that we can tune the algorithm's parameters.
 
 Windows users, beware!
 The following triggers a C snippet compilation within a parallel block, which will not succeed on many Windows machines.
-See [this discussion](./windows.html) for an explanation of how to circumvent this problem.
+See [this discussion](../misc/windows.html) for an explanation of how to circumvent this problem.
 
 ```{r local_search}
 #| eval: false
@@ -185,7 +185,7 @@ if (file.exists("CLUSTER.R")) {
 ```
 
 We set up a design of starting points.
-The `freeze` command is described [here](../pfilter/bake.html).
+The `freeze` command is described [here](../misc/bake.html).
 
 ```{r global1_search_setup}
 freeze(
@@ -440,11 +440,11 @@ How does the model account for the data?
 
 Clearly, the model can account for the data equally well for all but the smallest values of $\eta$.
 That is, unless the fraction of susceptibles in the population was too small to allow for an outbreak of the observed size, one can obtain an outbreak that looks like the observed one from an SIR model in a population of sufficient size.
-This interpretation is confirmed by the fact that, as one decreases $\eta$, one has to increase the reporting efficiency $\Rho$ to explain the data.
+This interpretation is confirmed by the fact that, as one decreases $\eta$, one has to increase the reporting efficiency $\rho$ to explain the data.
 
-Now, across the confidence interval for $\eta$, say $(`r cis$Eta`)$, it is clear from the profile trace plots above, that the model needs both $\beta$ and $\Rho$ to be relatively low and the infectious period to be relatively short (though average infectious periods of as long as $`r mysignif(1/cis$Gamma[1],2)`$&nbsp;wk are within the confidence interval).
+Now, across the confidence interval for $\eta$, say $(`r cis$Eta`)$, it is clear from the profile trace plots above, that the model needs both $\beta$ and $\rho$ to be relatively low and the infectious period to be relatively short (though average infectious periods of as long as $`r mysignif(1/cis$Gamma[1],2)`$&nbsp;wk are within the confidence interval).
 
 In sum, the model is accounting for the data by saying there was a large and mostly unobserved outbreak in the population, very many of whom were susceptible.
-As we discussed in the [Lesson](./index.html), the conclusion of a short infectious period is broadly compatible with household studies that suggest the duration of viral shedding is less than a week.
-On the other hand, the conclusion that $\Rho<`r cis$Rho[2]`$ is more difficult to reconcile with our understanding of measles reporting during this period.
-Indeed, it would have had to be the case that 1948 was a very sloppy year for the public health authorities in this part of England, since their average reporting efficiency, as we estimated in the [Lesson](./index.html) was close to 60%.
+As we discussed in the [Lesson](../../index.html), the conclusion of a short infectious period is broadly compatible with household studies that suggest the duration of viral shedding is less than a week.
+On the other hand, the conclusion that $\rho<`r cis$Rho[2]`$ is more difficult to reconcile with our understanding of measles reporting during this period.
+Indeed, it would have had to be the case that 1948 was a very sloppy year for the public health authorities in this part of England, since their average reporting efficiency, as we estimated in the [Lesson](../../index.html) was close to 60%.

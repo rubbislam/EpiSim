@@ -8,7 +8,7 @@
 
 <meta name="author" content="Aaron A. King and Edward L. Ionides">
 
-<title>Implementing a POMP model from scratch</title>
+<title>EpiSim - Implementing a POMP model from scratch</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,53 +55,158 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
-<script src="ricker_files/libs/clipboard/clipboard.min.js"></script>
-<script src="ricker_files/libs/quarto-html/quarto.js"></script>
-<script src="ricker_files/libs/quarto-html/popper.min.js"></script>
-<script src="ricker_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="ricker_files/libs/quarto-html/anchor.min.js"></script>
-<link href="ricker_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="ricker_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="ricker_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="ricker_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="ricker_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+MathJax = {
+  loader: {
+    load: ['[tex]/boldsymbol']
+  },
+  tex: {
+    tags: "all",
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    packages: {
+      '[+]': ['boldsymbol']
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="fullcontent">
+<body class="nav-fixed">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">EpiSim</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../instruction.html" rel="" target="">
+ <span class="menu-text">Instruction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../introduction.html" rel="" target="">
+ <span class="menu-text">Introduction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../simulation.html" rel="" target="">
+ <span class="menu-text">Simulation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../likelihood.html" rel="" target="">
+ <span class="menu-text">Likelihood</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../iterated.html" rel="" target="">
+ <span class="menu-text">Iterated filtering</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../case study.html" rel="" target="">
+ <span class="menu-text">Case study</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#a-stochastic-ricker-model" id="toc-a-stochastic-ricker-model" class="nav-link" data-scroll-target="#a-stochastic-ricker-model">A stochastic Ricker model</a></li>
+  <li><a href="#implementing-the-ricker-model-in-pomp" id="toc-implementing-the-ricker-model-in-pomp" class="nav-link" data-scroll-target="#implementing-the-ricker-model-in-pomp">Implementing the Ricker model in <strong>pomp</strong></a>
+  <ul class="collapse">
+  <li><a href="#adding-in-the-process-model-simulator" id="toc-adding-in-the-process-model-simulator" class="nav-link" data-scroll-target="#adding-in-the-process-model-simulator">Adding in the process model simulator</a></li>
+  <li><a href="#adding-in-the-measurement-model-and-parameters" id="toc-adding-in-the-measurement-model-and-parameters" class="nav-link" data-scroll-target="#adding-in-the-measurement-model-and-parameters">Adding in the measurement model and parameters</a></li>
+  <li><a href="#adding-in-the-deterministic-skeleton" id="toc-adding-in-the-deterministic-skeleton" class="nav-link" data-scroll-target="#adding-in-the-deterministic-skeleton">Adding in the deterministic skeleton</a></li>
+  </ul></li>
+  <li><a href="#working-with-the-ricker-model-in-pomp." id="toc-working-with-the-ricker-model-in-pomp." class="nav-link" data-scroll-target="#working-with-the-ricker-model-in-pomp.">Working with the Ricker model in <strong>pomp</strong>.</a>
+  <ul class="collapse">
+  <li><a href="#a-note-on-terminology" id="toc-a-note-on-terminology" class="nav-link" data-scroll-target="#a-note-on-terminology">A note on terminology</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Implementing a POMP model from scratch</h1>
+<h1 class="title"><p>Implementing a POMP model from scratch</p></h1>
 </div>
 
 
@@ -125,17 +230,16 @@ div.csl-indent {
 <hr>
 <p><a href="./ricker.R"><strong>R codes for this document</strong></a></p>
 <hr>
-<p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,bGlicmFyeShwb21wKQoKbG9jIDwtIHVybCgiaHR0cHM6Ly9raW5nYWEuZ2l0aHViLmlvL3NiaWVkL2ludHJvL3BhcnVzLmNzdiIpCmRhdCA8LSByZWFkLmNzdihsb2MpCmhlYWQoZGF0KQpwbG90KHBvcH55ZWFyLGRhdGE9ZGF0LHR5cGU9J28nKQoKbGlicmFyeShwb21wKQpwYXJ1cyA8LSBwb21wKGRhdCx0aW1lcz0ieWVhciIsdDA9MTk1OSkKCnBsb3QocGFydXMpCgpzdG9jaFN0ZXAgPC0gQ3NuaXBwZXQoIgogIGUgPSBybm9ybSgwLHNpZ21hKTsKICBOID0gcipOKmV4cCgtYypOK2UpOwoiKQpwb21wKHBhcnVzLHJwcm9jZXNzPWRpc2NyZXRlX3RpbWUoc3RlcC5mdW49c3RvY2hTdGVwLGRlbHRhLnQ9MSksCiAgICAgcGFyYW1uYW1lcz1jKCJyIiwiYyIsInNpZ21hIiksc3RhdGVuYW1lcz1jKCJOIiwiZSIpKSAtPiBwYXJ1cwoKc2ltIDwtIHNpbXVsYXRlKHBhcnVzLHBhcmFtcz1jKE5fMD0xLGVfMD0wLHI9MTIsYz0xLHNpZ21hPTAuNSksCiAgICAgICAgICAgICAgICBmb3JtYXQ9ImRhdGEuZnJhbWUiKQpwbG90KE5+eWVhcixkYXRhPXNpbSx0eXBlPSdvJykKCnJtZWFzIDwtIENzbmlwcGV0KCJwb3AgPSBycG9pcyhwaGkqTik7IikKCmRtZWFzIDwtIENzbmlwcGV0KCJsaWsgPSBkcG9pcyhwb3AscGhpKk4sZ2l2ZV9sb2cpOyIpCgpwb21wKHBhcnVzLHJtZWFzdXJlPXJtZWFzLGRtZWFzdXJlPWRtZWFzLHN0YXRlbmFtZXM9YygiTiIpLHBhcmFtbmFtZXM9YygicGhpIikpIC0+IHBhcnVzCgpjb2VmKHBhcnVzKSA8LSBjKE5fMD0xLGVfMD0wLHI9MjAsYz0xLHNpZ21hPTAuMSxwaGk9MjAwKQpsaWJyYXJ5KGdncGxvdDIpCnNpbXMgPC0gc2ltdWxhdGUocGFydXMsbnNpbT0zLGZvcm1hdD0iZCIsaW5jbHVkZS5kYXRhPVRSVUUpCmdncGxvdChkYXRhPXNpbXMsbWFwcGluZz1hZXMoeD15ZWFyLHk9cG9wKSkrZ2VvbV9saW5lKCkrCiAgZmFjZXRfd3JhcCh+LmlkLG5jb2w9MSxzY2FsZXM9ImZyZWVfeSIpCgpza2VsIDwtIENzbmlwcGV0KCJETiA9IHIqTipleHAoLWMqTik7IikKCnBhcnVzIDwtIHBvbXAocGFydXMsc2tlbGV0b249bWFwKHNrZWwpLHBhcmFtbmFtZXM9YygiciIsImMiKSxzdGF0ZW5hbWVzPWMoIk4iKSkKCnRyYWogPC0gdHJhamVjdG9yeShwYXJ1cyxwYXJhbXM9YyhOXzA9MSxyPTEyLGM9MSksZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT1zaW0sdHlwZT0nbycpCmxpbmVzKE5+eWVhcixkYXRhPXRyYWosdHlwZT0nbCcsY29sPSdyZWQnKQoKcGxvdChwYXJ1cykKCnggPC0gc2ltdWxhdGUocGFydXMpCgpjbGFzcyh4KQpwbG90KHgpCgp5IDwtIGFzLmRhdGEuZnJhbWUocGFydXMpCmhlYWQoeSkKaGVhZChzaW11bGF0ZShwYXJ1cyxmb3JtYXQ9ImRhdGEuZnJhbWUiKSkKCnggPC0gc2ltdWxhdGUocGFydXMsbnNpbT0xMCkKY2xhc3MoeCkKc2FwcGx5KHgsY2xhc3MpCnggPC0gc2ltdWxhdGUocGFydXMsbnNpbT0xMCxmb3JtYXQ9ImRhdGEuZnJhbWUiKQpoZWFkKHgpCnN0cih4KQoKbGlicmFyeShnZ3Bsb3QyKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09OSxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKQpnZ3Bsb3QoZGF0YT14LGFlcyh4PXllYXIseT1wb3AsZ3JvdXA9LmlkLGNvbG9yPSguaWQ9PSJkYXRhIikpKSsKICBnZW9tX2xpbmUoKStndWlkZXMoY29sb3I9Im5vbmUiKSsKICBmYWNldF93cmFwKH4uaWQsbmNvbD0yKQoKeSA8LSB0cmFqZWN0b3J5KHBhcnVzLGZvcm1hdD0iZGF0YS5mcmFtZSIpCnBsb3QoTn55ZWFyLGRhdGE9eSx0eXBlPSJsIikKCmNvZWYocGFydXMpCgp0aGV0YSA8LSBjb2VmKHBhcnVzKQp0aGV0YVtjKCJyIiwiTl8wIildIDwtIGMoNSwzKQp5IDwtIHRyYWplY3RvcnkocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KE5+eWVhcixkYXRhPWFzLmRhdGEuZnJhbWUoeSksdHlwZT0nbCcpCnggPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KHgsdmFyPSJwb3AiKQoKY29lZihwYXJ1cyxjKCJyIiwiTl8wIiwic2lnbWEiKSkgPC0gYygzOSwwLjUsMSkKY29lZihwYXJ1cykKcGxvdChzaW11bGF0ZShwYXJ1cyksdmFyPSJwb3AiKQo=" download="ricker.R">provided as a script</a>.</p>
+<p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,cGFyYW1zIDwtCmxpc3QocHJlZml4ID0gInJpY2tlciIpCgojIyAtLS0tcHJlbGltcyxpbmNsdWRlPUZBTFNFLHB1cmw9VFJVRSxjYWNoZT1GQUxTRS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShwb21wKQoKCiMjIC0tLS1wYXJ1cy1kYXRhLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpkYXQgPC0gcmVhZC5jc3YoInBhcnVzLmNzdiIpCmhlYWQoZGF0KQpwbG90KHBvcH55ZWFyLGRhdGE9ZGF0LHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1wb21wMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KHBvbXApCnBhcnVzIDwtIHBvbXAoZGF0LHRpbWVzPSJ5ZWFyIix0MD0xOTU5KQoKCiMjIC0tLS1wYXJ1cy1wbG90MS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1wYXJ1cy1zaW0tZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzdG9jaFN0ZXAgPC0gQ3NuaXBwZXQoIgogIGUgPSBybm9ybSgwLHNpZ21hKTsKICBOID0gcipOKmV4cCgtYypOK2UpOwoiKQpwb21wKHBhcnVzLHJwcm9jZXNzPWRpc2NyZXRlX3RpbWUoc3RlcC5mdW49c3RvY2hTdGVwLGRlbHRhLnQ9MSksCiAgICAgcGFyYW1uYW1lcz1jKCJyIiwiYyIsInNpZ21hIiksc3RhdGVuYW1lcz1jKCJOIiwiZSIpKSAtPiBwYXJ1cwoKCiMjIC0tLS1yaWNrZXItZmlyc3Qtc2ltLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzaW0gPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPWMoTl8wPTEsZV8wPTAscj0xMixjPTEsc2lnbWE9MC41KSwKICAgICAgICAgICAgICAgIGZvcm1hdD0iZGF0YS5mcmFtZSIpCnBsb3QoTn55ZWFyLGRhdGE9c2ltLHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1ybWVhcy1kZWZuLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpybWVhcyA8LSBDc25pcHBldCgicG9wID0gcnBvaXMocGhpKk4pOyIpCgoKIyMgLS0tLXBhcnVzLWRtZWFzLWRlZm4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRtZWFzIDwtIENzbmlwcGV0KCJsaWsgPSBkcG9pcyhwb3AscGhpKk4sZ2l2ZV9sb2cpOyIpCgoKIyMgLS0tLXBhcnVzLWFkZC1tZWFzLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnBvbXAocGFydXMscm1lYXN1cmU9cm1lYXMsZG1lYXN1cmU9ZG1lYXMsc3RhdGVuYW1lcz1jKCJOIikscGFyYW1uYW1lcz1jKCJwaGkiKSkgLT4gcGFydXMKCgojIyAtLS0tcmlja2VyLWFkZC1wYXJhbXMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KY29lZihwYXJ1cykgPC0gYyhOXzA9MSxlXzA9MCxyPTIwLGM9MSxzaWdtYT0wLjEscGhpPTIwMCkKCiMjIC0tLS1yaWNrZXItc2Vjb25kLXNpbSxyZXN1bHRzPSdtYXJrdXAnLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KGdncGxvdDIpCnNpbXMgPC0gc2ltdWxhdGUocGFydXMsbnNpbT0zLGZvcm1hdD0iZCIsaW5jbHVkZS5kYXRhPVRSVUUpCmdncGxvdChkYXRhPXNpbXMsbWFwcGluZz1hZXMoeD15ZWFyLHk9cG9wKSkrZ2VvbV9saW5lKCkrCiAgZmFjZXRfd3JhcCh+LmlkLG5jb2w9MSxzY2FsZXM9ImZyZWVfeSIpCgoKIyMgLS0tLXBhcnVzLXNrZWwtZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnNrZWwgPC0gQ3NuaXBwZXQoIkROID0gcipOKmV4cCgtYypOKTsiKQoKCiMjIC0tLS1wYXJ1cy1hZGQtc2tlbC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwYXJ1cyA8LSBwb21wKHBhcnVzLHNrZWxldG9uPW1hcChza2VsKSxwYXJhbW5hbWVzPWMoInIiLCJjIiksc3RhdGVuYW1lcz1jKCJOIikpCgoKIyMgLS0tLXBhcnVzLWZpcnN0LXRyYWoscmVzdWx0cz0nbWFya3VwJy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnRyYWogPC0gdHJhamVjdG9yeShwYXJ1cyxwYXJhbXM9YyhOXzA9MSxyPTEyLGM9MSksZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT1zaW0sdHlwZT0nbycpCmxpbmVzKE5+eWVhcixkYXRhPXRyYWosdHlwZT0nbCcsY29sPSdyZWQnKQoKCiMjIC0tLS1wbG90LXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1zaW0tcmlja2VyMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjbGFzcyh4KQpwbG90KHgpCgoKIyMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnkgPC0gYXMuZGF0YS5mcmFtZShwYXJ1cykKaGVhZCh5KQpoZWFkKHNpbXVsYXRlKHBhcnVzLGZvcm1hdD0iZGF0YS5mcmFtZSIpKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTApCmNsYXNzKHgpCnNhcHBseSh4LGNsYXNzKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTAsZm9ybWF0PSJkYXRhLmZyYW1lIikKaGVhZCh4KQpzdHIoeCkKCgojIyAtLS0tZmlnLmhlaWdodD04LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShnZ3Bsb3QyKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09OSxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKQpnZ3Bsb3QoZGF0YT14LGFlcyh4PXllYXIseT1wb3AsZ3JvdXA9LmlkLGNvbG9yPSguaWQ9PSJkYXRhIikpKSsKICBnZW9tX2xpbmUoKStndWlkZXMoY29sb3I9Im5vbmUiKSsKICBmYWNldF93cmFwKH4uaWQsbmNvbD0yKQoKCiMjIC0tLS10cmFqLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp5IDwtIHRyYWplY3RvcnkocGFydXMsZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT15LHR5cGU9ImwiKQoKCiMjIC0tLS1jb2VmLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0aGV0YSA8LSBjb2VmKHBhcnVzKQp0aGV0YVtjKCJyIiwiTl8wIildIDwtIGMoNSwzKQp5IDwtIHRyYWplY3RvcnkocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KE5+eWVhcixkYXRhPWFzLmRhdGEuZnJhbWUoeSksdHlwZT0nbCcpCnggPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KHgsdmFyPSJwb3AiKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzLGMoInIiLCJOXzAiLCJzaWdtYSIpKSA8LSBjKDM5LDAuNSwxKQpjb2VmKHBhcnVzKQpwbG90KHNpbXVsYXRlKHBhcnVzKSx2YXI9InBvcCIpCgo=" download="ricker.R">provided as a script</a>.</p>
 <p>This document has its origins in the <a href="https://kingaa.github.io/pomp/vignettes/getting_started.html">Getting Started vignette</a>.</p>
 <hr>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>The <strong>R</strong> package <strong>pomp</strong> provides facilities for modeling POMPs, a toolbox of statistical inference methods for analyzing data using POMPs, and a development platform for implmenting new POMP inference methods. The basic data-structure provided by <strong>pomp</strong> is the <em>object of class</em> <code>pomp</code>, alternatively known as a <code>pomp</code> object. It is a container that holds real or simulated data and a POMP model, possibly together with other information such as model parameters, that may be needed to do things with the model and data. A real <strong>pomp</strong> data analysis begins with constructing one or more <code>pomp</code> objects to hold the data and the model or models under consideration. Here, we’ll illustrate this process a dataset of <em>Parus major</em> abundance in Wytham Wood, near Oxford <span class="citation" data-cites="McCleery1991">(<a href="#ref-McCleery1991" role="doc-biblioref">McCleery and Perrins 1991</a>)</span>.</p>
+<p>The <strong>R</strong> package <strong>pomp</strong> provides facilities for modeling POMPs, a toolbox of statistical inference methods for analyzing data using POMPs, and a development platform for implmenting new POMP inference methods. The basic data-structure provided by <strong>pomp</strong> is the <em>object of class</em> <code>pomp</code>, alternatively known as a <code>pomp</code> object. It is a container that holds real or simulated data and a POMP model, possibly together with other information such as model parameters, that may be needed to do things with the model and data. A real <strong>pomp</strong> data analysis begins with constructing one or more <code>pomp</code> objects to hold the data and the model or models under consideration. Here, we’ll illustrate this process a dataset of <em>Parus major</em> abundance in Wytham Wood, near Oxford <span class="citation" data-cites="McCleery1991">[@McCleery1991]</span>.</p>
 <p>Download and plot the data:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-data_8c1c129ac8068928732fcc4aacc2d3c7">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>loc <span class="ot">&lt;-</span> <span class="fu">url</span>(<span class="st">"https://kingaa.github.io/sbied/intro/parus.csv"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(loc)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-data_4ff8652f88aad3698a8490144c263ae5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"parus.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> year pop
  1960 148
@@ -157,19 +261,19 @@ div.csl-indent {
 </section>
 <section id="a-stochastic-ricker-model" class="level2">
 <h2 class="anchored" data-anchor-id="a-stochastic-ricker-model">A stochastic Ricker model</h2>
-<p>Let’s suppose we wish to investigate the extent to which the Ricker model <span class="citation" data-cites="Ricker1954">(<a href="#ref-Ricker1954" role="doc-biblioref">Ricker 1954</a>)</span> explains these data. First, let’s recall the details of the <span class="citation" data-cites="Ricker1954">Ricker (<a href="#ref-Ricker1954" role="doc-biblioref">1954</a>)</span> model.</p>
+<p>Let’s suppose we wish to investigate the extent to which the Ricker model <span class="citation" data-cites="Ricker1954">[@Ricker1954]</span> explains these data. First, let’s recall the details of the <span class="citation" data-cites="Ricker1954">@Ricker1954</span> model.</p>
 <section id="the-deterministic-ricker-map" class="level4">
 <h4 class="anchored" data-anchor-id="the-deterministic-ricker-map">The deterministic Ricker map</h4>
 <p>The Ricker map describes the deterministic dynamics of a simple population: <span class="math display">\[N_{t+1} = r\,N_{t}\,\exp(-c\,N_{t}).\]</span> Here, <span class="math inline">\(N_t\)</span> is the population density at time <span class="math inline">\(t\)</span> and <span class="math inline">\(r\)</span> is a fixed value, related to the population’s intrinsic capacity to increase. <span class="math inline">\(N\)</span> is a <em>state variable</em>, <span class="math inline">\(r\)</span> and <span class="math inline">\(c\)</span> are <em>parameters</em>. If we know <span class="math inline">\(r\)</span> and the <em>initial condition</em> <span class="math inline">\(N_0\)</span>, the deterministic Ricker equation predicts the future population density at all times <span class="math inline">\(t=1,2,\dots\)</span>. We can view the initial condition, <span class="math inline">\(N_0\)</span> as a special kind of parameter, an <em>initial-value parameter</em>.</p>
 </section>
 <section id="process-noise" class="level4">
 <h4 class="anchored" data-anchor-id="process-noise">Process noise</h4>
-<p>We can model process noise in this system by making the growth rate <span class="math inline">\(r\)</span> into a random variable. For example, if we assume that the intrinsic growth rate is log-normally distributed, <span class="math inline">\(N\)</span> becomes a stochastic process governed by <span class="math display">\[N_{t+1} = r\,N_{t}\,\exp(-c\,N_{t}+\varepsilon_{t}), \qquad \varepsilon_{t}\;\sim\;\dist{Normal}{0,\sigma},\]</span> where the new parameter <span class="math inline">\(\sigma\)</span> is the standard deviation of the noise process <span class="math inline">\(\varepsilon\)</span>.</p>
+<p>We can model process noise in this system by making the growth rate <span class="math inline">\(r\)</span> into a random variable. For example, if we assume that the intrinsic growth rate is log-normally distributed, <span class="math inline">\(N\)</span> becomes a stochastic process governed by <span class="math display">\[N_{t+1} = r\,N_{t}\,\exp(-c\,N_{t}+\varepsilon_{t}), \qquad \varepsilon_{t}\;\sim\;\mathrm{Normal}\left(0,\sigma\right),\]</span> where the new parameter <span class="math inline">\(\sigma\)</span> is the standard deviation of the noise process <span class="math inline">\(\varepsilon\)</span>.</p>
 </section>
 <section id="measurement-error" class="level4">
 <h4 class="anchored" data-anchor-id="measurement-error">Measurement error</h4>
 <p>Let’s suppose that the Ricker model is our model for the dynamics of a real population. However, we cannot know the exact population density at any time, but only estimate it through sampling.</p>
-<p>Let’s model measurement error by assuming the measurements, <span class="math inline">\(y_t\)</span>, are Poisson with mean <span class="math inline">\(\phi\,N_t\)</span>: <span class="math display">\[y_{t}\;\sim\;\dist{Poisson}{\phi\,N_{t}}\]</span></p>
+<p>Let’s model measurement error by assuming the measurements, <span class="math inline">\(y_t\)</span>, are Poisson with mean <span class="math inline">\(\phi\,N_t\)</span>: <span class="math display">\[y_{t}\;\sim\;\mathrm{Poisson}\left(\phi\,N_{t}\right)\]</span></p>
 <p>In this equation,</p>
 <ol type="1">
 <li><span class="math inline">\(N_t\)</span> is the true population density at time <span class="math inline">\(t\)</span>,</li>
@@ -333,13 +437,13 @@ attr(,"package")
 </div>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate</span>(parus,<span class="at">format=</span><span class="st">"data.frame"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> year .id          N           e  pop
- 1960   1 8.68442780  0.16579924 1815
- 1961   1 0.03154023  0.07067262    3
- 1962   1 0.69256777  0.12495017  144
- 1963   1 7.04175701  0.01604239 1376
- 1964   1 0.11696618 -0.05170340   22
- 1965   1 2.02381032 -0.02791364  385</code></pre>
+<pre><code> year .id         N            e  pop
+ 1960   1 6.6165502 -0.106158164 1322
+ 1961   1 0.1773515  0.001622059   31
+ 1962   1 3.3475992  0.119484346  670
+ 1963   1 2.0038535 -0.161304450  411
+ 1964   1 4.9782592 -0.081870574  976
+ 1965   1 0.5979535 -0.136795658   96</code></pre>
 </div>
 </div>
 <p>We can also run multiple simulations simultaneously:</p>
@@ -359,22 +463,22 @@ attr(,"package")
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">nsim=</span><span class="dv">10</span>,<span class="at">format=</span><span class="st">"data.frame"</span>)</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> year .id        N            e  pop
- 1960   1 6.953043 -0.056552874 1377
- 1960   2 6.796049 -0.079390916 1365
- 1960   3 7.291288 -0.009052023 1505
- 1960   4 7.383660  0.003537178 1417
- 1960   5 7.339031 -0.002525470 1372
- 1960   6 7.615495  0.034452777 1503</code></pre>
+<pre><code> year .id        N           e  pop
+ 1960   1 8.577301  0.15338708 1721
+ 1960   2 6.970921 -0.05398496 1364
+ 1960   3 6.950081 -0.05697897 1357
+ 1960   4 7.630455  0.03641527 1534
+ 1960   5 6.972379 -0.05377579 1378
+ 1960   6 7.759706  0.05321218 1517</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   270 obs. of  5 variables:
  $ year: num  1960 1960 1960 1960 1960 1960 1960 1960 1960 1960 ...
  $ .id : Ord.factor w/ 10 levels "1"&lt;"2"&lt;"3"&lt;"4"&lt;..: 1 2 3 4 5 6 7 8 9 10 ...
- $ N   : num  6.95 6.8 7.29 7.38 7.34 ...
- $ e   : num  -0.05655 -0.07939 -0.00905 0.00354 -0.00253 ...
- $ pop : num  1377 1365 1505 1417 1372 ...</code></pre>
+ $ N   : num  8.58 6.97 6.95 7.63 6.97 ...
+ $ e   : num  0.1534 -0.054 -0.057 0.0364 -0.0538 ...
+ $ pop : num  1721 1364 1357 1534 1378 ...</code></pre>
 </div>
 </div>
 <p>Also,</p>
@@ -469,29 +573,22 @@ attr(,"package")
 <h4 class="anchored" data-anchor-id="exercise-reformulating-the-ricker-model">Exercise: Reformulating the Ricker model</h4>
 <p>One can reparameterize the Ricker model according to <span class="math display">\[N_{t+1} = N_{t}\,e^{r\,\left(1-\frac{N_{t}}{K}\right)+\varepsilon_t}.\]</span></p>
 <p>Modify the <code>pomp</code> object we created above to reflect this reparameterization.</p>
-<p>Modify the measurement model so that <span class="math display">\[\mathrm{pop}_t \sim \dist{Negbin}{\phi\,N_t,k},\]</span> i.e., <span class="math inline">\(\mathrm{pop}_t\)</span> is negative-binomially distributed with mean <span class="math inline">\(\phi\,N_t\)</span> and clumping parameter <span class="math inline">\(k\)</span>. See <code>?NegBinomial</code> for documentation on the negative binomial distribution and <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Distribution-functions">the <strong>R</strong> Extensions Manual section on distribution functions</a> for information on how to access these in C.</p>
+<p>Modify the measurement model so that <span class="math display">\[\mathrm{pop}_t \sim \mathrm{Negbin}\left(\phi\,N_t,k\right),\]</span> i.e., <span class="math inline">\(\mathrm{pop}_t\)</span> is negative-binomially distributed with mean <span class="math inline">\(\phi\,N_t\)</span> and clumping parameter <span class="math inline">\(k\)</span>. See <code>?NegBinomial</code> for documentation on the negative binomial distribution and <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Distribution-functions">the <strong>R</strong> Extensions Manual section on distribution functions</a> for information on how to access these in C.</p>
 <hr>
 </section>
 <section id="exercise-beverton-holt" class="level4">
 <h4 class="anchored" data-anchor-id="exercise-beverton-holt">Exercise: Beverton-Holt</h4>
-<p>Construct a <code>pomp</code> object for the <em>Parus major</em> data and the stochastic Beverton-Holt model <span class="math display">\[N_{t+1} = \frac{a\,N_t}{1+b\,N_t}\,\varepsilon_t,\]</span> where <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are parameters and <span class="math display">\[\varepsilon_t \sim \dist{Lognormal}{-\tfrac{1}{2}\sigma^2,\sigma}.\]</span> Assume the same measurement model as before.</p>
+<p>Construct a <code>pomp</code> object for the <em>Parus major</em> data and the stochastic Beverton-Holt model <span class="math display">\[N_{t+1} = \frac{a\,N_t}{1+b\,N_t}\,\varepsilon_t,\]</span> where <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are parameters and <span class="math display">\[\varepsilon_t \sim \mathrm{Lognormal}\left(-\tfrac{1}{2}\sigma^2,\sigma\right).\]</span> Assume the same measurement model as before.</p>
 <hr>
 </section>
 </section>
-<section id="references" class="level2 unnumbered">
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-line-spacing="2" role="list">
-<div id="ref-McCleery1991" class="csl-entry" role="listitem">
-McCleery RH, Perrins CM (1991). <span>“Effects of Predation on the Numbers of Great Tits <span><em>Parus Major</em></span>.”</span> In <em>Bird population studies. Relevence to conservation and management</em> 129–147. Oxford University Press, Oxford.
-</div>
-<div id="ref-Ricker1954" class="csl-entry" role="listitem">
-Ricker WE (1954). <span>“Stock and Recruitment.”</span> <em>Journal of the Fisheries Research Board of Canada</em>, <strong>11</strong>, 559–623. <a href="https://doi.org/10.1139/f54-039">https://doi.org/10.1139/f54-039.</a>
-</div>
-</div></section></div></main>
-<!-- /main column -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

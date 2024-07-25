@@ -161,6 +161,10 @@ MathJax = {
  <span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
+ <span class="menu-text">Bayesian</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../../case study.html" rel="" target="">
  <span class="menu-text">Case study</span></a>
   </li>  
@@ -274,8 +278,8 @@ MathJax = {
 </section>
 <section id="local-search" class="level3">
 <h3 class="anchored" data-anchor-id="local-search">Local search</h3>
-<p>We’ll begin, as in the <a href="./index.html">Lesson</a>, by performing a local search with only <span class="math inline">\(N\)</span> fixed. The purpose of this is to evaluate the performance of the search algorithm, so that we can tune the algorithm’s parameters.</p>
-<p>Windows users, beware! The following triggers a C snippet compilation within a parallel block, which will not succeed on many Windows machines. See <a href="./windows.html">this discussion</a> for an explanation of how to circumvent this problem.</p>
+<p>We’ll begin, as in the <a href="../../index.html">Lesson</a>, by performing a local search with only <span class="math inline">\(N\)</span> fixed. The purpose of this is to evaluate the performance of the search algorithm, so that we can tune the algorithm’s parameters.</p>
+<p>Windows users, beware! The following triggers a C snippet compilation within a parallel block, which will not succeed on many Windows machines. See <a href="../misc/windows.html">this discussion</a> for an explanation of how to circumvent this problem.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/local_search_683a5f88c4ea18a448ad59139ac1bd9b">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,<span class="at">.combine=</span>c,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">482942941</span>)</span>
@@ -343,7 +347,7 @@ MathJax = {
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="st">"fitall_params.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we attempt a global search of the <span class="math inline">\(k\)</span>-<span class="math inline">\(\beta\)</span>-<span class="math inline">\(\rho\)</span>-<span class="math inline">\(\eta\)</span>-<span class="math inline">\(gamma\)</span> space.</p>
-<p>We set up a design of starting points. The <code>freeze</code> command is described <a href="../pfilter/bake.html">here</a>.</p>
+<p>We set up a design of starting points. The <code>freeze</code> command is described <a href="../misc/bake.html">here</a>.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/global1_search_setup_74f1b57b4a31b888617c7117183e4543">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freeze</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif_design</span>(</span>
@@ -536,9 +540,9 @@ MathJax = {
 <h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
 <p>Releasing all constraints on the parameters results in only a small improvement in the log likelihood. Indeed, by AIC, the improvement is not judged to be worthwhile. Nevertheless, removing the constraints allows us to evaluate whether our assumptions about known values of certain parameters play a role in the conclusions. In the event, they were not playing much of a role.</p>
 <p>Let us return to the central question: How does the model account for the data?</p>
-<p>Clearly, the model can account for the data equally well for all but the smallest values of <span class="math inline">\(\eta\)</span>. That is, unless the fraction of susceptibles in the population was too small to allow for an outbreak of the observed size, one can obtain an outbreak that looks like the observed one from an SIR model in a population of sufficient size. This interpretation is confirmed by the fact that, as one decreases <span class="math inline">\(\eta\)</span>, one has to increase the reporting efficiency <span class="math inline">\(\Rho\)</span> to explain the data.</p>
-<p>Now, across the confidence interval for <span class="math inline">\(\eta\)</span>, say <span class="math inline">\((0.03, 1)\)</span>, it is clear from the profile trace plots above, that the model needs both <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\Rho\)</span> to be relatively low and the infectious period to be relatively short (though average infectious periods of as long as <span class="math inline">\(1.7\)</span>&nbsp;wk are within the confidence interval).</p>
-<p>In sum, the model is accounting for the data by saying there was a large and mostly unobserved outbreak in the population, very many of whom were susceptible. As we discussed in the <a href="./index.html">Lesson</a>, the conclusion of a short infectious period is broadly compatible with household studies that suggest the duration of viral shedding is less than a week. On the other hand, the conclusion that <span class="math inline">\(\Rho&lt;0.6\)</span> is more difficult to reconcile with our understanding of measles reporting during this period. Indeed, it would have had to be the case that 1948 was a very sloppy year for the public health authorities in this part of England, since their average reporting efficiency, as we estimated in the <a href="./index.html">Lesson</a> was close to 60%.</p>
+<p>Clearly, the model can account for the data equally well for all but the smallest values of <span class="math inline">\(\eta\)</span>. That is, unless the fraction of susceptibles in the population was too small to allow for an outbreak of the observed size, one can obtain an outbreak that looks like the observed one from an SIR model in a population of sufficient size. This interpretation is confirmed by the fact that, as one decreases <span class="math inline">\(\eta\)</span>, one has to increase the reporting efficiency <span class="math inline">\(\rho\)</span> to explain the data.</p>
+<p>Now, across the confidence interval for <span class="math inline">\(\eta\)</span>, say <span class="math inline">\((0.054, 1)\)</span>, it is clear from the profile trace plots above, that the model needs both <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\rho\)</span> to be relatively low and the infectious period to be relatively short (though average infectious periods of as long as <span class="math inline">\(1.7\)</span>&nbsp;wk are within the confidence interval).</p>
+<p>In sum, the model is accounting for the data by saying there was a large and mostly unobserved outbreak in the population, very many of whom were susceptible. As we discussed in the <a href="../../index.html">Lesson</a>, the conclusion of a short infectious period is broadly compatible with household studies that suggest the duration of viral shedding is less than a week. On the other hand, the conclusion that <span class="math inline">\(\rho&lt;0.33\)</span> is more difficult to reconcile with our understanding of measles reporting during this period. Indeed, it would have had to be the case that 1948 was a very sloppy year for the public health authorities in this part of England, since their average reporting efficiency, as we estimated in the <a href="../../index.html">Lesson</a> was close to 60%.</p>
 
 
 </section>
