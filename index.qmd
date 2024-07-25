@@ -45,6 +45,10 @@ This module introduces statistical inference techniques and computational method
 
 7.  [Case study:](https://rubbislam.quarto.pub/episim/case%20study.html)
 
+## Stochastic SIR simulator
+
+For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework.
+
 ## Acknowledgements
 
 This website and all the materials are adapted from <https://kingaa.github.io/sbied/>. We would like send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) for creating this wonderful course and for helping us developing our own version.
