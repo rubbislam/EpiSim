@@ -9,12 +9,12 @@ output:
       - ../_includes/supp_bottom.html
       - ../_includes/license.html
 params:
-  prefix: metapop
+  prefix: bayesian
 ---
 
 |                                                                       |     |
 |:-----------------------------------|:----------------------------------:|
-| pmcmc slides \| [PDF](slides/pmcmc/main.pdf) \|           |     |
-| **R** script for Meta-population \| [**R**](slides/pmcmc/main.R) \| |     |
+| Bayesian inference slides \| [PDF](slides/bayes/main.pdf) \|           |     |
+| **R** script for Bayesian inference \| [**R**](slides/bayes/main.R) \| |     |
 
 ------------------------------------------------------------------------

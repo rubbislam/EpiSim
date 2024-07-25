@@ -11,7 +11,7 @@
     "href": "iterated.html",
     "title": "Iterated filtering: principles and practice",
     "section": "",
-    "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021) | Video (110 min) |\n\n\n\nQuiz | PDF |\n\n\n\nR script for the lesson | R |\n\n\n\nWindows-safe R script for the lesson | R |\n\n\n\nSupplement: Tuning IF2 | HTML |\n\n\n\nWorked solution to Exercise 4.1 | HTML |\n\n\n\nWorked solution to Exercise 4.2 | HTML |\n\n\n\nWorked solution to Exercise 4.4 | HTML |"
+    "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021) | Video (110 min) |\n\n\n\nQuiz | PDF |\n\n\n\nR script for the lesson | R |\n\n\n\nWorkflow slides | PDF |\n\n\n\nR script for the workflow | R |\n\n\n\nWindows-safe R script for the lesson | R |\n\n\n\nSupplement: Tuning IF2 | HTML |\n\n\n\nWorked solution to Exercise 4.1 | HTML |\n\n\n\nWorked solution to Exercise 4.2 | HTML |\n\n\n\nWorked solution to Exercise 4.4 | HTML |"
   },
   {
     "objectID": "instruction.html",
@@ -63,6 +63,13 @@
     "text": "Meta-population slides | PDF |\n\n\n\nR script for Meta-population | R |"
   },
   {
+    "objectID": "Bayesian.html",
+    "href": "Bayesian.html",
+    "title": "Bayesian statistics and PMCMC in pomp",
+    "section": "",
+    "text": "Bayesian inference slides | PDF |\n\n\n\nR script for Bayesian inference | R |"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Simulation-based Inference for Epidemiological Dynamics",
@@ -91,6 +98,13 @@
     "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPs: theory and practice.\nIterated filtering: theory and practice.\nBayesian statistics and PMCMC in pomp\nCase study: 1918 Spanish Flu in three cities of UK\nCase study:"
   },
   {
+    "objectID": "index.html#stochastic-sir-simulator",
+    "href": "index.html#stochastic-sir-simulator",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "Stochastic SIR simulator",
+    "text": "Stochastic SIR simulator\nFor an interactive exploration of the stochastic SIR model, you can access the dedicated shiny app developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework."
+  },
+  {
     "objectID": "index.html#acknowledgements",
     "href": "index.html#acknowledgements",
     "title": "Simulation-based Inference for Epidemiological Dynamics",
@@ -110,12 +124,5 @@
     "title": "Likelihood-based inference for POMP models",
     "section": "",
     "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021) | Video (112 min) |\n\n\n\nQuiz | PDF |\n\n\n\nR script for the lesson | R |\n\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models | HTML |\n\n\n\nSupplement: Monte Carlo Methods | PDF |\n\n\n\nSupplement: Likelihood by direct simulation: Consett measles example | HTML |\n\n\n\nSupplement: Standard errors via the observed Fisher information | HTML |\n\n\n\nSupplement: Bootstrap methods | HTML |\n\n\n\nSupplement: Direct maximization of the particle filter likelihood | HTML |\n\n\n\nWorked solution to Exercise 3.1 | HTML |\n\n\n\nWorked solution to Exercise 3.2 | HTML |\n\n\n\nWorked solution to Exercise 3.3 | HTML |"
-  },
-  {
-    "objectID": "index.html#stochastic-sir-simulator",
-    "href": "index.html#stochastic-sir-simulator",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "Stochastic SIR simulator",
-    "text": "Stochastic SIR simulator\nFor an interactive exploration of the stochastic SIR model, you can access the dedicated shiny app developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework."
   }
 ]

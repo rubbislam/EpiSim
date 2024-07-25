@@ -387,5 +387,8 @@
   },
   "slides/mif/index.md": {
     "index.html": "8e0d78ae"
+  },
+  "Bayesian.qmd": {
+    "Bayesian.html": "0d44bbf4"
   }
 }
