@@ -1,5 +1,5 @@
 ---
-title: "Workflow part"
+title: "Summary: workflow"
 author:
   - Qianying (Ruby) Lin
   - Spencer J. Fox
@@ -14,9 +14,6 @@ format:
     section-titles: false
     aspectratio: 169
     include-in-header: "../_includes/header.tex"
-    # beameroptions:
-    #   - setbeamertemplate: "footline[frame number]"
-    #   - setbeamertemplate: "navigation symbols{}"
     header-includes: |
        \setbeamertemplate{navigation symbols}{}
        \setbeamertemplate{footline}[page number]
@@ -31,22 +28,23 @@ editor_options:
 bibliography: ["../sbied.bib"]
 ---
 
-
 ```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
 ```
 
-```{r doFuture,echo=FALSE,cache=FALSE}
-library(pomp)
+```{r prelims,echo=F,cache=F}
+library(foreach)
+library(iterators)
 library(doFuture)
 library(tidyverse)
 library(microbenchmark)
+library(pomp)
 plan(multisession)
-set.seed(2488820)
 ```
 
+# Summary
 
-# Workflow Summary {.allowframebreaks}
+## Summary
 
 1. **Data Preparation and Model Specification**
     - **Data Initialization**: Visualize the initial data to get a sense of the disease outbreak dynamics. 
@@ -57,6 +55,8 @@ set.seed(2488820)
 2. **Preliminary Analysis**
     - **Simulation and Visualization**: Simulate the SIR model to visualize potential outcomes and compare to data.
     - **Likelihood Estimation**: Evaluate the likelihood and Effective Sample Size of the initial parameter estimates using particle filtering.
+    
+\framebreak
 
 3. **Local Optimization**
     - **Iterated Filtering for Local Maximum**: Apply iterated filtering to find a local maximum near the initial guesses.
@@ -66,6 +66,8 @@ set.seed(2488820)
     - **Set Up for Global Search**: Define a parameter space for global optimization.
     - **Global Search Execution**: Conduct global optimization using multiple starting points to ensure robustness of the findings.
     - **Result Compilation**: Compile and compare results from global searches, focusing on the best parameter estimates.
+
+\framebreak
 
 5. **Profile Likelihood Estimation**
     - **Parameter Profiling**: For each parameter, perform profiling to map the likelihood landscape and establish confidence intervals.
@@ -78,32 +80,28 @@ set.seed(2488820)
 7. **Documentation and Storage**
     - **Record-Keeping**: All intermediate and final results should be stored in CSV files for further analysis or reproducibility of the study.
 
-# Example: measles {.allowframebreaks}
+# Example
 
-# Data initialization {.allowframebreaks}
+## Measle example: Data initialization {.allowframebreaks}
 
 ```{r meas-data1}
 library(tidyverse)
-read_csv("https://kingaa.github.io/sbied/pfilter/Measles_Consett_1948.csv") |>
+read_csv("Measles_Consett_1948.csv") |>
   select(week,reports=cases) |>
   filter(week<=42) -> meas
 meas |> as.data.frame() |> head(n=3)
 ```
 
-
+\framebreak
 
 ```{r meas-data2, fig.width=5, fig.height=1.5, dpi=300}
 meas |>
   ggplot(aes(x=week,y=reports)) +
-  geom_line() +
-  geom_point()
+  geom_line() + geom_point()
 ```
 
 
-
-# Model Definition {.allowframebreaks}
-
-## Set up a stochastic SIR model {.allowframebreaks}
+## Measle example: stochastic SIR model in `pomp` {.allowframebreaks}
 
 ```{r}
 sir_stoch <- Csnippet("
@@ -112,6 +110,7 @@ sir_stoch <- Csnippet("
   S -= dN_SI; I += dN_SI - dN_IR;
   R += dN_IR; H += dN_IR;"
 )
+
 sir_init <- Csnippet("
   S = nearbyint(Eta*N);
   I = 1;
@@ -134,8 +133,6 @@ rmeas <- Csnippet("
 
 \framebreak
 
-## Specifying model components in `pomp` {.allowframebreaks}
-
 ```{r sir_pomp}
 meas |>
   pomp(
@@ -144,7 +141,6 @@ meas |>
     rinit=sir_init,
     rmeasure=rmeas,
     dmeasure=dmeas,
-    emeasure=emeas,
     accumvars="H",
     statenames=c("S","I","R","H"),
     paramnames=c("Beta","Gamma","Eta","Rho","k","N"),
@@ -152,7 +148,7 @@ meas |>
   ) -> measSIR
 ```
 
-# Preliminary Analysis {.allowframebreaks}
+# Preliminary Analysis
 
 ## Simulation with the initial guess {.allowframebreaks}
 
@@ -163,7 +159,6 @@ measSIR |>
   geom_line() + guides(color="none")
 ```
 
----
 
 ## Check likelihood and ess {.allowframebreaks}
 
@@ -177,14 +172,14 @@ min(pf@eff.sample.size)
 
 ESS refers to the number of particles that effectively contribute to the approximation of the posterior distribution.
 
----
+\framebreak
 
 ```{r, fig.width=7, fig.height=4}
 plot(pf)
 ```
 
 
----
+\framebreak
 
 Use repeated particle filtering to refine estimates
  
@@ -206,6 +201,8 @@ pf[[1]] |> coef() |> bind_rows() |>
 ```
 
 # Local Optimization (IF2)
+
+## Local Optimization (IF2) {.allowframebreaks} 
 
 Apply iterated filtering to find a local maximum near the initial guesses
 
@@ -238,8 +235,6 @@ ncpu_loc <- attr(mifs_local,"ncpu")
 ```
 
 
----
-
 ## Diagnostics and Visualization {.allowframebreaks} 
 
 
@@ -253,7 +248,7 @@ mifs_local |>
   facet_wrap(~name,scales="free_y") -> plot
 ```
 
----
+\framebreak
 
 ```{r local_search_plot2,fig.width=6, fig.height=4, dpi=300}
 #| out-height: 80%
@@ -287,7 +282,7 @@ runif_design(
 mf1 <- mifs_local[[1]]
 ```
 
----
+\framebreak
 
 ## Global Search {.allowframebreaks} 
 
@@ -325,7 +320,7 @@ t_global <- attr(results,"system.time")
 ncpu_global <- attr(results,"ncpu")
 ``` 
 
----
+\framebreak
 
 ```{r cache=FALSE,include=FALSE}
 read_csv("measles_params.csv") |>
@@ -341,7 +336,7 @@ Then get the best result
 results |> filter(loglik==max(loglik))
 ```
 
----
+\framebreak
 
 ## Diagnostics and Visualization {.allowframebreaks} 
 
@@ -356,7 +351,7 @@ read_csv("measles_params.csv") |>
   arrange(type) -> all
 ```
 
----
+\framebreak
 
 ```{r pairs_global11,fig.width=8, fig.height=6, dpi=300}
 #| out-height: 80%
@@ -364,7 +359,7 @@ pairs(~loglik+Beta+Eta+Rho, data=all, pch=16, cex=0.3,
   col=ifelse(all$type=="guess",grey(0.5),"red"))
 ```
 
----
+\framebreak
 
 The projections of the estimates give us ``poor man`s profiles'':
 
@@ -381,14 +376,14 @@ all |>
   ) -> plot
 ```
 
----
+\framebreak
 
 ```{r pairs_global3, fig.width=8, fig.height=6, dpi=300}
 #| out-height: 80%
 plot
 ```
 
----
+\framebreak
 
 # Profile Likelihood Estimation 
 
@@ -404,7 +399,7 @@ box
 ```
 
  
----
+\framebreak
 
 Within this box, we’ll choose some random starting points
 
@@ -418,13 +413,13 @@ freeze(seed=1196696958,
   )) -> guesses
 ```
 
----
+\framebreak
 
 ```{r}
 plot(guesses)
 ```
 
----
+\framebreak
 
 Now, we’ll start one independent sequence of iterated filtering operations from each of these points.
 
@@ -457,7 +452,7 @@ t_eta <- attr(results,"system.time")
 ncpu_eta <- attr(results,"ncpu")
 ```
 
----
+\framebreak
 
 ### Visualizing profile likelihood {.allowframebreaks}
 
@@ -475,7 +470,7 @@ read_csv("measles_params.csv") |> filter(loglik>max(loglik)-10) -> all
 pairs(~loglik+Beta+Eta+Rho,data=all,pch=16)
 ```
 
----
+\framebreak
 
 Focusing on the top of the surface
 
@@ -491,14 +486,14 @@ results |>
   geom_point() + xlab(expression(eta)) -> plot
 ``` 
 
----
+\framebreak
 
 ```{r eta_profile_plot22, fig.width=6, fig.height=4, dpi=300}
 #| out-height: 80%
 plot 
 ```
 
----
+\framebreak
 
 estimate $\eta$ with 95% CI using these data
 
@@ -519,14 +514,14 @@ results |>
   lims(y=maxloglik-c(5,0)) -> plot
 ```
 
----
+\framebreak
 
 ```{r eta_profile_plot33, fig.width=6, fig.height=4, dpi=300}
 #| out-height: 80%
 plot
 ```
 
----
+\framebreak
 
 ```{r eta_ci}
 results |>
@@ -537,7 +532,7 @@ results |>
 
 Then we know $\eta$ is in the `r signif(Eta_ci$min,2)`--`r signif(Eta_ci$max,2)`% range (95% CI).
 
----
+\framebreak
 
 ## For the later parameters
 
@@ -552,7 +547,7 @@ read_csv("measles_params.csv") |>
   select(-cut,-loglik,-loglik.se) -> guesses
 ```
 
----
+\framebreak
 
 then again, generate the profile likelihood
 
@@ -594,7 +589,7 @@ read_csv("measles_params.csv") |>
   write_csv("measles_params.csv")
 ``` 
 
----
+\framebreak
 
 ### Visualizing profile likelihood {.allowframebreaks}
 
@@ -605,7 +600,7 @@ results |> filter(is.finite(loglik)) -> results
 pairs(~loglik+Beta+Eta+Rho,data=results,pch=16)
 ```
 
----
+\framebreak
 
 ```{r echo=FALSE, fig.width=6, fig.height=4, dpi=300}
 #| out-height: 80%
@@ -622,7 +617,7 @@ results |>
   )
 ```
 
---- 
+\framebreak 
 
 ```{r rho_ci}
 results |>
@@ -633,7 +628,7 @@ results |>
 Then we know reporting efficiencies $\rho$ is in the `r signif(100*rho_ci$min,2)`--`r signif(100*rho_ci$max,2)`% range (95% CI).
 
 
----
+\framebreak
 
 ## The investigation continues\dots.
 

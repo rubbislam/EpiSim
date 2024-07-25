@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ## ----prelims,echo=FALSE,cache=FALSE-------------------------------------------------------
+=======
+## ----prelims,echo=FALSE,cache=FALSE--------------------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 library(tidyverse)
 library(pomp)
 library(foreach)
@@ -10,24 +14,37 @@ set.seed(1350254336)
 
 
 
+<<<<<<< HEAD
 ## ----model-construct,purl=TRUE------------------------------------------------------------
+=======
+## ----model-construct,purl=TRUE-------------------------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 source("model_measSIR.R")
 measSIR@params
 
 
+<<<<<<< HEAD
 ## ----pfilter-1,cache=TRUE-----------------------------------------------------------------
+=======
+## ----pfilter-1,cache=TRUE------------------------------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 library(pomp)
 pf <- measSIR |> pfilter(Np=5000)
 logLik(pf)
 
 
+<<<<<<< HEAD
 ## ----pf-diagnostic-1, fig.height=1.5, fig.width=8-----------------------------------------
+=======
+## ----pf-diagnostic-1, fig.height=1.5, fig.width=8------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 measSIR |>
   simulate(nsim=20,format="data.frame",include.data=TRUE) |>
   ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
   geom_line() + guides(color="none")
 
 
+<<<<<<< HEAD
 ## ----pf-diagnostic-2-1, eval=FALSE--------------------------------------------------------
 ## plot(pf)
 
@@ -37,6 +54,17 @@ plot(pf)
 
 
 ## ----pf-diagnostic-3,cache=TRUE-----------------------------------------------------------
+=======
+## ----pf-diagnostic-2-1, eval=FALSE---------------------------------------------------------------------------------------------------------------
+## plot(pf)
+
+
+## ----pf-diagnostic-2-2, echo=FALSE, fig.width=4, fig.height=3.5----------------------------------------------------------------------------------
+plot(pf)
+
+
+## ----pf-diagnostic-3,cache=TRUE------------------------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 plan(multisession)
 foreach (
   i=1:10, .combine=c, .options.future=list(seed=652643293)
@@ -51,7 +79,11 @@ logmeanexp(ll,se=TRUE)
 
 
 
+<<<<<<< HEAD
 ## ----like-slice-eval,include=FALSE,purl=TRUE----------------------------------------------
+=======
+## ----like-slice-eval,include=FALSE,purl=TRUE-----------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 ## What is this 'bake' function?
 ## See https://kingaa.github.io/sbied/misc/bake.html
 ## for an explanation.
@@ -74,7 +106,11 @@ bake(file="like-slice.rds",{
 }) -> lik_slice
 
 
+<<<<<<< HEAD
 ## ----like-slice-plot,echo=FALSE-----------------------------------------------------------
+=======
+## ----like-slice-plot,echo=FALSE------------------------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 #| fig-width: 6
 #| fig-height: 3
 #| out-width: 5in
@@ -95,7 +131,11 @@ lik_slice |>
 
 
 
+<<<<<<< HEAD
 ## ----pfilter-grid1-eval,include=FALSE,purl=TRUE-------------------------------------------
+=======
+## ----pfilter-grid1-eval,include=FALSE,purl=TRUE--------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 bake(file="pfilter-grid1.rds",{
   expand.grid(
     Beta = rep(seq(from=10,to=30,length=40), each=3),
@@ -115,7 +155,11 @@ bake(file="pfilter-grid1.rds",{
 })-> lik_grid
 
 
+<<<<<<< HEAD
 ## ----pfilter-grid1-plot,echo=FALSE,purl=TRUE----------------------------------------------
+=======
+## ----pfilter-grid1-plot,echo=FALSE,purl=TRUE-----------------------------------------------------------------------------------------------------
+>>>>>>> ef667f5 (update workflow, bayes rds)
 #| fig-width: 6
 #| fig-height: 4
 #| out-width: 4.8in

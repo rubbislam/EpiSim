@@ -877,19 +877,23 @@ sir_stoch <- Csnippet("
 
 - C snippets for the initializer and measurement model are:
 
+\framebreak
+
 ```{r more-csnips}
-    sir_rinit <- Csnippet("
-      S = nearbyint(Eta*N);
-      I = 1;
-      R = nearbyint((1-Eta)*N);
-      H = 0;
-    ")
-    sir_dmeas <- Csnippet("
-      lik = dnbinom_mu(reports,k,Rho*H,give_log);
-    ")
-    sir_rmeas <- Csnippet("
-      reports = rnbinom_mu(k,Rho*H);
-    ")
+sir_rinit <- Csnippet("
+  S = nearbyint(Eta*N);
+  I = 1;
+  R = nearbyint((1-Eta)*N);
+  H = 0;
+")
+
+sir_dmeas <- Csnippet("
+  lik = dnbinom_mu(reports,k,Rho*H,give_log);
+")
+
+sir_rmeas <- Csnippet("
+  reports = rnbinom_mu(k,Rho*H);
+")
 ```
 
 \framebreak
@@ -1125,14 +1129,14 @@ measSEIR |>
 
 # References
 
-## References {.allowframebreaks}
+## References
 
 ::: {#refs}
 :::
 
 ## License, acknowledgments, and links
 
--   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
+-   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://sph.emory.edu/SISMID/index.html).
 
 -   The materials build on [previous versions of this course and related courses](../acknowledge.html).
 
@@ -1140,8 +1144,10 @@ measSEIR |>
 
 -   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
 
--   Compiled on 2024-06-16.
+-   Compiled on 2024-07-24.
+
+\vfill
 
 [Back to Lesson](index.html)
 
-[`R` codes for this lesson](main.R)
+[`R` code for this lesson](./main.R)

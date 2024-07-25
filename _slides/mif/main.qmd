@@ -158,21 +158,21 @@ In practice, we can test this claim on examples.
 
 **Input:**
 
--   simulators for $f_{X_0}(x_0;\theta)$ and $f_{X_n|X_{n-1}}(x_n| x_{n-1}; \theta)$\\
--   evaluator for $f_{Y_n|X_n}(y_n| x_n;\theta)$\\
--   data, $y^*_{1:N}$\\
+-   simulators for $f_{X_0}(x_0;\theta)$ and $f_{X_n|X_{n-1}}(x_n| x_{n-1}; \theta)$
+-   evaluator for $f_{Y_n|X_n}(y_n| x_n;\theta)$
+-   data, $y^*_{1:N}$
 
 \textbf{Algorithmic parameters and corresponding \texttt{mif2} arguments:}
 
--   number of iterations, {\texttt Nmif = }$M$\\
--   number of particles, {\texttt Np = }$J$\\
--   initial parameter swarm, {\texttt params = }$\{\Theta^0_j, j=1,\dots,J\}$\\
--   random walk standard deviation for each parameter, {\texttt rw.sd}, squared to construct a diagonal variance matrix, $V_n$\\
--   cooling fraction in 50 iterations, \texttt{cooling.fraction.50 = }$a$\\
+-   number of iterations, \texttt{Nmif} = $M$
+-   number of particles, \texttt{Np} = $J$
+-   initial parameter swarm, \texttt{params} = $\{\Theta^0_j, j=1,\dots,J\}$
+-   random walk standard deviation for each parameter, \texttt{rw.sd}, squared to construct a diagonal variance matrix, $V_n$
+-   cooling fraction in 50 iterations, \texttt{cooling.fraction.50} = $a$
 
 **Output:**
 
--   final parameter swarm, $\{\Theta^M_j, j=1,\dots,J\}$\\
+-   final parameter swarm, $\{\Theta^M_j, j=1,\dots,J\}$
 
 \framebreak
 
@@ -1228,9 +1228,9 @@ Have a look at [our advice on tuning IF2](./if2_settings.html). An exercise at t
 ::: {#refs}
 :::
 
-## License, acknowledgments, and links {.allowframebreaks}
+## License, acknowledgments, and links
 
--   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://kingaa.github.io/sbied/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://www.biostat.washington.edu/suminst/sismid).
+-   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://sph.emory.edu/SISMID/index.html).
 
 -   The materials build on [previous versions of this course and related courses](../acknowledge.html).
 
@@ -1238,7 +1238,9 @@ Have a look at [our advice on tuning IF2](./if2_settings.html). An exercise at t
 
 -   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
 
--   Compiled on 2024-06-17.
+-   Compiled on 2024-07-24.
+
+\vfill
 
 [Back to Lesson](index.html)
 
