@@ -12,16 +12,16 @@ params:
   prefix: stochsim
 ---
 
-----------------------
 
 | &nbsp;                            | &nbsp;                                                                                     |
-|:----------------------------------|:------------------------------------------------------------------------------------------:|
-| Lecture slides                    | [PDF](slides/stochsim/main.pdf)                                                                          |
-| Reference Recording  (2020)                 | [Video (98 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RBA4OQ_OdJj5CEJSjRGxut) |
-| Quiz                              | [PDF](slides/stochsim/quiz.pdf)                                                                            |
-| **R** script for the lesson       | [**R**](slides/stochsim/main.R)                                                                            |
-| Worked solutions to the Exercises | [HTML](slides/stochsim/exercises.html)                                                                     |
-----------------------
+|-----------------------------------|--------------------------------------------------------------------------------------------|
+| Lecture slides                    | [PDF](slides/stochsim/main.pdf)|
+| Reference Recording  (2020)       | [Video (98 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RBA4OQ_OdJj5CEJSjRGxut) |
+| Quiz                              | [PDF](slides/stochsim/quiz.pdf)|
+| **Measles** data for the lesson   | [data](slides/stochsim/Measles_Consett_1948.csv)|
+| **R** script for the lesson       | [**R**](slides/stochsim/main.R)|
+| Worked solutions to the Exercises | [HTML](slides/stochsim/exercises.html)|
+
 
 <iframe width="0" height="0"></iframe>
 

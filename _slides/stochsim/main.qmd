@@ -61,12 +61,12 @@ This tutorial develops some classes of dynamic models relevant to biological sys
 
 -   We set up notation applicable to general compartment models [@Breto2009]. \input{../graphics/sir_diagram} \vspace{5mm}
 
-    ```{=tex}
-    \begin{tabular}{c @{\ :\ } l c @{\ :\ } l}
-      S & susceptible & I & infected and infectious  \\
-      R & recovered and/or removed  & C & reported cases
-    \end{tabular}
-    ```
+```{=tex}
+\begin{tabular}{c @{\ :\ } l c @{\ :\ } l}
+  S & susceptible & I & infected and infectious  \\
+  R & recovered and/or removed  & C & reported cases
+\end{tabular}
+```
 
 -   We suppose that each arrow has an associated rate, so here there is a rate $\mu_{SI}(t)$ at which individuals in $S$ transition to $I$, and $\mu_{IR}$ at which individuals in $I$ transition to $R$.
 
@@ -104,7 +104,7 @@ To include demography, we could keep track of birth and death events by the coun
        I(t) &= I(0) + N_{SI}(t) &- N_{IR}(t) \\
        R(t) &= R(0) &+ N_{IR}(t)
      \end{aligned}
-        \end{equation*}
+\end{equation*}
 
 -   These equations represent *conservation of individuals* or *what goes in must come out*.
 
@@ -172,10 +172,10 @@ Together with initial conditions specifying $S(0)$, $I(0)$ and $R(0)$, we just n
 ```{r det-skel}
 library(pomp)
 Csnippet("
-        DS = -Beta*S*I/N;
-        DI = Beta*S*I/N - I*Gamma;
-        DR = I*Gamma;
-        ") -> sir_det_skel
+  DS = -Beta*S*I/N;
+  DI = Beta*S*I/N - I*Gamma;
+  DR = I*Gamma;
+") -> sir_det_skel
 ```
 :::
 :::
@@ -229,11 +229,11 @@ Csnippet("
 - When referring the counting and its corresponding probability in @tbl-stochproc, it is obvious that we can derive a continuous time Markov chain (CTMC) for the SIR model:
 
 $$
-     \begin{aligned}
-       \pr\big[N_{SI}(t+\delta)&\equals N_{SI}(t)+1\big] &\equals& \beta \, S(t)\, I(t) / N\, \delta + o(\delta),
-       \\
-       \pr\big[N_{IR}(t+\delta)&\equals N_{IR}(t)+1\big] &\equals& \gamma \, I(t) \delta + o(\delta).
-     \end{aligned}
+\begin{aligned}
+  \pr\big[N_{SI}(t+\delta)&\equals N_{SI}(t)+1\big] &\equals& \beta \, S(t)\, I(t) / N\, \delta + o(\delta),
+  \\
+  \pr\big[N_{IR}(t+\delta)&\equals N_{IR}(t)+1\big] &\equals& \gamma \, I(t) \delta + o(\delta).
+\end{aligned}
 $$
 
 - For $k=1,2,...$, by discretizing this CTMC with small time step $\delta$, we can derive a numerical solution with the state variables $\tilde S(k\delta)$, $\tilde I(k\delta)$, $\tilde R(k\delta)$:
@@ -515,8 +515,7 @@ Let's look at outbreak of measles in the town of Consett in England in 1948:
 
 ```{r meas-data1}
 library(tidyverse)
-read_csv(paste0("https://kingaa.github.io/sbied/stochsim/", 
-  "Measles_Consett_1948.csv")) |> 
+read_csv("Measles_Consett_1948.csv") |> 
   select(week,reports=cases) -> meas
 meas |> as.data.frame() |> head(n=3)
 ```

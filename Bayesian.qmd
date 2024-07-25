@@ -12,9 +12,7 @@ params:
   prefix: bayesian
 ---
 
-|                                                                       |     |
-|:-----------------------------------|:----------------------------------:|
-| Bayesian inference slides \| [PDF](slides/bayes/main.pdf) \|           |     |
-| **R** script for Bayesian inference \| [**R**](slides/bayes/main.R) \| |     |
-
-------------------------------------------------------------------------
+| &nbsp;                              | &nbsp;                                                                                     |
+|-------------------------------------|--------------------------------------------------------------------------------------------|
+| Lecture slides                      | [PDF](slides/bayes/main.pdf)|
+| **R** script for Bayesian inference | [**R**](slides/bayes/main.R)|

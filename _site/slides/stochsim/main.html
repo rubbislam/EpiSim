@@ -251,6 +251,8 @@ MathJax = {
 <ul>
 <li><p>We develop deterministic and stochastic representations of a susceptible-infected-recovered (SIR) system, a fundamental class of models for disease transmission dynamics.</p></li>
 <li><p>We set up notation applicable to general compartment models <span class="citation" data-cites="Breto2009">(<a href="#ref-Breto2009" role="doc-biblioref">Bretó et al. 2009</a>)</span>. </p></li>
+</ul>
+<ul>
 <li><p>We suppose that each arrow has an associated rate, so here there is a rate <span class="math inline">\(\mu_{SI}(t)\)</span> at which individuals in <span class="math inline">\(S\)</span> transition to <span class="math inline">\(I\)</span>, and <span class="math inline">\(\mu_{IR}\)</span> at which individuals in <span class="math inline">\(I\)</span> transition to <span class="math inline">\(R\)</span>.</p></li>
 <li><p>To account for demography (births/deaths/migration) we allow the possibility of a source and sink compartment, which is not usually represented on the flow diagram. We write <span class="math inline">\(\mu_{BS}\)</span> for a rate of births into <span class="math inline">\(S\)</span>, and denote mortality rates by <span class="math inline">\(\mu_{SD}\)</span>, <span class="math inline">\(\mu_{ID}\)</span>, <span class="math inline">\(\mu_{RD}\)</span>.</p></li>
 <li><p>The rates may be either constant or time-varying.</p></li>
@@ -286,7 +288,7 @@ MathJax = {
    I(t) &amp;= I(0) + N_{SI}(t) &amp;- N_{IR}(t) \\
    R(t) &amp;= R(0) &amp;+ N_{IR}(t)
 \end{aligned}
-    \end{equation*}\]</span></p></li>
+\end{equation*}\]</span></p></li>
 <li><p>These equations represent <em>conservation of individuals</em> or <em>what goes in must come out</em>.</p></li>
 </ul>
 <!-- # A deterministic interpretation -->
@@ -333,13 +335,13 @@ MathJax = {
 \end{aligned}
 \end{equation*}\]</span>
 </div><div class="column" style="width:60%;">
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/det-skel_dd6eabb23b74b4f6127d0f6d6ad2573f">
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/det-skel_841531935e8a095a3f1e4735e6666c12">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Csnippet</span>(<span class="st">"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">        DS = -Beta*S*I/N;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">        DI = Beta*S*I/N - I*Gamma;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">        DR = I*Gamma;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">        "</span>) <span class="ot">-&gt;</span> sir_det_skel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">  DS = -Beta*S*I/N;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">  DI = Beta*S*I/N - I*Gamma;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">  DR = I*Gamma;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>) <span class="ot">-&gt;</span> sir_det_skel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -414,11 +416,11 @@ MathJax = {
 <li>When referring the counting and its corresponding probability in <a href="#tbl-stochproc">Table&nbsp;1</a>, it is obvious that we can derive a continuous time Markov chain (CTMC) for the SIR model:</li>
 </ul>
 <p><span class="math display">\[
-     \begin{aligned}
-       \pr\big[N_{SI}(t+\delta)&amp;\equals N_{SI}(t)+1\big] &amp;\equals&amp; \beta \, S(t)\, I(t) / N\, \delta + o(\delta),
-       \\
-       \pr\big[N_{IR}(t+\delta)&amp;\equals N_{IR}(t)+1\big] &amp;\equals&amp; \gamma \, I(t) \delta + o(\delta).
-     \end{aligned}
+\begin{aligned}
+  \pr\big[N_{SI}(t+\delta)&amp;\equals N_{SI}(t)+1\big] &amp;\equals&amp; \beta \, S(t)\, I(t) / N\, \delta + o(\delta),
+  \\
+  \pr\big[N_{IR}(t+\delta)&amp;\equals N_{IR}(t)+1\big] &amp;\equals&amp; \gamma \, I(t) \delta + o(\delta).
+\end{aligned}
 \]</span></p>
 <ul>
 <li>For <span class="math inline">\(k=1,2,...\)</span>, by discretizing this CTMC with small time step <span class="math inline">\(\delta\)</span>, we can derive a numerical solution with the state variables <span class="math inline">\(\tilde S(k\delta)\)</span>, <span class="math inline">\(\tilde I(k\delta)\)</span>, <span class="math inline">\(\tilde R(k\delta)\)</span>:</li>
@@ -610,12 +612,11 @@ MathJax = {
 <!-- The town had population of 38820, with 737 births over the course of the year. -->
 <!-- \framebreak -->
 <!-- We download the data and examine them: -->
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/meas-data1_32b45c99be7ce4ec67afbae6d5803826">
+<div class="cell" data-layout-align="center" data-hash="tmp//cache/meas-data1_70595bf4ce8452984c59e6f4b4c4f79d">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="fu">paste0</span>(<span class="st">"https://kingaa.github.io/sbied/stochsim/"</span>, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Measles_Consett_1948.csv"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(week,<span class="at">reports=</span>cases) <span class="ot">-&gt;</span> meas</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>meas <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"Measles_Consett_1948.csv"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(week,<span class="at">reports=</span>cases) <span class="ot">-&gt;</span> meas</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>meas <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> week reports
     1       0

@@ -12,21 +12,21 @@ params:
   prefix: iterated
 ---
 
-|     |     |
-|:----|:---:|
-| Lecture slides \| [PDF](slides/mif/main.pdf) \|
-| Reference Recording (2020,2021) \| [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) \|
-| Quiz \| [PDF](slides/mif/quiz.pdf) \|
-| **R** script for the lesson \| [**R**](slides/mif/main.R) \|
-| Workflow slides \| [PDF](slides/mif/workflow.pdf) \|
-| **R** script for the workflow \| [**R**](slides/mif/workflow.R) \|
-| Windows-safe **R** script for the lesson \| [**R**](slides/mif/main_win.R) \|
-| Supplement: Tuning IF2 \| [HTML](slides/mif/if2_settings.html) \|
-| Worked solution to Exercise 4.1 \| [HTML](slides/mif/Q_fit_seir.html) \|
-| Worked solution to Exercise 4.2 \| [HTML](slides/mif/Q_fit_all.html) \|
-| Worked solution to Exercise 4.4 \| [HTML](slides/mif/Q_check_code.html) \|
+| &nbsp;                            | &nbsp;                                                                                     |
+|-----------------------------------|--------------------------------------------------------------------------------------------|
+| Lecture slides | [PDF](slides/mif/main.pdf) |
+| Reference Recording (2020,2021) | [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) |
+| Quiz | [PDF](slides/mif/quiz.pdf) |
+| **Measles** data for the lesson   | [data](slides/pfilter/model_measSIR.R)|
+| **Measles** SIR model for the lesson   | [model](slides/stochsim/Measles_Consett_1948.csv)|
+| **R** script for the lesson | [**R**](slides/mif/main.R) |
+| Workflow slides | [PDF](slides/mif/workflow.pdf) |
+| **R** script for the workflow | [**R**](slides/mif/workflow.R) |
+| Windows-safe **R** script for the lesson | [**R**](slides/mif/main_win.R) |
+| Supplement: Tuning IF2 | [HTML](slides/mif/if2_settings.html) |
+| Worked solution to Exercise 4.1 | [HTML](slides/mif/Q_fit_seir.html) |
+| Worked solution to Exercise 4.2 | [HTML](slides/mif/Q_fit_all.html) |
 
-------------------------------------------------------------------------
 
 <iframe width="0" height="0">
 

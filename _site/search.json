@@ -4,14 +4,14 @@
     "href": "simulation.html",
     "title": "Simulation of stochastic dynamic models",
     "section": "",
-    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020)\nVideo (98 min)\n\n\nQuiz\nPDF\n\n\nR script for the lesson\nR\n\n\nWorked solutions to the Exercises\nHTML"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020)\nVideo (98 min)\n\n\nQuiz\nPDF\n\n\nMeasles data for the lesson\ndata\n\n\nR script for the lesson\nR\n\n\nWorked solutions to the Exercises\nHTML"
   },
   {
     "objectID": "iterated.html",
     "href": "iterated.html",
     "title": "Iterated filtering: principles and practice",
     "section": "",
-    "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021) | Video (110 min) |\n\n\n\nQuiz | PDF |\n\n\n\nR script for the lesson | R |\n\n\n\nWorkflow slides | PDF |\n\n\n\nR script for the workflow | R |\n\n\n\nWindows-safe R script for the lesson | R |\n\n\n\nSupplement: Tuning IF2 | HTML |\n\n\n\nWorked solution to Exercise 4.1 | HTML |\n\n\n\nWorked solution to Exercise 4.2 | HTML |\n\n\n\nWorked solution to Exercise 4.4 | HTML |"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (110 min)\n\n\nQuiz\nPDF\n\n\nMeasles data for the lesson\ndata\n\n\nMeasles SIR model for the lesson\nmodel\n\n\nR script for the lesson\nR\n\n\nWorkflow slides\nPDF\n\n\nR script for the workflow\nR\n\n\nWindows-safe R script for the lesson\nR\n\n\nSupplement: Tuning IF2\nHTML\n\n\nWorked solution to Exercise 4.1\nHTML\n\n\nWorked solution to Exercise 4.2\nHTML"
   },
   {
     "objectID": "instruction.html",
@@ -60,14 +60,14 @@
     "href": "case study.html",
     "title": "Case study: Meta population modelling",
     "section": "",
-    "text": "Meta-population slides | PDF |\n\n\n\nR script for Meta-population | R |"
+    "text": "Meta-population slides\nPDF\n\n\nSpanish Flu data for the lesson\ndata\n\n\nR script for the lesson\nR"
   },
   {
     "objectID": "Bayesian.html",
     "href": "Bayesian.html",
     "title": "Bayesian statistics and PMCMC in pomp",
     "section": "",
-    "text": "Bayesian inference slides | PDF |\n\n\n\nR script for Bayesian inference | R |"
+    "text": "Lecture slides\nPDF\n\n\nR script for Bayesian inference\nR"
   },
   {
     "objectID": "index.html",
@@ -116,13 +116,13 @@
     "href": "introduction.html",
     "title": "Introduction to Simulation-based Inference for Epidemiological Dynamics",
     "section": "",
-    "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021,2022) | Video (50 min) |\n\n\n\nAnother example (Ricker model)| HTML |"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021,2022)\nVideo (50 min)\n\n\nAnother example (Ricker model)\nHTML"
   },
   {
     "objectID": "likelihood.html",
     "href": "likelihood.html",
     "title": "Likelihood-based inference for POMP models",
     "section": "",
-    "text": "Lecture slides | PDF |\n\n\n\nReference Recording (2020,2021) | Video (112 min) |\n\n\n\nQuiz | PDF |\n\n\n\nR script for the lesson | R |\n\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models | HTML |\n\n\n\nSupplement: Monte Carlo Methods | PDF |\n\n\n\nSupplement: Likelihood by direct simulation: Consett measles example | HTML |\n\n\n\nSupplement: Standard errors via the observed Fisher information | HTML |\n\n\n\nSupplement: Bootstrap methods | HTML |\n\n\n\nSupplement: Direct maximization of the particle filter likelihood | HTML |\n\n\n\nWorked solution to Exercise 3.1 | HTML |\n\n\n\nWorked solution to Exercise 3.2 | HTML |\n\n\n\nWorked solution to Exercise 3.3 | HTML |"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (112 min)\n\n\nQuiz\nPDF\n\n\nMeasles data for the lesson\ndata\n\n\nMeasles SIR model for the lesson\nmodel\n\n\nR script for the lesson\nR\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models\nHTML\n\n\nSupplement: Monte Carlo Methods\nPDF\n\n\nSupplement: Likelihood by direct simulation: Consett measles example\nHTML\n\n\nSupplement: Standard errors via the observed Fisher information\nHTML\n\n\nSupplement: Bootstrap methods\nHTML\n\n\nSupplement: Direct maximization of the particle filter likelihood\nHTML\n\n\nWorked solution to Exercise 3.1\nHTML\n\n\nWorked solution to Exercise 3.2\nHTML\n\n\nWorked solution to Exercise 3.3\nHTML"
   }
 ]

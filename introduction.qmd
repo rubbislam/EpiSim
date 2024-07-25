@@ -12,15 +12,12 @@ params:
   prefix: intro
 ---
 
-------------------------------------------------------------------------
 
-|                                                                                                                                       |     |
-|:-----------------------------------|:----------------------------------:|
-| Lecture slides \| [PDF](slides/intro/main.pdf) \|                                                                               |     |
-| Reference Recording (2020,2021,2022) \| [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) \| |     |
-| Another example (Ricker model)\| [HTML](slides/intro/ricker.html) \|                                                            |     |
-
-------------------------------------------------------------------------
+| &nbsp;                               | &nbsp;                                                                                     |
+|--------------------------------------|--------------------------------------------------------------------------------------------|
+| Lecture slides                       | [PDF](slides/intro/main.pdf)                                                               |
+| Reference Recording (2020,2021,2022) | [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) |
+| Another example (Ricker model)       | [HTML](slides/intro/ricker.html)                                                           | 
 
 <iframe width="0" height="0">
 

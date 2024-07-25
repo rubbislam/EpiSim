@@ -12,9 +12,10 @@ params:
   prefix: metapop
 ---
 
-|     |     |
-|:----|:---:|
-| Meta-population slides \| [PDF](slides/metapop/main.pdf) \|
-| **R** script for Meta-population \| [**R**](slides/metapop/main.R) \|
 
-------------------------------------------------------------------------
+| &nbsp;                            | &nbsp;                                                 |
+|-----------------------------------|--------------------------------------------------------|
+| Meta-population slides            | [PDF](slides/metapop/main.pdf)|
+| **Spanish Flu** data for the lesson | [data](slides/metapop/1918flu_3cities_1wave.csv)|
+| **R** script for the lesson       | [**R**](slides/metapop/main.R)|
+
