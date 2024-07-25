@@ -1,0 +1,20 @@
+---
+title: "Bayesian statistics and PMCMC in pomp"
+author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+output:
+  html_document:
+    toc: no
+    includes:
+      after_body:
+      - ../_includes/supp_bottom.html
+      - ../_includes/license.html
+params:
+  prefix: metapop
+---
+
+|                                                                       |     |
+|:-----------------------------------|:----------------------------------:|
+| pmcmc slides \| [PDF](slides/pmcmc/main.pdf) \|           |     |
+| **R** script for Meta-population \| [**R**](slides/pmcmc/main.R) \| |     |
+
+------------------------------------------------------------------------
