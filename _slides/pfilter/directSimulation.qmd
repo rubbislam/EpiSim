@@ -3,14 +3,15 @@ title: |
   Likelihood by direct simulation:
   Consett measles example
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
-    toc: yes
+    toc: no
     toc_depth: 4
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:
@@ -41,7 +42,7 @@ We're going to demonstrate what happens when we attempt to compute the likelihoo
 First, let's reconstruct the toy SIR model we were working with.
 
 ```{r model-construct}
-source("https://kingaa.github.io/sbied/pfilter/model.R")
+source("model_measSIR.R")
 ```
 
 Let's generate a large number of simulated trajectories at some particular point in parameter space.

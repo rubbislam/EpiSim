@@ -1,18 +1,27 @@
 params <-
 list(prefix = "pfnm")
 
+## ----prelims,include=FALSE,cache=FALSE----------------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(pomp)
 set.seed(594709947L)
 
-source("https://kingaa.github.io/sbied/pfilter/model.R")
 
+## ----model-construct----------------------------------------------------------------------------------------------------------------------------
+source("model_measSIR.R")
+
+
+## ----partrans-----------------------------------------------------------------------------------------------------------------------------------
 measSIR |>
-  pomp(partrans=parameter_trans(log=c("Beta","mu_IR"),logit=c("rho","eta")),
-    paramnames=c("Beta","mu_IR","eta","rho")) -> measSIR
+  pomp(partrans=parameter_trans(log=c("Beta","Gamma"),logit=c("Rho","Eta")),
+    paramnames=c("Beta","Gamma","Eta","Rho")) -> measSIR
 
+
+## ----ref-params---------------------------------------------------------------------------------------------------------------------------------
 coef(measSIR)
 
+
+## ----like-optim-1-------------------------------------------------------------------------------------------------------------------------------
 neg.ll <- function (par, est) {
   try(
     freeze({
@@ -28,9 +37,11 @@ neg.ll <- function (par, est) {
 }
 
 
+
+## ----like-optim-2-eval,include=FALSE------------------------------------------------------------------------------------------------------------
 stew(file="like_optim2.rda",{
   ## use Nelder-Mead with fixed RNG seed
-  estpars <- c("Beta","mu_IR","eta")
+  estpars <- c("Beta","Gamma","Eta")
   optim(
     par=coef(measSIR,estpars,transform=TRUE),
     est=estpars,
@@ -49,9 +60,14 @@ stew(file="like_optim2.rda",{
   ll <- logmeanexp(lls,se=TRUE); ll
 })
 
+
+## ----sims1--------------------------------------------------------------------------------------------------------------------------------------
 mle |> simulate(nsim=10,format="data.frame",include.data=TRUE) -> sims
 
+
+## ----sims1-plot,echo=F--------------------------------------------------------------------------------------------------------------------------
 sims |>
   ggplot(aes(x=week,y=reports,group=.id,color=.id=="data"))+
   guides(color="none")+
   geom_line()
+

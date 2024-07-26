@@ -214,7 +214,7 @@ MathJax = {
 <h2 class="anchored" data-anchor-id="the-likelihood-for-a-deterministic-latent-process">The likelihood for a deterministic latent process</h2>
 <p>Suppose that the latent process is deterministic. In our POMP notation, this lets us write the latent process as <span class="math display">\[X_{n}=x_n(\theta),\]</span> so that the latent process is a known and non-random function of <span class="math inline">\(\theta\)</span> for each <span class="math inline">\(n\)</span>. What is the likelihood?</p>
 <p>Since the probability of the observation, <span class="math inline">\(Y_n\)</span>, depends only on <span class="math inline">\(X_n\)</span> and <span class="math inline">\(\theta\)</span>, and since, in particular <span class="math inline">\(Y_{m}\)</span> and <span class="math inline">\(Y_{n}\)</span> are independent given <span class="math inline">\(X_{m}\)</span> and <span class="math inline">\(X_{n}\)</span>, we have <span class="math display">\[\mathcal{L}(\theta) = \prod_{n} f_{Y_n|X_n}\big(y_n^*;x_n(\theta),\theta\big)\]</span> or <span class="math display">\[\ell(\theta) = \log\mathcal{L}(\theta) = \sum_{n} \log f_{Y_n|X_n}\big(y_n^*;x_n(\theta),\theta\big).\]</span> The following diagram illustrates this.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/det/cache/det-example_09dc61b9b200f38a5b96af1c4289726d">
+<div class="cell" data-layout-align="center" data-hash="tmp/det/cache/det-example_b58b71123edee6e4d5e6d5d769536114">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -229,6 +229,26 @@ MathJax = {
 </section>
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

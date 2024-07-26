@@ -1,13 +1,14 @@
 ---
 title: "Likelihood-based inference for POMP models"
 author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+format: 
+  html: 
+    include-after-body:
+        - _slides/_includes/lesson_bottom.html
+        - _slides/_includes/license.html
 output:
   html_document:
     toc: no
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 params:
   prefix: likelihood
 ---

@@ -160,7 +160,6 @@ MathJax = {
   <ul class="collapse">
   <li><a href="#assessing-and-improving-algorithmic-parameters" id="toc-assessing-and-improving-algorithmic-parameters" class="nav-link" data-scroll-target="#assessing-and-improving-algorithmic-parameters">Assessing and improving algorithmic parameters</a></li>
   </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -262,16 +261,32 @@ v_{1,n}^2 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 \\
 <section id="assessing-and-improving-algorithmic-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="assessing-and-improving-algorithmic-parameters">Assessing and improving algorithmic parameters</h3>
 <p>Develop your own heuristics to try to improve the performance of <code>mif2</code> in the <a href="./main.pdf">Consett measles example</a>. Specifically, for a global optimization procedure carried out using random starting values in the specified box, let <span class="math inline">\(\hat\Theta_{\mathrm{max}}\)</span> be a random Monte Carlo estimate of the resulting MLE, and let <span class="math inline">\(\hat\theta\)</span> be the true (unknown) MLE. We can define the maximization error in the log likelihood to be <span class="math display">\[e = \ell(\hat\theta) - E[\ell(\hat\Theta_{\mathrm{max}})].\]</span> We cannot directly evaluate <span class="math inline">\(e\)</span>, since there is also Monte Carlo error in our evaluation of <span class="math inline">\(\ell(\theta)\)</span>, but we can compute it up to a known precision. Plan some code to estimates <span class="math inline">\(e\)</span> for a search procedure using a computational effort of <span class="math inline">\(JM=2\times 10^7\)</span>, comparable to that used for each mif computation in the global search. Discuss the strengths and weaknesses of this quantification of optimization success. See if you can choose <span class="math inline">\(J\)</span> and <span class="math inline">\(M\)</span> subject to this constraint, together with choices of <code>rw.sd</code> and the cooling rate, <code>cooling.fraction.50</code>, to arrive at a quantifiably better procedure. Computationally, you may not be readily able to run your full procedure, but you could run a quicker version of it.</p>
-<hr>
-</section>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

@@ -2,15 +2,17 @@
 title: |
   Implementing a POMP model from scratch
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
     toc: yes
     toc_depth: 4
     includes:
       include-in-header: "../_includes/header.tex"
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 csl: ../jss.csl
 params:
   prefix: ricker

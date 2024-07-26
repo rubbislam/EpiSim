@@ -215,23 +215,23 @@ MathJax = {
 <ol type="1">
 <li>The particle filter gives us a stochastic estimate of the likelihood. We can reduce this variability by making <span class="math inline">\(J\)</span> larger, but we cannot make it go away. If we use a deterministic optimizer (i.e., one that assumes the objective function is evaluated deterministically), then we must control this variability somehow. For example, we can fix the seed of the pseudo-random number generator (RNG). A side effect will be that the objective function becomes jagged, marked by many small local knolls and pits. Alternatively, we can use a stochastic optimization algorithm, with which we will be only be able to obtain estimates of our MLE. This is the trade-off between a rough and a noisy objective function.</li>
 <li>Because the particle filter gives us just an estimate of the likelihood and no information about the derivative, we must choose an algorithm that is “derivative-free”. There are many such, but we can expect less efficiency than would be possible with derivative information. Note that finite differencing is not an especially promising way of constructing derivatives. The price would be a <span class="math inline">\(n\)</span>-fold increase in cpu time, where <span class="math inline">\(n\)</span> is the dimension of the parameter space. Also, since the likelihood is noisily estimated, we would expect the derivative estimates to be even noisier.</li>
-<li>Finally, the parameters set we must optimize over is not unbounded. In particular, we must have <span class="math inline">\(\beta,\mu_{IR}&gt;0\)</span> and <span class="math inline">\(0&lt;\rho,\eta&lt;1\)</span>. We must therefore select an optimizer that can solve this <em>constrained maximization problem</em>, or find some of way of turning it into an unconstrained maximization problem. For example, we can transform the parameters onto a scale on which there are no constraints.</li>
+<li>Finally, the parameters set we must optimize over is not unbounded. In particular, we must have <span class="math inline">\(\beta,\gamma&gt;0\)</span> and <span class="math inline">\(0&lt;\rho,\eta&lt;1\)</span>. We must therefore select an optimizer that can solve this <em>constrained maximization problem</em>, or find some of way of turning it into an unconstrained maximization problem. For example, we can transform the parameters onto a scale on which there are no constraints.</li>
 </ol>
 <p>Let’s try this out on the toy SIR model we were working with, reconstructed as follows.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/model-construct_a7eb9254f86974729b59f2a258e9106a">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/sbied/pfilter/model.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/model-construct_f4050fc99cfc8f4c222b65f43a5ee0fc">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model_measSIR.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Here, let’s opt for deterministic optimization of a rough function. We’ll try using <code>optim</code>’s default method: Nelder-Mead, fixing the random-number generator seed to make the likelihood calculation deterministic. Since Nelder-Mead is an unconstrained optimizer, we must transform the parameters. The following introduces such a transformation into the <code>pomp</code> object.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/partrans_b1ea7bfaf42a135629fa371c1c984d46">
+<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/partrans_46202fce7a099f1cdadb3b791f015dbc">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">partrans=</span><span class="fu">parameter_trans</span>(<span class="at">log=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_IR"</span>),<span class="at">logit=</span><span class="fu">c</span>(<span class="st">"rho"</span>,<span class="st">"eta"</span>)),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_IR"</span>,<span class="st">"eta"</span>,<span class="st">"rho"</span>)) <span class="ot">-&gt;</span> measSIR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(<span class="at">partrans=</span><span class="fu">parameter_trans</span>(<span class="at">log=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"Gamma"</span>),<span class="at">logit=</span><span class="fu">c</span>(<span class="st">"Rho"</span>,<span class="st">"Eta"</span>)),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"Gamma"</span>,<span class="st">"Eta"</span>,<span class="st">"Rho"</span>)) <span class="ot">-&gt;</span> measSIR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can think of the parameters that we furnished when creating <code>measSIR</code> as a kind of reference point in parameter space.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/ref-params_65e20bd92a4ae787bfa45f315cec0be9">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(measSIR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   Beta   mu_IR     rho       k     eta       N 
+<pre><code>   Beta   Gamma     Rho       k     Eta       N 
 1.5e+01 5.0e-01 5.0e-01 1.0e+01 6.0e-02 3.8e+04 </code></pre>
 </div>
 </div>
@@ -252,9 +252,9 @@ MathJax = {
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we call <code>optim</code> to minimize this function:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/like-optim-2_d5e7e1f8a74bde1c476d271a2d335b67">
+<div class="cell" data-layout-align="center" data-hash="tmp/pfnm/cache/like-optim-2_6eab92248eb12fcc728fcf330f94a317">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## use Nelder-Mead with fixed RNG seed</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>estpars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"mu_IR"</span>,<span class="st">"eta"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>estpars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Beta"</span>,<span class="st">"Gamma"</span>,<span class="st">"Eta"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">optim</span>(</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">par=</span><span class="fu">coef</span>(measSIR,estpars,<span class="at">transform=</span><span class="cn">TRUE</span>),</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">est=</span>estpars,</span>
@@ -294,12 +294,32 @@ MathJax = {
 </section>
 <section id="exercise-fit-more-parameters." class="level4">
 <h4 class="anchored" data-anchor-id="exercise-fit-more-parameters.">Exercise: Fit more parameters.</h4>
-<p>Try to estimate <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\mu_{IR}\)</span>, <span class="math inline">\(\rho\)</span>, and <span class="math inline">\(\eta\)</span> simultaneously. Does your estimate of <span class="math inline">\(\mathfrak{R}_0\)</span> differ from the value we computed from the raw data? How do you interpret the agreement or lack thereof?</p>
+<p>Try to estimate <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, <span class="math inline">\(\rho\)</span>, and <span class="math inline">\(\eta\)</span> simultaneously. Does your estimate of <span class="math inline">\(\mathfrak{R}_0\)</span> differ from the value we computed from the raw data? How do you interpret the agreement or lack thereof?</p>
 
 
 </section>
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

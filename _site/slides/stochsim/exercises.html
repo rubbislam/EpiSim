@@ -184,12 +184,23 @@ MathJax = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#exercise-little-o-notation" id="toc-exercise-little-o-notation" class="nav-link active" data-scroll-target="#exercise-little-o-notation">Exercise: Little o notation</a></li>
-  <li><a href="#exercise-euler-versus-gillespie" id="toc-exercise-euler-versus-gillespie" class="nav-link" data-scroll-target="#exercise-euler-versus-gillespie">Exercise: Euler versus Gillespie</a></li>
-  <li><a href="#exercise-explore-the-sir-model" id="toc-exercise-explore-the-sir-model" class="nav-link" data-scroll-target="#exercise-explore-the-sir-model">Exercise: Explore the SIR model</a></li>
+  <li><a href="#exercise-little-o-notation" id="toc-exercise-little-o-notation" class="nav-link active" data-scroll-target="#exercise-little-o-notation">Exercise: Little o notation</a>
+  <ul class="collapse">
+  <li><a href="#question" id="toc-question" class="nav-link" data-scroll-target="#question">Question:</a></li>
+  </ul></li>
+  <li><a href="#exercise-euler-versus-gillespie" id="toc-exercise-euler-versus-gillespie" class="nav-link" data-scroll-target="#exercise-euler-versus-gillespie">Exercise: Euler versus Gillespie</a>
+  <ul class="collapse">
+  <li><a href="#question-1" id="toc-question-1" class="nav-link" data-scroll-target="#question-1">Question:</a></li>
+  </ul></li>
+  <li><a href="#exercise-explore-the-sir-model" id="toc-exercise-explore-the-sir-model" class="nav-link" data-scroll-target="#exercise-explore-the-sir-model">Exercise: Explore the SIR model</a>
+  <ul class="collapse">
+  <li><a href="#question-2" id="toc-question-2" class="nav-link" data-scroll-target="#question-2">Question</a></li>
+  </ul></li>
   <li><a href="#pro-tip" id="toc-pro-tip" class="nav-link" data-scroll-target="#pro-tip">Pro-tip</a></li>
-  <li><a href="#exercise-the-seir-model" id="toc-exercise-the-seir-model" class="nav-link" data-scroll-target="#exercise-the-seir-model">Exercise: The SEIR model</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#exercise-the-seir-model" id="toc-exercise-the-seir-model" class="nav-link" data-scroll-target="#exercise-the-seir-model">Exercise: The SEIR model</a>
+  <ul class="collapse">
+  <li><a href="#question-3" id="toc-question-3" class="nav-link" data-scroll-target="#question-3">Question:</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -223,17 +234,31 @@ MathJax = {
 <p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,cGFyYW1zIDwtCmxpc3QocHJlZml4ID0gImV4ZXJjaXNlcyIpCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KI3wgaW5jbHVkZTogZmFsc2UKc291cmNlKCJtYWluLlIiKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQptZWFzU0lSIHw+CiAgc2ltdWxhdGUocGFyYW1zPWMoQmV0YT0yNSxHYW1tYT0wLjUsUmhvPTAuNSxrPTEwLEV0YT0wLjAzLE49MzgwMDApLAogICAgbnNpbT0yMCxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKSB8PgogIGdncGxvdChhZXMoeD13ZWVrLHk9cmVwb3J0cyxncm91cD0uaWQsY29sb3I9LmlkPT0iZGF0YSIpKSsKICBnZW9tX2xpbmUoKSArCiAgZ3VpZGVzKGNvbG9yPSJub25lIikKCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbWVhc1NJUiB8PgogIHNpbXVsYXRlKHBhcmFtcz1jKEJldGE9NDAsR2FtbWE9MC41LFJobz0wLjUsaz0xMCxFdGE9MC4wMyxOPTM4MDAwKSwKICAgIG5zaW09MjAsZm9ybWF0PSJkYXRhLmZyYW1lIixpbmNsdWRlLmRhdGE9VFJVRSkgfD4KICBnZ3Bsb3QoYWVzKHg9d2Vlayx5PXJlcG9ydHMsZ3JvdXA9LmlkLGNvbG9yPS5pZD09ImRhdGEiKSkrCiAgZ2VvbV9saW5lKCkrCiAgZ3VpZGVzKGNvbG9yPSJub25lIikKCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbWVhc1NJUiB8PgogIHNpbXVsYXRlKHBhcmFtcz1jKEJldGE9NDAsR2FtbWE9MC4yLFJobz0wLjUsaz0xMCxFdGE9MC4wMyxOPTM4MDAwKSwKICAgIG5zaW09MjAsZm9ybWF0PSJkYXRhLmZyYW1lIixpbmNsdWRlLmRhdGE9VFJVRSkgfD4KICBnZ3Bsb3QoYWVzKHg9d2Vlayx5PXJlcG9ydHMsZ3JvdXA9LmlkLGNvbG9yPS5pZD09ImRhdGEiKSkrCiAgZ2VvbV9saW5lKCkrCiAgZ3VpZGVzKGNvbG9yPSJub25lIikKCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbWVhc1NJUiB8PgogIHNpbXVsYXRlKHBhcmFtcz1jKEJldGE9MTUsR2FtbWE9MC41LFJobz0wLjUsaz0xMCxFdGE9MC4wNixOPTM4MDAwKSwKICAgIG5zaW09MjAsZm9ybWF0PSJkYXRhLmZyYW1lIixpbmNsdWRlLmRhdGE9VFJVRSkgfD4KICBnZ3Bsb3QoYWVzKHg9d2Vlayx5PXJlcG9ydHMsZ3JvdXA9LmlkLGNvbG9yPS5pZD09ImRhdGEiKSkrCiAgZ2VvbV9saW5lKCkrCiAgZ3VpZGVzKGNvbG9yPSJub25lIikKCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0Kc2Vpcl9zdGVwIDwtIENzbmlwcGV0KCIKICBkb3VibGUgZE5fU0UgPSByYmlub20oUywxLWV4cCgtQmV0YSpJL04qZHQpKTsKICBkb3VibGUgZE5fRUkgPSByYmlub20oRSwxLWV4cCgtU2lnbWEqZHQpKTsKICBkb3VibGUgZE5fSVIgPSByYmlub20oSSwxLWV4cCgtR2FtbWEqZHQpKTsKICBTIC09IGROX1NFOwogIEUgKz0gZE5fU0UgLSBkTl9FSTsKICBJICs9IGROX0VJIC0gZE5fSVI7CiAgUiArPSBkTl9JUjsKICBIICs9IGROX0lSOwoiKQoKCnNlaXJfaW5pdCA8LSBDc25pcHBldCgiCiAgUyA9IG5lYXJieWludChFdGEqTik7CiAgRSA9IDA7CiAgSSA9IDE7CiAgUiA9IG5lYXJieWludCgoMS1FdGEpKk4pOwogIEggPSAwOwoiKQoKbWVhc1NJUiB8PgogIHBvbXAoCiAgICBycHJvY2Vzcz1ldWxlcihzZWlyX3N0ZXAsZGVsdGEudD0xLzcpLAogICAgcmluaXQ9c2Vpcl9pbml0LAogICAgcGFyYW1uYW1lcz1jKCJOIiwiQmV0YSIsIlNpZ21hIiwiR2FtbWEiLCJSaG8iLCJFdGEiKSwKICAgIHN0YXRlbmFtZXM9YygiUyIsIkUiLCJJIiwiUiIsIkgiKQogICkgLT4gbWVhc1NFSVIKCgojIyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbWVhc1NFSVIgfD4KICBzaW11bGF0ZShwYXJhbXM9YyhCZXRhPTMwLFNpZ21hPTAuOCxHYW1tYT0xLjMsUmhvPTAuNSxrPTEwLEV0YT0wLjA2LE49MzgwMDApLAogICAgbnNpbT0yMCxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKSB8PgogIGdncGxvdChhZXMoeD13ZWVrLHk9cmVwb3J0cyxncm91cD0uaWQsY29sb3I9LmlkPT0iZGF0YSIpKSsKICBnZW9tX2xpbmUoKSsKICBndWlkZXMoY29sb3I9Im5vbmUiKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQptZWFzU0VJUiB8PiAKICBzaW11bGF0ZShwYXJhbXM9YyhCZXRhPTQwLFNpZ21hPTAuOCxHYW1tYT0xLjMsUmhvPTAuNSxrPTEwLEV0YT0wLjA2LE49MzgwMDApLAogIG5zaW09MjAsZm9ybWF0PSJkYXRhLmZyYW1lIixpbmNsdWRlLmRhdGE9VFJVRSkgfD4KICBnZ3Bsb3QoYWVzKHg9d2Vlayx5PXJlcG9ydHMsZ3JvdXA9LmlkLGNvbG9yPS5pZD09ImRhdGEiKSkrCiAgZ2VvbV9saW5lKCkrCiAgZ3VpZGVzKGNvbG9yPSJub25lIikKCg==" download="exercises.R">provided as a script</a>.</p>
 <section id="exercise-little-o-notation" class="level2">
 <h2 class="anchored" data-anchor-id="exercise-little-o-notation">Exercise: Little o notation</h2>
+<section id="question" class="level3">
+<h3 class="anchored" data-anchor-id="question">Question:</h3>
+<p>What is the link between little <span class="math inline">\(o\)</span> notation and the derivative? Explain why <span class="math display">\[f(x+\delta)=f(x)+ \delta g(x) + o(\delta)\]</span> is the same statement as <span class="math display">\[ \frac{df}{dx} = g(x).\]</span> What considerations might help you choose which of these notations to use?</p>
+<hr>
 <p>We combine the equation <span class="math display">\[f(x+\delta)=f(x)+\delta\,g(x)+o(\delta),\]</span> with the definition that <span class="math inline">\(h(\delta)=o(\delta)\)</span> means <span class="math inline">\(\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0\)</span>. Rearranging, we see that <span class="math display">\[\lim_{\delta\to 0} \frac{f(x+\delta)-f(x)}{\delta} = g(x)\]</span> which, by definition, implies that <span class="math inline">\(df(x)/dx = g(x)\)</span>.</p>
 <p>Little-o notation is compact, and so is useful for simplifying complex expressions.</p>
 <hr>
 </section>
+</section>
 <section id="exercise-euler-versus-gillespie" class="level2">
 <h2 class="anchored" data-anchor-id="exercise-euler-versus-gillespie">Exercise: Euler versus Gillespie</h2>
+<section id="question-1" class="level3">
+<h3 class="anchored" data-anchor-id="question-1">Question:</h3>
+<p>A widely used, exact simulation method for continuous time Markov chains is . We do not put much emphasis on Gillespie’s algorithm here. Why? When would you prefer an implementation of Gillespie’s algorithm to an Euler solution?</p>
+<hr>
 <p>For reasons explained in the lesson, scientific conclusions may not hinge on the extent to which numerical approximations agree with exact solutions of the equations defining a continuous-time model. For constant-rate compartmental models, the Gillespie algorithm gives an exact solution at the expense of additional computation time. We may on occastion want an exact simulator, and in that case Gillespie can be used.</p>
 <hr>
 </section>
+</section>
 <section id="exercise-explore-the-sir-model" class="level2">
 <h2 class="anchored" data-anchor-id="exercise-explore-the-sir-model">Exercise: Explore the SIR model</h2>
+<section id="question-2" class="level3">
+<h3 class="anchored" data-anchor-id="question-2">Question</h3>
+<p>Explore the SIR model: Fiddle with the parameters to see if you can find a model for which the data are a more plausible realization.</p>
+<hr>
 <p>In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out after only a few weeks. To attempt to simulate data for which the observed data is a more plausible realization, we might try increasing the force of infection.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/exercises/cache/unnamed-chunk-2_e8e0c98b7081d07a42685ec5c7bce768">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
@@ -300,15 +325,20 @@ MathJax = {
 </div>
 <hr>
 </section>
+</section>
 <section id="pro-tip" class="level2">
 <h2 class="anchored" data-anchor-id="pro-tip">Pro-tip</h2>
-<p><em><strong>When using </strong>Rstudio<strong>, turn off automatic save and restore of global workspace.</strong></em> By default, when you quit a session, <strong>R</strong> asks whether to save the global session to a hidden file, <code>.RData</code>, in the current working directory. Presumably because this behavior is annoying, <strong>Rstudio</strong>, by default, answers the “Do you want to save to <code>.RData</code>?” question for you, in the affirmative. Also by default, and with only an easily overlooked message in the startup banner, <strong>R</strong> loads such a file, re-establishing the workspace at the start of a session. Because the file is hidden, and the behavior is easy to forget about, this can lead to errors that are difficult to track down. [For example, situations where different results are obtained on different machines during a large parallel computation, despite all the code being precisely the same!] For these reasons, it’s best to put a stop to all of this skulduggery.</p>
+<p><em><strong>When using</strong> Rstudio<strong>, turn off automatic save and restore of global workspace.</strong></em> By default, when you quit a session, <strong>R</strong> asks whether to save the global session to a hidden file, <code>.RData</code>, in the current working directory. Presumably because this behavior is annoying, <strong>Rstudio</strong>, by default, answers the “Do you want to save to <code>.RData</code>?” question for you, in the affirmative. Also by default, and with only an easily overlooked message in the startup banner, <strong>R</strong> loads such a file, re-establishing the workspace at the start of a session. Because the file is hidden, and the behavior is easy to forget about, this can lead to errors that are difficult to track down. [For example, situations where different results are obtained on different machines during a large parallel computation, despite all the code being precisely the same!] For these reasons, it’s best to put a stop to all of this skulduggery.</p>
 <p>To do so, go to the “Tools” menu in <strong>Rstudio</strong> and select “Global Options”. Make sure the “Restore .RData into workspace at startup” box is unticked. For good measure, set the “Save workspace to .RData on exit” to “Never”.</p>
 <p>If you ever do want to save your workspace, it’s as easy as <code>save.image(file="&lt;filename&gt;.rda")</code>; restoring the file is a matter of <code>load("&lt;filename&gt;.rda")</code>. When you do this, the file you create will be visible, as of course it should be since you gain nothing by hiding things from yourself!</p>
 <hr>
 </section>
 <section id="exercise-the-seir-model" class="level2">
 <h2 class="anchored" data-anchor-id="exercise-the-seir-model">Exercise: The SEIR model</h2>
+<section id="question-3" class="level3">
+<h3 class="anchored" data-anchor-id="question-3">Question:</h3>
+<p>Modify the codes to construct a object containing the Consett measles data and an SEIR model. Perform simulations as above and adjust parameters to get a sense of whether improvement is possible by including a latent period.</p>
+<hr>
 <p>The existing code may be modified as follows:</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/exercises/cache/unnamed-chunk-6_f93c9cb8d0c77aa1686d0d1082af5e0e">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>seir_step <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
@@ -371,15 +401,32 @@ MathJax = {
 </div>
 </div>
 </div>
-<hr>
+
+
 </section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
-
-
 </section>
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

@@ -1,13 +1,14 @@
 ---
 title: "Case study: Meta population modelling"
 author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+format: 
+  html: 
+    include-after-body:
+        - _slides/_includes/lesson_bottom.html
+        - _slides/_includes/license.html
 output:
   html_document:
     toc: no
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 params:
   prefix: metapop
 ---
@@ -17,5 +18,5 @@ params:
 |-----------------------------------|--------------------------------------------------------|
 | Meta-population slides            | [PDF](slides/metapop/main.pdf)|
 | **Spanish Flu** data for the lesson | [data](slides/metapop/1918flu_3cities_1wave.csv)|
-| **R** script for the lesson       | [**R**](slides/metapop/main.R)|
+| **R** script for the meta-population model | [**R**](slides/metapop/main.R)|
 

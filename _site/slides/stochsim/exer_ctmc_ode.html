@@ -152,7 +152,6 @@ MathJax = {
   <ul>
   <li><a href="#optional-exercise-from-markov-chain-to-ode" id="toc-optional-exercise-from-markov-chain-to-ode" class="nav-link active" data-scroll-target="#optional-exercise-from-markov-chain-to-ode">Optional Exercise: From Markov chain to ODE</a></li>
   <li><a href="#optional-exercise-sde-version-of-the-sir-model" id="toc-optional-exercise-sde-version-of-the-sir-model" class="nav-link" data-scroll-target="#optional-exercise-sde-version-of-the-sir-model">Optional Exercise: SDE version of the SIR model</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -207,15 +206,31 @@ MathJax = {
 \end{aligned}
 \]</span> where <span class="math inline">\(Z_{SI}\)</span> and <span class="math inline">\(Z_{IR}\)</span> are independent standard normal random variables. The values of <span class="math inline">\(\sigma_{SI}\)</span> and <span class="math inline">\(\sigma_{IR}\)</span> can be chosen to reflect different sources of stochasticity. For example, setting them to the square root of the preceeding term, e.g., <span class="math inline">\(\sigma_{SI}=\sqrt{\mu_{SI}(t)\,\tilde S(\tilde t_k) - \mu_{IR}(t)\,\tilde I(\tilde t_k)}\)</span>, reflects demographic stochasticity.</p>
 <p>Difficulties that might arise with non-negativity constraints can occurr when the left hand side of the equations become negative, e.g., because of large intervals <span class="math inline">\(\delta\)</span>, high rates <span class="math inline">\(\mu\)</span>, large values of the normal random variables <span class="math inline">\(Z\)</span> or because of large values of <span class="math inline">\(\tilde S(\tilde t_{k+1}) + \tilde I(\tilde t_{k+1})\)</span>. One practical way to deal with this issue is to truncate negative numbers to zero.</p>
-<hr>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
 </section>
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

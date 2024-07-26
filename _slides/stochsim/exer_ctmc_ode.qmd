@@ -1,14 +1,15 @@
 ---
 title: "Simulation of stochastic dynamic models: Optional exercises"
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
     toc: no
     toc_depth: 4
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:
@@ -55,6 +56,3 @@ where $Z_{SI}$ and $Z_{IR}$ are independent standard normal random variables. Th
 
 Difficulties that might arise with non-negativity constraints can occurr when the left hand side of the equations become negative, e.g., because of large intervals $\delta$, high rates $\mu$, large values of the normal random variables $Z$ or because of large values of $\tilde S(\tilde t_{k+1}) + \tilde I(\tilde t_{k+1})$. One practical way to deal with this issue is to truncate negative numbers to zero.
 
-----------------------------
-
-## References

@@ -1,14 +1,15 @@
 ---
 title: Standard errors via the observed Fisher information
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
-    toc: yes
+    toc: no
     toc_depth: 4
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:

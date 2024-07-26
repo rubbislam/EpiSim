@@ -1,6 +1,11 @@
 ---
 title: Tuning IF2
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
     toc: yes
@@ -9,10 +14,6 @@ output:
     highlight: haddock
     number_sections: FALSE
     df_print: kable
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:
@@ -119,6 +120,3 @@ Discuss the strengths and weaknesses of this quantification of optimization succ
 See if you can choose $J$ and $M$ subject to this constraint, together with choices of `rw.sd` and the cooling rate, `cooling.fraction.50`, to arrive at a quantifiably better procedure.
 Computationally, you may not be readily able to run your full procedure, but you could run a quicker version of it.
 
---------------------------
-
-## References

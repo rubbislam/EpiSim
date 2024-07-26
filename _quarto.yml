@@ -36,9 +36,6 @@ format:
     theme: cosmo
     css: styles.css
     toc: true
-    include-after-body:
-        - _slides/_includes/supp_bottom.html
-        - _slides/_includes/license.html
     include-in-header:
       text: |
         <script>

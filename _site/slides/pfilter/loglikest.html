@@ -252,11 +252,11 @@ MathJax = {
 <section id="solution" class="level2">
 <h2 class="anchored" data-anchor-id="solution">Solution</h2>
 <p>First, we construct the model we’ve been exploring in the Lesson.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/loglikest/cache/model-construct_e650c8fe616135c2c6114adb99986363">
+<div class="cell" data-layout-align="center" data-hash="tmp/loglikest/cache/model-construct_29220153a5439cffbdbaaefeb05191df">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1221234211</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/sbied/pfilter/model.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model_measSIR.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now, borrowing code from the notes, we run a few particle filtering operations.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/loglikest/cache/pfilter-loglik_989bd5391b80f1c06c6533159194fd55">
@@ -275,8 +275,8 @@ MathJax = {
 -130.096408    2.731696 </code></pre>
 </div>
 </div>
-<p>This took 4.9 seconds.</p>
-<p>Since the time taken is approximately linear in <code>NP</code> and <code>NREPS</code>, we get a formula (for this machine) of <span class="math display">\[\mbox{Runtime}\approx \frac{ \mathrm{NP}}{10^{4}} \times \frac{\mathrm{NREPS}}{ 10} \times 4.9\mbox{sec}.\]</span></p>
+<p>This took 4.5 seconds.</p>
+<p>Since the time taken is approximately linear in <code>NP</code> and <code>NREPS</code>, we get a formula (for this machine) of <span class="math display">\[\mbox{Runtime}\approx \frac{ \mathrm{NP}}{10^{4}} \times \frac{\mathrm{NREPS}}{ 10} \times 4.5\mbox{sec}.\]</span></p>
 <p>We can use this formula to select <code>NP</code> and <code>NREPS</code> to give an appropriate runtime.</p>
 </section>
 <section id="effects-of-np-and-nreps-on-estimates" class="level2">
@@ -369,7 +369,7 @@ MathJax = {
         est
     }
 }
-&lt;bytecode: 0x12f351b68&gt;
+&lt;bytecode: 0x1223ffe78&gt;
 &lt;environment: namespace:pomp&gt;</code></pre>
 </div>
 </div>
@@ -403,7 +403,6 @@ MathJax = {
 <p>These results suggest that <code>logmeanexp</code> standard errors are reasonably reliable when the standard deviation of the individual log likelihood estimates is around one, but should be interpreted cautiously if that standard deviation is much larger.</p>
 <hr>
 <p>Produced in R version 4.3.2.</p>
-<hr>
 </section>
 <section id="references" class="level2">
 
@@ -417,6 +416,26 @@ MathJax = {
 Bérard J, Del Moral P, Doucet A (2014). <span>“A Lognormal Central Limit Theorem for Particle Approximations of Normalizing Constants.”</span> <em>Electron J Probab</em>, <strong>19</strong>(94), 1–28.
 </div>
 </div></section></div></main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

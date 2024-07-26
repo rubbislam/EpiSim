@@ -1,11 +1,14 @@
 params <-
 list(prefix = "loglikest")
 
+## ----model-construct----------------------------------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(pomp)
 set.seed(1221234211)
-source("https://kingaa.github.io/sbied/pfilter/model.R")
+source("model_measSIR.R")
 
+
+## ----pfilter-loglik-----------------------------------------------------------------------------------------------------------------------------
 NP <- 10000
 NREPS <- 10
 timer <- system.time(
@@ -22,6 +25,8 @@ logmeanexp(ll,se=TRUE)
 
 
 
+
+## ----comps-eval,include=FALSE-------------------------------------------------------------------------------------------------------------------
 bake(file="loglikest-pfilter.rds",{
   if (file.exists("CLUSTER.R")) {
     source("CLUSTER.R")
@@ -47,6 +52,8 @@ bake(file="loglikest-pfilter.rds",{
   lls
 }) -> lls
 
+
+## ----plots--------------------------------------------------------------------------------------------------------------------------------------
 expand_grid(
   NREPS=c(10,100,1000),
   lls
@@ -60,6 +67,8 @@ expand_grid(
 
 
 
+
+## ----test-plot,fig.dim=c(7,7),out.width="90%"---------------------------------------------------------------------------------------------------
 sd1 <- replicate(10000,logmeanexp(rnorm(10,mean=0,sd=1),se=TRUE))
 sd5 <- replicate(10000,logmeanexp(rnorm(10,mean=0,sd=5),se=TRUE))
 m1 <- mean(sd1[1,])
@@ -73,3 +82,4 @@ hist(t1,breaks=50,xlim=x_range,main="Error in SE units, with sd=1")
 abline(v=c(-2,2),col="red")
 hist(t5,breaks=50,xlim=x_range,main="Error in SE units, with sd=5")
 abline(v=c(-2,2),col="red")
+

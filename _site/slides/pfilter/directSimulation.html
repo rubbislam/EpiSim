@@ -211,8 +211,8 @@ MathJax = {
 <hr>
 <p>We’re going to demonstrate what happens when we attempt to compute the likelihood for the Consett measles outbreak data by direct simulation from the full latent state distribution.</p>
 <p>First, let’s reconstruct the toy SIR model we were working with.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/direct/cache/model-construct_6e927ab36a6228cb10a2c7adafb2a218">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://kingaa.github.io/sbied/pfilter/model.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="tmp/direct/cache/model-construct_43943850500b7c2d734622f06a345996">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model_measSIR.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s generate a large number of simulated trajectories at some particular point in parameter space.</p>
 <div class="cell" data-layout-align="center" data-hash="tmp/direct/cache/bbs-mc-like-2_d5bd2047583ad7f8129482f140e8cf25">
@@ -269,6 +269,26 @@ MathJax = {
 
 
 </main> <!-- /main -->
+<div style="padding-top: 1em; padding-bottom: 2em;">
+<hr width="100%">
+<a href="#top">Top of this document</a><br>
+<a href="#" onclick="goBack()">Previous page</a><br>
+<a href="../../index.html">Course homepage</a><br>
+<a href="https://github.com/rubbislam/EpiSim">Source code</a><br>
+</div>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+<div id="license" style="width: 42em; padding-bottom: 10px;">
+<img style="float: left; vertical-align: text-bottom; padding: 5px;" src="https://kingaa.github.io/sbied/graphics/cc-by-nc.png" alt="CC-BY_NC">
+<p>
+  Licensed under the <a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>.
+  Please share and remix noncommercially, mentioning its origin.
+</p>
+</div>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

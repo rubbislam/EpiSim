@@ -1,13 +1,15 @@
 ---
 title: The difference between a likelihood slice and a profile
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
     toc: no
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
+    toc_depth: 4
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:

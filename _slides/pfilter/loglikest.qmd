@@ -3,14 +3,15 @@ title: |
   Worked solution to exercise 3.3:
   Precision and accuracy of particle-filter likelihood estimates
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
-    toc: yes
-    toc_depth: 3
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
+    toc: no
+    toc_depth: 4
 bibliography: ../sbied.bib
 csl: ../jss.csl
 params:
@@ -49,7 +50,7 @@ First, we construct the model we've been exploring in the Lesson.
 library(tidyverse)
 library(pomp)
 set.seed(1221234211)
-source("https://kingaa.github.io/sbied/pfilter/model.R")
+source("model_measSIR.R")
 ```
 
 Now, borrowing code from the notes, we run a few particle filtering operations.
@@ -204,7 +205,5 @@ These results suggest that `logmeanexp` standard errors are reasonably reliable 
 -----------------------------------
 
 Produced in R version `r getRversion()`.
-
---------------------------
 
 ## References

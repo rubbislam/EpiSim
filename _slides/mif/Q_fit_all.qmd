@@ -1,13 +1,15 @@
 ---
 title: "Exercise: Fitting all parameters of the SIR model"
 author: Aaron A. King and Edward L. Ionides
+format: 
+  html: 
+    include-after-body:
+        - ../_includes/supp_bottom.html
+        - ../_includes/license.html
 output:
   html_document:
-    toc: no
-    includes:
-      after_body:
-      - ../_includes/supp_bottom.html
-      - ../_includes/license.html
+    toc: yes
+    toc_depth: 2
 params:
   prefix: Q_fit_all
 ---
