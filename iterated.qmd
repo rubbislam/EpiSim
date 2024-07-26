@@ -17,8 +17,8 @@ params:
 | Lecture slides | [PDF](slides/mif/main.pdf) |
 | Reference Recording (2020,2021) | [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) |
 | Quiz | [PDF](slides/mif/quiz.pdf) |
-| **Measles** data for the lesson   | [data](slides/pfilter/model_measSIR.R)|
-| **Measles** SIR model for the lesson   | [model](slides/stochsim/Measles_Consett_1948.csv)|
+| **Measles** data for the lesson   | [data](slides/pfilter/Measles_Consett_1948.csv)|
+| **Measles** SIR model for the lesson   | [model](slides/stochsim/model_measSIR.R)|
 | **R** script for the lesson | [**R**](slides/mif/main.R) |
 | Workflow slides | [PDF](slides/mif/workflow.pdf) |
 | **R** script for the workflow | [**R**](slides/mif/workflow.R) |

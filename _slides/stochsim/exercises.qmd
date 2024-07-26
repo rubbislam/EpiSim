@@ -16,7 +16,7 @@ params:
   prefix: exercises
 ---
 
---------------------
+------------------------------------------------------------------------
 
 The **R** codes for this document are `r xfun::embed_file("exercises.R",text="provided as a script")`.
 
@@ -33,29 +33,45 @@ source("main.R")
 
 ## Exercise: Little o notation
 
-We combine the equation 
-$$f(x+\delta)=f(x)+\delta\,g(x)+o(\delta),$$
-with the definition that $h(\delta)=o(\delta)$ means $\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0$.
-Rearranging, we see that
-$$\lim_{\delta\to 0} \frac{f(x+\delta)-f(x)}{\delta} = g(x)$$
-which, by definition, implies that $df(x)/dx = g(x)$.
+### Question:
+
+What is the link between little $o$ notation and the derivative?
+  Explain why
+  $$f(x+\delta)=f(x)+ \delta g(x) + o(\delta)$$
+  is the same statement as
+  $$ \frac{df}{dx} = g(x).$$
+  What considerations might help you choose which of these notations to use?
+
+------------------------------------------------------------------------
+
+We combine the equation $$f(x+\delta)=f(x)+\delta\,g(x)+o(\delta),$$ with the definition that $h(\delta)=o(\delta)$ means $\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0$. Rearranging, we see that $$\lim_{\delta\to 0} \frac{f(x+\delta)-f(x)}{\delta} = g(x)$$ which, by definition, implies that $df(x)/dx = g(x)$.
 
 Little-o notation is compact, and so is useful for simplifying complex expressions.
 
---------------
+------------------------------------------------------------------------
 
 ## Exercise: Euler versus Gillespie
 
-For reasons explained in the lesson, scientific conclusions may not hinge on the extent to which numerical approximations agree with exact solutions of the equations defining a continuous-time model.
-For constant-rate compartmental models, the Gillespie algorithm gives an exact solution at the expense of additional computation time.
-We may on occastion want an exact simulator, and in that case Gillespie can be used.
+### Question: 
 
--------------
+A widely used, exact simulation method for continuous time Markov chains is  \link{https://en.wikipedia.org/wiki/Gillespie_algorithm}{Gillespie's algorithm}.
+  We do not put much emphasis on Gillespie's algorithm here. Why? When would you prefer an implementation of Gillespie's algorithm to an Euler solution?
+  
+------------------------------------------------------------------------
+
+For reasons explained in the lesson, scientific conclusions may not hinge on the extent to which numerical approximations agree with exact solutions of the equations defining a continuous-time model. For constant-rate compartmental models, the Gillespie algorithm gives an exact solution at the expense of additional computation time. We may on occastion want an exact simulator, and in that case Gillespie can be used.
+
+------------------------------------------------------------------------
 
 ## Exercise: Explore the SIR model
 
-In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out after only a few weeks. 
-To attempt to simulate data for which the observed data is a more plausible realization, we might try increasing the force of infection.
+### Question
+
+Explore the SIR model: Fiddle with the parameters to see if you can find a model for which the data are a more plausible realization.
+
+------------------------------------------------------------------------
+
+In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out after only a few weeks. To attempt to simulate data for which the observed data is a more plausible realization, we might try increasing the force of infection.
 
 ```{r}
 measSIR |>
@@ -77,8 +93,7 @@ measSIR |>
   guides(color="none")
 ```
 
-While this increases the overall incidence, the epidemic is now peaking too quickly.
-To counteract this, we might try reducing the recovery rate.
+While this increases the overall incidence, the epidemic is now peaking too quickly. To counteract this, we might try reducing the recovery rate.
 
 ```{r}
 measSIR |>
@@ -89,8 +104,7 @@ measSIR |>
   guides(color="none")
 ```
 
-Additionally, we might have a look at the effects of changing the initial susceptible fraction, $\eta$.
-Indeed, it seems that it is possible to get something not too awful to contemplate by just manipulating $\eta$:
+Additionally, we might have a look at the effects of changing the initial susceptible fraction, $\eta$. Indeed, it seems that it is possible to get something not too awful to contemplate by just manipulating $\eta$:
 
 ```{r}
 measSIR |>
@@ -101,30 +115,25 @@ measSIR |>
   guides(color="none")
 ```
 
-
--------------
+------------------------------------------------------------------------
 
 ## Pro-tip
 
-***When using **Rstudio**, turn off automatic save and restore of global workspace.***
-By default, when you quit a session, **R** asks whether to save the global session to a hidden file, `.RData`, in the current working directory.
-Presumably because this behavior is annoying, **Rstudio**, by default, answers the "Do you want to save to `.RData`?" question for you, in the affirmative.
-Also by default, and with only an easily overlooked message in the startup banner, **R** loads such a file, re-establishing the workspace at the start of a session.
-Because the file is hidden, and the behavior is easy to forget about, this can lead to errors that are difficult to track down.
-[For example, situations where different results are obtained on different machines during a large parallel computation, despite all the code being precisely the same!]
-For these reasons, it's best to put a stop to all of this skulduggery.
+***When using** Rstudio**, turn off automatic save and restore of global workspace.*** By default, when you quit a session, **R** asks whether to save the global session to a hidden file, `.RData`, in the current working directory. Presumably because this behavior is annoying, **Rstudio**, by default, answers the "Do you want to save to `.RData`?" question for you, in the affirmative. Also by default, and with only an easily overlooked message in the startup banner, **R** loads such a file, re-establishing the workspace at the start of a session. Because the file is hidden, and the behavior is easy to forget about, this can lead to errors that are difficult to track down. \[For example, situations where different results are obtained on different machines during a large parallel computation, despite all the code being precisely the same!\] For these reasons, it's best to put a stop to all of this skulduggery.
 
-To do so, go to the "Tools" menu in **Rstudio** and select "Global Options".
-Make sure the "Restore .RData into workspace at startup" box is unticked.
-For good measure, set the "Save workspace to .RData on exit" to "Never".
+To do so, go to the "Tools" menu in **Rstudio** and select "Global Options". Make sure the "Restore .RData into workspace at startup" box is unticked. For good measure, set the "Save workspace to .RData on exit" to "Never".
 
-If you ever do want to save your workspace, it's as easy as `save.image(file="<filename>.rda")`;
-restoring the file is a matter of `load("<filename>.rda")`.
-When you do this, the file you create will be visible, as of course it should be since you gain nothing by hiding things from yourself!
+If you ever do want to save your workspace, it's as easy as `save.image(file="<filename>.rda")`; restoring the file is a matter of `load("<filename>.rda")`. When you do this, the file you create will be visible, as of course it should be since you gain nothing by hiding things from yourself!
 
-------------------------------
+------------------------------------------------------------------------
 
 ## Exercise: The SEIR model
+
+### Question:
+
+Modify the codes to construct a \code{pomp} object containing the Consett measles data and an SEIR model. Perform simulations as above and adjust parameters to get a sense of whether improvement is possible by including a latent period.
+
+------------------------------------------------------------------------
 
 The existing code may be modified as follows:
 
@@ -169,7 +178,7 @@ measSEIR |>
   guides(color="none")
 ```
 
-Again one can increase the force of infection: 
+Again one can increase the force of infection:
 
 ```{r}
 measSEIR |> 
@@ -180,6 +189,6 @@ measSEIR |>
   guides(color="none")
 ```
 
-----------------------------
+------------------------------------------------------------------------
 
 ## References
