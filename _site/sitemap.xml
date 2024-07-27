@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://rubbislam.quarto.pub/episim/simulation.html</loc>
-    <lastmod>2024-07-26T05:06:47.273Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rubbislam.quarto.pub/episim/iterated.html</loc>
-    <lastmod>2024-07-26T05:06:46.568Z</lastmod>
-  </url>
-  <url>
     <loc>https://rubbislam.quarto.pub/episim/instruction.html</loc>
-    <lastmod>2024-07-26T05:06:45.830Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rubbislam.quarto.pub/episim/case study.html</loc>
-    <lastmod>2024-07-26T05:06:32.298Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rubbislam.quarto.pub/episim/Bayesian.html</loc>
-    <lastmod>2024-07-26T05:06:31.971Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rubbislam.quarto.pub/episim/index.html</loc>
-    <lastmod>2024-07-26T05:06:38.975Z</lastmod>
-  </url>
-  <url>
-    <loc>https://rubbislam.quarto.pub/episim/introduction.html</loc>
-    <lastmod>2024-07-26T05:06:46.215Z</lastmod>
+    <lastmod>2024-07-27T05:52:52.251Z</lastmod>
   </url>
   <url>
     <loc>https://rubbislam.quarto.pub/episim/likelihood.html</loc>
-    <lastmod>2024-07-26T05:06:46.935Z</lastmod>
+    <lastmod>2024-07-27T05:53:03.728Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/introduction.html</loc>
+    <lastmod>2024-07-27T05:52:59.007Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/case study.html</loc>
+    <lastmod>2024-07-27T05:53:09.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/Bayesian.html</loc>
+    <lastmod>2024-07-27T05:53:07.094Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/index.html</loc>
+    <lastmod>2024-07-27T05:52:49.680Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/iterated.html</loc>
+    <lastmod>2024-07-27T05:53:00.991Z</lastmod>
+  </url>
+  <url>
+    <loc>https://rubbislam.quarto.pub/episim/simulation.html</loc>
+    <lastmod>2024-07-27T05:53:05.290Z</lastmod>
   </url>
 </urlset>

@@ -19,8 +19,8 @@ params:
 | Lecture slides | [PDF](slides/pfilter/main.pdf) |
 | Reference Recording (2020,2021) | [Video (112 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8) |
 | Quiz | [PDF](slides/pfilter/quiz.pdf) |
-| **Measles** data for the lesson | [data](slides/pfilter/model_measSIR.R)|
-| **Measles** SIR model for the lesson | [model](slides/stochsim/Measles_Consett_1948.csv)|
+| **Data** for the lesson | [data](slides/pfilter/Measles_Consett_1948.csv)|
+| **R** script for the Measles SIR model | [**R**](slides/stochsim/model_measSIR.R)|
 | **R** script for the lesson | [**R**](slides/pfilter/main.R) |
 | Supplement: Deterministic latent process models and their role in benchmarking POMP models | [HTML](slides/pfilter/deterministic.html) |
 | Supplement: Monte Carlo Methods | [PDF](slides/pfilter/monteCarlo.pdf) |

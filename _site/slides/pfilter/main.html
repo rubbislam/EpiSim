@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="author" content="Spencer J. Fox">
 <meta name="author" content="Zian (Larry) Zhuang">
 
-<title>EpiSim - Lesson 3: Likelihood-based inference for POMP models</title>
+<title>Lesson 3: Likelihood-based inference for POMP models – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,7 +25,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -61,6 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -101,7 +102,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -110,6 +117,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -134,8 +142,35 @@ MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -144,55 +179,55 @@ MathJax = {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">EpiSim</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../instruction.html" rel="" target="">
- <span class="menu-text">Instruction</span></a>
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../introduction.html" rel="" target="">
- <span class="menu-text">Introduction</span></a>
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../simulation.html" rel="" target="">
- <span class="menu-text">Simulation</span></a>
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../likelihood.html" rel="" target="">
- <span class="menu-text">Likelihood</span></a>
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../iterated.html" rel="" target="">
- <span class="menu-text">Iterated filtering</span></a>
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
- <span class="menu-text">Bayesian</span></a>
+    <a class="nav-link" href="../../Bayesian.html"> 
+<span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../case study.html" rel="" target="">
- <span class="menu-text">Case study</span></a>
+    <a class="nav-link" href="../../case study.html"> 
+<span class="menu-text">Case study</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -228,7 +263,9 @@ MathJax = {
   </div>
   
 
+
 </header>
+
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
@@ -430,7 +467,7 @@ MathJax = {
 <!--     time series. -->
 <p><strong>Spoiler Alert</strong>: This section serves to introduce the concept of the <strong>particle filter</strong> and the approach of <a href="monteCarlo.pdf">Monte Carlo integration</a> by first proposing an intuitive and a simpler method. This simple method usually <strong>does NOT work</strong> on anything but <strong>very short</strong> time series.</p>
 <ol type="1">
-<li>Let’s rewrite the likelihood integral using an equivalent factorization. As an exercise, you could check how the equivalence of <a href="#eq-L1">Equation&nbsp;1</a> and <a href="#eq-L2">Equation&nbsp;2</a> follows algebraically from the Markov property and the definition of conditional density.</li>
+<li>Let’s rewrite the likelihood integral using an equivalent factorization. As an exercise, you could check how the equivalence of <a href="#eq-L1" class="quarto-xref">Equation&nbsp;1</a> and <a href="#eq-L2" class="quarto-xref">Equation&nbsp;2</a> follows algebraically from the Markov property and the definition of conditional density.</li>
 </ol>
 <p><span id="eq-L2"><span class="math display">\[
     \begin{aligned}
@@ -439,7 +476,7 @@ MathJax = {
     \end{aligned}
 \tag{2}\]</span></span></p>
 <ol start="2" type="1">
-<li>Notice, using the representation in <a href="#eq-L2">Equation&nbsp;2</a>, that the likelihood can be written as an expectation, <span class="math display">\[\begin{equation*}
+<li>Notice, using the representation in <a href="#eq-L2" class="quarto-xref">Equation&nbsp;2</a>, that the likelihood can be written as an expectation, <span class="math display">\[\begin{equation*}
   \lik(\theta) = \E \left[ \prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X_n; \theta) \right],
      \end{equation*}\]</span> where the expectation is taken with <span class="math inline">\(X_{0:N}\sim f_{X_{0:N}}(x_{0:N};\theta)\)</span>.</li>
 <li>Now, using a <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers">law of large numbers</a>, we can approximate an expectation by the average of a Monte Carlo sample. Thus, <span class="math display">\[
@@ -538,7 +575,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <li>paying proper attention to the use of parallel random number generators (RNG).</li>
 </ol>
 <p>For example:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/parallel-setup_b275aa3082fbf42199348db397fcbfae">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(foreach)            <span class="co"># load foreach</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doFuture)           <span class="co"># load doFuture (and future)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)          <span class="co"># using multiple R sessions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -548,7 +585,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <section id="particle-filtering-in-pomp" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="particle-filtering-in-pomp">Particle filtering in pomp</h2>
 <p>Recall the measles-outbreak example and the stochastic SIR model that we construct in the previous lesson, we can using the <code>pfilter</code> function to compute the likelihood using particle filtering method, given the parameters chosen by looking at simulations. <code>R</code> code to build the model is available <a href="model_measSIR.R">here</a>. We can execute this code by sourcing the file and check the parameters:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/model-construct_19ed004712d42a6d6845870935d84097">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model_measSIR.R"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>measSIR<span class="sc">@</span>params</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -557,7 +594,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 </div>
 </div>
 <p>In pomp, we can compute the likelihood using the particle filtering method, implemented by function <code>pfilter</code>. The argument <code>Np</code> assigns the number of particles used:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pfilter-1_ad65f3d119953872db939dde5a6edf7b">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pf <span class="ot">&lt;-</span> measSIR <span class="sc">|&gt;</span> <span class="fu">pfilter</span>(<span class="at">Np=</span><span class="dv">5000</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">logLik</span>(pf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -569,7 +606,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ol type="1">
 <li>Check the <code>rprocess</code> and the <code>rmeasure</code> by simulation, as shown in Lesson 2:</li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf-diagnostic-1_8cc558778a4440e3da9903f315fa874f">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>week,<span class="at">y=</span>reports,<span class="at">group=</span>.id,<span class="at">color=</span>.id<span class="sc">==</span><span class="st">"data"</span>)) <span class="sc">+</span></span>
@@ -577,7 +614,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pf-diagnostic-1-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/pf-diagnostic-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -587,7 +624,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 </ol>
 <div class="columns">
 <div class="column" style="width:40%;">
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf-diagnostic-2-1_8b2c5705e326dc60d3177a71abb04a15">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
@@ -596,11 +633,11 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <li><p>The log-likelihood of each observation conditioned on the preceding ones, <code>cond.logLik</code>.</p></li>
 </ul>
 </div><div class="column" style="width:60%;">
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf-diagnostic-2-2_6c27790706336f29a9adbb243e633fd8">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pf-diagnostic-2-2-1.png" class="img-fluid figure-img" width="1200"></p>
+<p><img src="tmp//figure/pf-diagnostic-2-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="1200"></p>
 </figure>
 </div>
 </div>
@@ -610,7 +647,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ol start="3" type="1">
 <li>The Monte Carlo variability of the likelihood:</li>
 </ol>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf-diagnostic-3_09451f43ff175be3631061583b579ed9">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span> (</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">.combine=</span>c, <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">652643293</span>)</span>
@@ -771,7 +808,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ul>
 <li>We first construct a data frame to explore the parameter slice, with <span class="math inline">\(40\times 3+40\times 3=240\)</span> rows:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/like-slice1_99023ff5f5833476e6a5826a2cd4652a">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">slice_design</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">center =</span> <span class="fu">coef</span>(measSIR),</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Beta =</span> <span class="fu">rep</span>(<span class="fu">seq</span>(<span class="at">from=</span><span class="dv">5</span>,<span class="at">to=</span><span class="dv">30</span>,<span class="at">length=</span><span class="dv">40</span>),<span class="at">each=</span><span class="dv">3</span>),</span>
@@ -786,7 +823,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ul>
 <li>We compute the likelihoods <span class="math inline">\(3\)</span> times for each combination (i.e., row) in <code>param_slice</code>:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/like-slice2_778b57eeeaaae021780599613a0acc0c">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(iterators)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span> (<span class="at">theta=</span><span class="fu">iter</span>(param_slice,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind, </span>
@@ -796,11 +833,11 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  theta</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> lik_slice</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/like-slice-plot_e8a1b2932679b05ff1045151624c812b">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/like-slice-plot-1.png" style="width:5in;height:2in" class="figure-img"></p>
+<p><img src="tmp//figure/like-slice-plot-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:5in;height:2in" data-fig-pos="h!"></p>
 </figure>
 </div>
 </div>
@@ -815,7 +852,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ul>
 <li>We first construct the parameters grid data frame <code>param_grid</code>, with <span class="math inline">\(40\times 3 \times 40\times 3=14,400\)</span> rows:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pfilter-grid1a_3eabf703d00dc803d8278ac2a5bd2a96">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand.grid</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Beta =</span> <span class="fu">rep</span>(<span class="fu">seq</span>(<span class="at">from=</span><span class="dv">10</span>,<span class="at">to=</span><span class="dv">30</span>,<span class="at">length=</span><span class="dv">40</span>), <span class="at">each=</span><span class="dv">3</span>),</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Gamma =</span> <span class="fu">rep</span>(<span class="fu">seq</span>(<span class="at">from=</span><span class="fl">0.4</span>,<span class="at">to=</span><span class="fl">1.5</span>,<span class="at">length=</span><span class="dv">40</span>), <span class="at">each=</span><span class="dv">3</span>),</span>
@@ -830,7 +867,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <ul>
 <li>We then compute likelihoods for each of the combinations:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pfilter-grid1b_807a57eaa8af6390056c305760e1bb8b">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span> (<span class="at">theta=</span><span class="fu">iter</span>(param_grid,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">421776444</span>)) <span class="sc">%dofuture%</span> {</span>
@@ -839,11 +876,11 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  theta</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> lik_grid</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pfilter-grid1-plot_79168d7e8f267680f34c9127e578728f">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pfilter-grid1-plot-1.png" style="width:4.8in;height:3.2in" class="figure-img"></p>
+<p><img src="tmp//figure/pfilter-grid1-plot-1.png" class="quarto-figure quarto-figure-center figure-img" style="width:4.8in;height:3.2in" data-fig-pos="h!"></p>
 </figure>
 </div>
 </div>
@@ -986,7 +1023,7 @@ w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
 <h1>References</h1>
 <section id="references-1" class="level2">
 <h2 class="anchored" data-anchor-id="references-1">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-Arulampalam2002" class="csl-entry" role="listitem">
 Arulampalam, M. S., S. Maskell, N. Gordon, and T. Clapp. 2002. <span>“A Tutorial on Particle Filters for Online Nonlinear, Non-<span>Gaussian</span> <span>Bayesian</span> Tracking.”</span> <em>IEEE Trans Signal Process</em> 50: 174–88. <a href="https://doi.org/10.1109/78.978374">https://doi.org/10.1109/78.978374</a>.
 </div>
@@ -1013,7 +1050,7 @@ Pawitan, Yudi. 2001. <em><span>I</span>n <span>A</span>ll <span>L</span>ikelihoo
 <li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
 <li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
 <li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
-<li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
+<li><p>Produced with R version 4.4.0 and pomp version 5.9.</p></li>
 <li><p>Compiled on 2024-07-24.</p></li>
 </ul>
 <p><a href="index.html">Back to Lesson</a></p>
@@ -1059,18 +1096,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1102,11 +1128,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1116,8 +1181,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1129,7 +1203,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1173,6 +1370,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1198,6 +1396,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1258,6 +1482,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

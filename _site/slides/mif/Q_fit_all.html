@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aaron A. King and Edward L. Ionides">
 
-<title>EpiSim - Exercise: Fitting all parameters of the SIR model</title>
+<title>Exercise: Fitting all parameters of the SIR model – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -34,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -80,7 +80,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -89,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -113,8 +120,35 @@ MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -123,55 +157,55 @@ MathJax = {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">EpiSim</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../instruction.html" rel="" target="">
- <span class="menu-text">Instruction</span></a>
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../introduction.html" rel="" target="">
- <span class="menu-text">Introduction</span></a>
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../simulation.html" rel="" target="">
- <span class="menu-text">Simulation</span></a>
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../likelihood.html" rel="" target="">
- <span class="menu-text">Likelihood</span></a>
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../iterated.html" rel="" target="">
- <span class="menu-text">Iterated filtering</span></a>
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
- <span class="menu-text">Bayesian</span></a>
+    <a class="nav-link" href="../../Bayesian.html"> 
+<span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../case study.html" rel="" target="">
- <span class="menu-text">Case study</span></a>
+    <a class="nav-link" href="../../case study.html"> 
+<span class="menu-text">Case study</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -219,7 +253,9 @@ MathJax = {
   </div>
   
 
+
 </header>
+
 
 <hr>
 <p><a href="./Q_fit_all.R"><strong>R codes for this document</strong></a></p>
@@ -234,7 +270,7 @@ MathJax = {
 <section id="setup" class="level3">
 <h3 class="anchored" data-anchor-id="setup">Setup</h3>
 <p>First, we set up the problem, loading packages, initializing a parallel environment, constructing our SIR model, and identifying the putative MLE. The pomp constructed by the <code>source</code> command below is named <code>measSIR</code>. We take for our putative MLE the point in our database with the highest measured likelihood.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/setup_c3eb51fd33a9933b8cd146fe7c980853">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(iterators)</span>
@@ -249,9 +285,8 @@ MathJax = {
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loglik,<span class="sc">-</span>loglik.se) <span class="ot">-&gt;</span> <span class="fu">coef</span>(measSIR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The putative MLE is</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/unnamed-chunk-1_f92e78a72145a829787cd583a9742d1b">
-<div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<div class="cell" data-layout-align="center">
+<table class="caption-top table table-sm table-striped small">
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">3.63</td>
@@ -274,13 +309,12 @@ MathJax = {
 </tbody>
 </table>
 </div>
-</div>
 </section>
 <section id="local-search" class="level3">
 <h3 class="anchored" data-anchor-id="local-search">Local search</h3>
 <p>We’ll begin, as in the <a href="../../index.html">Lesson</a>, by performing a local search with only <span class="math inline">\(N\)</span> fixed. The purpose of this is to evaluate the performance of the search algorithm, so that we can tune the algorithm’s parameters.</p>
 <p>Windows users, beware! The following triggers a C snippet compilation within a parallel block, which will not succeed on many Windows machines. See <a href="../misc/windows.html">this discussion</a> for an explanation of how to circumvent this problem.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/local_search_683a5f88c4ea18a448ad59139ac1bd9b">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,<span class="at">.combine=</span>c,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">482942941</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -297,7 +331,7 @@ MathJax = {
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> mifs_local</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We examine the traces of the IF2 runs:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/unnamed-chunk-2_c75b58aea98b0e396fcaca923a8d7494">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mifs_local <span class="sc">|&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">traces</span>() <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">melt</span>() <span class="sc">|&gt;</span></span>
@@ -309,14 +343,14 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>IF2 seems to be doing a reasonable job of increasing the likelihood, though there is some way yet to go. We note that <span class="math inline">\(k\)</span> is immediately decreased, giving the model more measurement error, with which to explain discrepancies between the process model and the data. Of course, to maximize the likelihood, <span class="math inline">\(k\)</span> should be as large as possible. It will be interesting to see what happens to the other parameters as IF2 tries to increase <span class="math inline">\(k\)</span>.</p>
 <p>We now evaluate the log likelihood at each of the resulting points.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/lik_local_636a63e91e7c18b4a005836da1e45bb5">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">mf=</span>mifs_local,<span class="at">.combine=</span>rbind,</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">908222057</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%dofuture%</span> {</span>
@@ -329,18 +363,18 @@ MathJax = {
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The above calculations took a total of 11&nbsp;s on 10&nbsp;cpus. What do they show us?</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/unnamed-chunk-3_126e3e5550546ba823302d153dc34d2c">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="sc">~</span>loglik<span class="sc">+</span>k<span class="sc">+</span>Beta<span class="sc">+</span>Eta<span class="sc">+</span>Rho<span class="sc">+</span>Gamma,<span class="at">data=</span>results,<span class="at">pch=</span><span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/unnamed-chunk-3-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>As usual, we store these results in a database.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/unnamed-chunk-4_748c7b0e1d913bc63a5718e21376ea97">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(results) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>loglik) <span class="sc">|&gt;</span></span>
@@ -348,7 +382,7 @@ MathJax = {
 </div>
 <p>Now we attempt a global search of the <span class="math inline">\(k\)</span>-<span class="math inline">\(\beta\)</span>-<span class="math inline">\(\rho\)</span>-<span class="math inline">\(\eta\)</span>-<span class="math inline">\(gamma\)</span> space.</p>
 <p>We set up a design of starting points. The <code>freeze</code> command is described <a href="../misc/bake.html">here</a>.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/global1_search_setup_74f1b57b4a31b888617c7117183e4543">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freeze</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif_design</span>(</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">5</span>,<span class="at">Rho=</span><span class="fl">0.2</span>,<span class="at">Eta=</span><span class="dv">0</span>,<span class="at">k=</span><span class="dv">1</span>,<span class="at">Gamma=</span><span class="fl">0.5</span>),</span>
@@ -359,12 +393,12 @@ MathJax = {
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>) <span class="ot">-&gt;</span> guesses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We will use one of our ‘mif2d_pomp’ objects in the following. We fix <span class="math inline">\(N\)</span> and <span class="math inline">\(\gamma\)</span>.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/unnamed-chunk-5_a02107d1eea89f08c211cc1d1f6b21b9">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mf1 <span class="ot">&lt;-</span> mifs_local[[<span class="dv">1</span>]]</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>fixed_params <span class="ot">&lt;-</span> <span class="fu">coef</span>(measSIR,<span class="fu">c</span>(<span class="st">"N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The following may look somewhat familar.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/global1_search_a44d6b35a972ce45bcb4b403f398819d">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">274481374</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -387,7 +421,7 @@ MathJax = {
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This global search from 500 starts took 2100&nbsp;s on 10&nbsp;cpus. We append the results to our database and have a look.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/global1_plot1_746caae20402734ffd59d8fbc339d511">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"fitall_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(results) <span class="sc">|&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.finite</span>(loglik)) <span class="sc">|&gt;</span></span>
@@ -406,7 +440,7 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/global1_plot1-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/global1_plot1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -425,7 +459,7 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/global1_plot1-2.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/global1_plot1-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -441,21 +475,21 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/global1_plot1-3.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/global1_plot1-3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>It does appear that our global search has improved the likelihood, at least in part by reducing <span class="math inline">\(k\)</span>. That is, by <em>increasing</em> the measurement error.</p>
 <p>Perhaps unsurprisingly, these poor-man’s profiles suggest there is a very flat ridge in the surface. We can see some of the tradeoffs involved with a scatterplot matrix. In the following, the results of our earlier fitting (where <span class="math inline">\(k=10\)</span>) are in blue; the new results are in red.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/global1_plot2_405f87c4f35a309b7cc5906d7b5c297f">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="sc">~</span>loglik<span class="sc">+</span>k<span class="sc">+</span>Beta<span class="sc">+</span>Eta<span class="sc">+</span>Rho<span class="sc">+</span>Gamma, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">cex=</span><span class="fl">0.3</span>,</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data=</span><span class="fu">filter</span>(all,loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">10</span>),</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col=</span><span class="fu">ifelse</span>(<span class="fu">round</span>(all<span class="sc">$</span>k,<span class="dv">2</span>)<span class="sc">==</span><span class="dv">10</span>,<span class="st">"blue"</span>,<span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/global1_plot2-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/global1_plot2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -464,7 +498,7 @@ MathJax = {
 <section id="a-profile-calculation" class="level3">
 <h3 class="anchored" data-anchor-id="a-profile-calculation">A profile calculation</h3>
 <p>Because this ridge appears flat in the <span class="math inline">\(\eta\)</span>-direction, we will profile over <span class="math inline">\(\eta\)</span> to improve our estimates. The following sets up a design of guesses, to be used as starting points for the profile computation.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/eta_profile1_32326ace0cb37af1395e66032536b0b9">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"fitall_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">10</span>,loglik.se<span class="sc">&lt;</span><span class="dv">1</span>) <span class="sc">|&gt;</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(range) <span class="ot">-&gt;</span> box</span>
@@ -479,7 +513,7 @@ MathJax = {
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed=</span><span class="dv">1893696051</span></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>)<span class="ot">-&gt;</span> guesses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/eta_profile2_4c10a55d229afaf3f169e74bcf2be9dd">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">830007657</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -504,7 +538,7 @@ MathJax = {
 </div>
 <p>This profile calculation used about <span class="math inline">\(180\)</span>&nbsp;cpu s per start.</p>
 <p>We now examine the profile traces. Note that we include a trace of the basic reproductive number, <span class="math inline">\(R_0\)</span>.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/Q_fit_all/cache/eta_profile_plots_5160d943843b413c52f09b94a7667ece">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(loglik),</span>
@@ -530,7 +564,7 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/Q_fit_all/figure/eta_profile_plots-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/Q_fit_all/figure/eta_profile_plots-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -604,18 +638,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -647,11 +670,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -661,8 +723,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -674,7 +745,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -718,6 +912,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -743,6 +938,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -803,6 +1024,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aaron A. King and Edward L. Ionides">
 
-<title>EpiSim - Implementing a POMP model from scratch</title>
+<title>Implementing a POMP model from scratch – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -34,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -80,7 +80,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -89,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -113,8 +120,35 @@ MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -123,55 +157,55 @@ MathJax = {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">EpiSim</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../instruction.html" rel="" target="">
- <span class="menu-text">Instruction</span></a>
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../introduction.html" rel="" target="">
- <span class="menu-text">Introduction</span></a>
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../simulation.html" rel="" target="">
- <span class="menu-text">Simulation</span></a>
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../likelihood.html" rel="" target="">
- <span class="menu-text">Likelihood</span></a>
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../iterated.html" rel="" target="">
- <span class="menu-text">Iterated filtering</span></a>
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
- <span class="menu-text">Bayesian</span></a>
+    <a class="nav-link" href="../../Bayesian.html"> 
+<span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../case study.html" rel="" target="">
- <span class="menu-text">Case study</span></a>
+    <a class="nav-link" href="../../case study.html"> 
+<span class="menu-text">Case study</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -225,19 +259,21 @@ MathJax = {
   </div>
   
 
+
 </header>
+
 
 <hr>
 <p><a href="./ricker.R"><strong>R codes for this document</strong></a></p>
 <hr>
-<p>The <strong>R</strong> codes for this document are <a href="data:text/plain;base64,cGFyYW1zIDwtCmxpc3QocHJlZml4ID0gInJpY2tlciIpCgojIyAtLS0tcHJlbGltcyxpbmNsdWRlPUZBTFNFLHB1cmw9VFJVRSxjYWNoZT1GQUxTRS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShwb21wKQoKCiMjIC0tLS1wYXJ1cy1kYXRhLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpkYXQgPC0gcmVhZC5jc3YoInBhcnVzLmNzdiIpCmhlYWQoZGF0KQpwbG90KHBvcH55ZWFyLGRhdGE9ZGF0LHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1wb21wMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KHBvbXApCnBhcnVzIDwtIHBvbXAoZGF0LHRpbWVzPSJ5ZWFyIix0MD0xOTU5KQoKCiMjIC0tLS1wYXJ1cy1wbG90MS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1wYXJ1cy1zaW0tZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzdG9jaFN0ZXAgPC0gQ3NuaXBwZXQoIgogIGUgPSBybm9ybSgwLHNpZ21hKTsKICBOID0gcipOKmV4cCgtYypOK2UpOwoiKQpwb21wKHBhcnVzLHJwcm9jZXNzPWRpc2NyZXRlX3RpbWUoc3RlcC5mdW49c3RvY2hTdGVwLGRlbHRhLnQ9MSksCiAgICAgcGFyYW1uYW1lcz1jKCJyIiwiYyIsInNpZ21hIiksc3RhdGVuYW1lcz1jKCJOIiwiZSIpKSAtPiBwYXJ1cwoKCiMjIC0tLS1yaWNrZXItZmlyc3Qtc2ltLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpzaW0gPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPWMoTl8wPTEsZV8wPTAscj0xMixjPTEsc2lnbWE9MC41KSwKICAgICAgICAgICAgICAgIGZvcm1hdD0iZGF0YS5mcmFtZSIpCnBsb3QoTn55ZWFyLGRhdGE9c2ltLHR5cGU9J28nKQoKCiMjIC0tLS1wYXJ1cy1ybWVhcy1kZWZuLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpybWVhcyA8LSBDc25pcHBldCgicG9wID0gcnBvaXMocGhpKk4pOyIpCgoKIyMgLS0tLXBhcnVzLWRtZWFzLWRlZm4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRtZWFzIDwtIENzbmlwcGV0KCJsaWsgPSBkcG9pcyhwb3AscGhpKk4sZ2l2ZV9sb2cpOyIpCgoKIyMgLS0tLXBhcnVzLWFkZC1tZWFzLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnBvbXAocGFydXMscm1lYXN1cmU9cm1lYXMsZG1lYXN1cmU9ZG1lYXMsc3RhdGVuYW1lcz1jKCJOIikscGFyYW1uYW1lcz1jKCJwaGkiKSkgLT4gcGFydXMKCgojIyAtLS0tcmlja2VyLWFkZC1wYXJhbXMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KY29lZihwYXJ1cykgPC0gYyhOXzA9MSxlXzA9MCxyPTIwLGM9MSxzaWdtYT0wLjEscGhpPTIwMCkKCiMjIC0tLS1yaWNrZXItc2Vjb25kLXNpbSxyZXN1bHRzPSdtYXJrdXAnLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpsaWJyYXJ5KGdncGxvdDIpCnNpbXMgPC0gc2ltdWxhdGUocGFydXMsbnNpbT0zLGZvcm1hdD0iZCIsaW5jbHVkZS5kYXRhPVRSVUUpCmdncGxvdChkYXRhPXNpbXMsbWFwcGluZz1hZXMoeD15ZWFyLHk9cG9wKSkrZ2VvbV9saW5lKCkrCiAgZmFjZXRfd3JhcCh+LmlkLG5jb2w9MSxzY2FsZXM9ImZyZWVfeSIpCgoKIyMgLS0tLXBhcnVzLXNrZWwtZGVmbi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnNrZWwgPC0gQ3NuaXBwZXQoIkROID0gcipOKmV4cCgtYypOKTsiKQoKCiMjIC0tLS1wYXJ1cy1hZGQtc2tlbC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwYXJ1cyA8LSBwb21wKHBhcnVzLHNrZWxldG9uPW1hcChza2VsKSxwYXJhbW5hbWVzPWMoInIiLCJjIiksc3RhdGVuYW1lcz1jKCJOIikpCgoKIyMgLS0tLXBhcnVzLWZpcnN0LXRyYWoscmVzdWx0cz0nbWFya3VwJy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnRyYWogPC0gdHJhamVjdG9yeShwYXJ1cyxwYXJhbXM9YyhOXzA9MSxyPTEyLGM9MSksZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT1zaW0sdHlwZT0nbycpCmxpbmVzKE5+eWVhcixkYXRhPXRyYWosdHlwZT0nbCcsY29sPSdyZWQnKQoKCiMjIC0tLS1wbG90LXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpwbG90KHBhcnVzKQoKCiMjIC0tLS1zaW0tcmlja2VyMS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjbGFzcyh4KQpwbG90KHgpCgoKIyMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCnkgPC0gYXMuZGF0YS5mcmFtZShwYXJ1cykKaGVhZCh5KQpoZWFkKHNpbXVsYXRlKHBhcnVzLGZvcm1hdD0iZGF0YS5mcmFtZSIpKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTApCmNsYXNzKHgpCnNhcHBseSh4LGNsYXNzKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09MTAsZm9ybWF0PSJkYXRhLmZyYW1lIikKaGVhZCh4KQpzdHIoeCkKCgojIyAtLS0tZmlnLmhlaWdodD04LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KbGlicmFyeShnZ3Bsb3QyKQp4IDwtIHNpbXVsYXRlKHBhcnVzLG5zaW09OSxmb3JtYXQ9ImRhdGEuZnJhbWUiLGluY2x1ZGUuZGF0YT1UUlVFKQpnZ3Bsb3QoZGF0YT14LGFlcyh4PXllYXIseT1wb3AsZ3JvdXA9LmlkLGNvbG9yPSguaWQ9PSJkYXRhIikpKSsKICBnZW9tX2xpbmUoKStndWlkZXMoY29sb3I9Im5vbmUiKSsKICBmYWNldF93cmFwKH4uaWQsbmNvbD0yKQoKCiMjIC0tLS10cmFqLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp5IDwtIHRyYWplY3RvcnkocGFydXMsZm9ybWF0PSJkYXRhLmZyYW1lIikKcGxvdChOfnllYXIsZGF0YT15LHR5cGU9ImwiKQoKCiMjIC0tLS1jb2VmLXJpY2tlci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp0aGV0YSA8LSBjb2VmKHBhcnVzKQp0aGV0YVtjKCJyIiwiTl8wIildIDwtIGMoNSwzKQp5IDwtIHRyYWplY3RvcnkocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KE5+eWVhcixkYXRhPWFzLmRhdGEuZnJhbWUoeSksdHlwZT0nbCcpCnggPC0gc2ltdWxhdGUocGFydXMscGFyYW1zPXRoZXRhKQpwbG90KHgsdmFyPSJwb3AiKQoKCiMjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpjb2VmKHBhcnVzLGMoInIiLCJOXzAiLCJzaWdtYSIpKSA8LSBjKDM5LDAuNSwxKQpjb2VmKHBhcnVzKQpwbG90KHNpbXVsYXRlKHBhcnVzKSx2YXI9InBvcCIpCgo=" download="ricker.R">provided as a script</a>.</p>
+<p>The data for reproducing this document are available <a href="./parus.csv">here</a>.</p>
 <p>This document has its origins in the <a href="https://kingaa.github.io/pomp/vignettes/getting_started.html">Getting Started vignette</a>.</p>
 <hr>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>The <strong>R</strong> package <strong>pomp</strong> provides facilities for modeling POMPs, a toolbox of statistical inference methods for analyzing data using POMPs, and a development platform for implmenting new POMP inference methods. The basic data-structure provided by <strong>pomp</strong> is the <em>object of class</em> <code>pomp</code>, alternatively known as a <code>pomp</code> object. It is a container that holds real or simulated data and a POMP model, possibly together with other information such as model parameters, that may be needed to do things with the model and data. A real <strong>pomp</strong> data analysis begins with constructing one or more <code>pomp</code> objects to hold the data and the model or models under consideration. Here, we’ll illustrate this process a dataset of <em>Parus major</em> abundance in Wytham Wood, near Oxford <span class="citation" data-cites="McCleery1991">[@McCleery1991]</span>.</p>
 <p>Download and plot the data:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-data_4ff8652f88aad3698a8490144c263ae5">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"parus.csv"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -253,7 +289,7 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/parus-data-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/parus-data-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -287,17 +323,17 @@ MathJax = {
 <h2 class="anchored" data-anchor-id="implementing-the-ricker-model-in-pomp">Implementing the Ricker model in <strong>pomp</strong></h2>
 <p>The call to construct a <code>pomp</code> object is, naturally enough, <code>pomp</code>. Documentation on this function can be had by doing <code>?pomp</code>. Learn about the various things you can do once you have a <code>pomp</code> object by doing <code>methods?pomp</code> and following the links therein. Read an overview of the package as a whole with links to its main features by doing <code>package?pomp</code>. A complete index of the functions in <strong>pomp</strong> is returned by the command <code>library(help=pomp)</code>. Finally, the home page for the <code>pomp</code> project is https://kingaa.github.io/pomp/; there you have access to the complete source code, tutorials, manuals, a news blog, a facility for reporting issues and making help requests, etc.</p>
 <p>Now, to construct our <code>pomp</code> object:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-pomp1_783ce0972eb1ebafa1ee95341de6b56a">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>parus <span class="ot">&lt;-</span> <span class="fu">pomp</span>(dat,<span class="at">times=</span><span class="st">"year"</span>,<span class="at">t0=</span><span class="dv">1959</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The <code>times</code> argument specifies that the column of <code>dat</code> labelled “year” gives the measurement times; <code>t0</code> is the “zero-time”, the time at which the state process will be initialized. We’ve set it to one year prior to the beginning of the data. Plot the new <code>pomp</code> object:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-plot1_2468bc77e5b08d4d4328bb2217ca01f1">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(parus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/parus-plot1-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/parus-plot1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -305,7 +341,7 @@ MathJax = {
 <section id="adding-in-the-process-model-simulator" class="level3">
 <h3 class="anchored" data-anchor-id="adding-in-the-process-model-simulator">Adding in the process model simulator</h3>
 <p>We can add the stochastic Ricker model to <code>parus</code> by writing a Csnippet that simulates one realization of the stochastic process, from an arbitary time <span class="math inline">\(t\)</span> to <span class="math inline">\(t+1\)</span>, given arbitrary states and parameters. We provide this to <code>pomp</code> in the form of a <code>Csnippet</code>, a little snippet of C code that performs the computation. The following does this.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-sim-defn_310bf7b37ed27e82e1153de5334e5cc9">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stochStep <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">  e = rnorm(0,sigma);</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">  N = r*N*exp(-c*N+e);</span></span>
@@ -315,14 +351,14 @@ MathJax = {
 </div>
 <p>Note that in the above, we use the <code>exp</code> and <code>rnorm</code> functions from the <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-R-API"><strong>R</strong> API</a>. In general any C function provided by <strong>R</strong> is available to you. <strong>pomp</strong> also provides a number of C functions that are documented in the header file, <code>pomp.h</code>, that is installed with the package. See the <code>Csnippet</code> documentation (<code>?Csnippet</code>) to read more about how to write them. Note too that we use <code>discrete.time.sim</code> here because the model is a stochastic map. We specify that the time step of the discrete-time process is <code>delta.t</code>, here, 1&nbsp;yr.</p>
 <p>At this point, we have what we need to simulate the state process:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/ricker-first-sim_e7a65d14228b86395e6ed9699eb4c7ea">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sim <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">params=</span><span class="fu">c</span>(<span class="at">N_0=</span><span class="dv">1</span>,<span class="at">e_0=</span><span class="dv">0</span>,<span class="at">r=</span><span class="dv">12</span>,<span class="at">c=</span><span class="dv">1</span>,<span class="at">sigma=</span><span class="fl">0.5</span>),</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">format=</span><span class="st">"data.frame"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(N<span class="sc">~</span>year,<span class="at">data=</span>sim,<span class="at">type=</span><span class="st">'o'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/ricker-first-sim-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/ricker-first-sim-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -331,22 +367,22 @@ MathJax = {
 <section id="adding-in-the-measurement-model-and-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="adding-in-the-measurement-model-and-parameters">Adding in the measurement model and parameters</h3>
 <p>We complete the specification of the POMP by specifying the measurement model. To obtain the Poisson measurement model described above, we write two Csnippets. The first simulates:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-rmeas-defn_41cb0fabfe8a99c859fdda06a8c60957">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"pop = rpois(phi*N);"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The second computes the likelihood of observing <code>pop</code> birds given a true density of <code>N</code>:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-dmeas-defn_3d229f53e08a2fd8786c0c2a1b8f53d4">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dmeas <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"lik = dpois(pop,phi*N,give_log);"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>[Note the <code>give_log</code> argument. When this code is evaluated, <code>give_log</code> will be set to 1 if the log likelihood is desired, and 0 else.] We add these into the <code>pomp</code> object:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-add-meas_723e047e70549afbcda64321de445132">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pomp</span>(parus,<span class="at">rmeasure=</span>rmeas,<span class="at">dmeasure=</span>dmeas,<span class="at">statenames=</span><span class="fu">c</span>(<span class="st">"N"</span>),<span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"phi"</span>)) <span class="ot">-&gt;</span> parus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now we can simulate the whole POMP. First, let’s add some parameters:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/ricker-add-params_7246cce0a086b86192a383118467eae5">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(parus) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">N_0=</span><span class="dv">1</span>,<span class="at">e_0=</span><span class="dv">0</span>,<span class="at">r=</span><span class="dv">20</span>,<span class="at">c=</span><span class="dv">1</span>,<span class="at">sigma=</span><span class="fl">0.1</span>,<span class="at">phi=</span><span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/ricker-second-sim_c655ac34a099e316d66622276058caea">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sims <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">nsim=</span><span class="dv">3</span>,<span class="at">format=</span><span class="st">"d"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>sims,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>pop))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span></span>
@@ -354,7 +390,7 @@ MathJax = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/ricker-second-sim-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/ricker-second-sim-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -363,23 +399,23 @@ MathJax = {
 <section id="adding-in-the-deterministic-skeleton" class="level3">
 <h3 class="anchored" data-anchor-id="adding-in-the-deterministic-skeleton">Adding in the deterministic skeleton</h3>
 <p>We can add the Ricker model deterministic skeleton to the <code>parus</code> <code>pomp</code> object. Since the Ricker model is a discrete-time model, its skeleton is a map that takes <span class="math inline">\(N_t\)</span> to <span class="math inline">\(N_{t+1}\)</span> according to the Ricker model equation <span class="math display">\[N_{t+1} = r\,N_{t}\,\exp(-c\,N_{t}).\]</span> The following implements this.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-skel-defn_54b33d0b8fa0d555f294983d93ee9d64">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>skel <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"DN = r*N*exp(-c*N);"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We then add this to the <code>pomp</code> object:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-add-skel_5aa3b6eb0e376e2ac6cc4076e2a52011">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>parus <span class="ot">&lt;-</span> <span class="fu">pomp</span>(parus,<span class="at">skeleton=</span><span class="fu">map</span>(skel),<span class="at">paramnames=</span><span class="fu">c</span>(<span class="st">"r"</span>,<span class="st">"c"</span>),<span class="at">statenames=</span><span class="fu">c</span>(<span class="st">"N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Note that we have to inform <strong>pomp</strong> as to which of the variables we’ve referred to in <code>skel</code> is a state variable (<code>statenames</code>) and which is a parameter (<code>paramnames</code>). In writing a <code>Csnippet</code> for the deterministic skeleton, we use <code>D</code> to designate the map’s value. The <code>map</code> call tells <strong>pomp</strong> that the skeleton is a discrete-time dynamical system (a map) rather than a continuous-time system (a vectorfield).</p>
 <p>With just the skeleton defined, we are in a position to compute the trajectories of the deterministic skeleton at any point in parameter space. For example, here we compute the trajectory and superimpose it on a plot of one simulation:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/parus-first-traj_2b70e017fc0050718af24ab5596eced6">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>traj <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(parus,<span class="at">params=</span><span class="fu">c</span>(<span class="at">N_0=</span><span class="dv">1</span>,<span class="at">r=</span><span class="dv">12</span>,<span class="at">c=</span><span class="dv">1</span>),<span class="at">format=</span><span class="st">"data.frame"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(N<span class="sc">~</span>year,<span class="at">data=</span>sim,<span class="at">type=</span><span class="st">'o'</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(N<span class="sc">~</span>year,<span class="at">data=</span>traj,<span class="at">type=</span><span class="st">'l'</span>,<span class="at">col=</span><span class="st">'red'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/parus-first-traj-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/parus-first-traj-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -390,22 +426,22 @@ MathJax = {
 <h2 class="anchored" data-anchor-id="working-with-the-ricker-model-in-pomp.">Working with the Ricker model in <strong>pomp</strong>.</h2>
 <p>Let’s see what can be done with a <code>pomp</code> object.</p>
 <p>We can plot the data by doing</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/plot-ricker_42cb8218ee9dc9fae17af8557d1ed824">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(parus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/plot-ricker-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/plot-ricker-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We can simulate by doing</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/sim-ricker1_3bae608efff41444324b9b0e5baf63df">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>What kind of object have we created with this call to <code>simulate</code>?</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-1_e0651ebc00ed4a0551a45ad777e2adc1">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "pomp"
@@ -416,14 +452,14 @@ attr(,"package")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Why do we see more time series in the simulated <code>pomp</code> object?</p>
 <p>We can turn a <code>pomp</code> object into a data frame:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-2_6c48ce5de8f5a5fd6be805c8695abe86">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(parus)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -437,17 +473,17 @@ attr(,"package")
 </div>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate</span>(parus,<span class="at">format=</span><span class="st">"data.frame"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> year .id         N            e  pop
- 1960   1 6.6165502 -0.106158164 1322
- 1961   1 0.1773515  0.001622059   31
- 1962   1 3.3475992  0.119484346  670
- 1963   1 2.0038535 -0.161304450  411
- 1964   1 4.9782592 -0.081870574  976
- 1965   1 0.5979535 -0.136795658   96</code></pre>
+<pre><code> year .id         N           e  pop
+ 1960   1 6.6429778 -0.10217195 1324
+ 1961   1 0.1846223  0.06424216   43
+ 1962   1 3.0376404 -0.01058592  633
+ 1963   1 2.4955448 -0.15466587  473
+ 1964   1 3.8059519 -0.07812841  792
+ 1965   1 1.3262518 -0.24398972  247</code></pre>
 </div>
 </div>
 <p>We can also run multiple simulations simultaneously:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-3_8d7a956e949d4230de8e14801f6cc9d8">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">nsim=</span><span class="dv">10</span>)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -464,25 +500,25 @@ attr(,"package")
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> year .id        N           e  pop
- 1960   1 8.577301  0.15338708 1721
- 1960   2 6.970921 -0.05398496 1364
- 1960   3 6.950081 -0.05697897 1357
- 1960   4 7.630455  0.03641527 1534
- 1960   5 6.972379 -0.05377579 1378
- 1960   6 7.759706  0.05321218 1517</code></pre>
+ 1960   1 7.206480 -0.02075158 1471
+ 1960   2 7.492455  0.01816420 1504
+ 1960   3 8.771302  0.17575303 1704
+ 1960   4 7.559440  0.02706490 1568
+ 1960   5 8.204598  0.10896249 1640
+ 1960   6 7.684036  0.04341265 1614</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   270 obs. of  5 variables:
  $ year: num  1960 1960 1960 1960 1960 1960 1960 1960 1960 1960 ...
  $ .id : Ord.factor w/ 10 levels "1"&lt;"2"&lt;"3"&lt;"4"&lt;..: 1 2 3 4 5 6 7 8 9 10 ...
- $ N   : num  8.58 6.97 6.95 7.63 6.97 ...
- $ e   : num  0.1534 -0.054 -0.057 0.0364 -0.0538 ...
- $ pop : num  1721 1364 1357 1534 1378 ...</code></pre>
+ $ N   : num  7.21 7.49 8.77 7.56 8.2 ...
+ $ e   : num  -0.0208 0.0182 0.1758 0.0271 0.109 ...
+ $ pop : num  1471 1504 1704 1568 1640 ...</code></pre>
 </div>
 </div>
 <p>Also,</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-4_37e5a63ada1a400c546209f170a4a1dc">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">simulate</span>(parus,<span class="at">nsim=</span><span class="dv">9</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>)</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>x,<span class="fu">aes</span>(<span class="at">x=</span>year,<span class="at">y=</span>pop,<span class="at">group=</span>.id,<span class="at">color=</span>(.id<span class="sc">==</span><span class="st">"data"</span>)))<span class="sc">+</span></span>
@@ -491,25 +527,25 @@ attr(,"package")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We refer to the deterministic map as the “skeleton” of the stochastic process. We can compute a trajectory of the the deterministic skeleton using <code>trajectory</code>:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/traj-ricker_f71bba55429ef0c97efaf9ad12eaa77d">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(parus,<span class="at">format=</span><span class="st">"data.frame"</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(N<span class="sc">~</span>year,<span class="at">data=</span>y,<span class="at">type=</span><span class="st">"l"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/traj-ricker-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/traj-ricker-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Notice that <code>parus</code> has parameters associated with it:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/coef-ricker_e4d0934ff3ba4f6a8dc21047a8dec681">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(parus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  N_0   e_0     r     c sigma   phi 
@@ -517,7 +553,7 @@ attr(,"package")
 </div>
 </div>
 <p>These are the parameters at which the simulations and deterministic trajectory computations above were done. We can run these at different parameters:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-5_7d674553200e03d2269aac28e77f1d7b">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">coef</span>(parus)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>theta[<span class="fu">c</span>(<span class="st">"r"</span>,<span class="st">"N_0"</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">3</span>)</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(parus,<span class="at">params=</span>theta)</span>
@@ -525,7 +561,7 @@ attr(,"package")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/unnamed-chunk-5-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -534,13 +570,13 @@ attr(,"package")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/unnamed-chunk-5-2.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/unnamed-chunk-5-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>We can also change the parameters stored inside of <code>parus</code>:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp/ricker/cache/unnamed-chunk-6_838eefa8fee3eba788c8ec0a3465e226">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(parus,<span class="fu">c</span>(<span class="st">"r"</span>,<span class="st">"N_0"</span>,<span class="st">"sigma"</span>)) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">39</span>,<span class="fl">0.5</span>,<span class="dv">1</span>)</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(parus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -551,7 +587,7 @@ attr(,"package")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp/ricker/figure/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="2049"></p>
+<p><img src="tmp/ricker/figure/unnamed-chunk-6-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2049"></p>
 </figure>
 </div>
 </div>
@@ -644,18 +680,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -687,11 +712,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -701,8 +765,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -714,7 +787,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -758,6 +954,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -783,6 +980,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -843,6 +1066,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

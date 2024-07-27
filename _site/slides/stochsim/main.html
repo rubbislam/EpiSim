@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="author" content="Spencer J. Fox">
 <meta name="author" content="Zian (Larry) Zhuang">
 
-<title>EpiSim - Lesson 2: Simulation of stochastic dynamic models</title>
+<title>Lesson 2: Simulation of stochastic dynamic models – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,7 +25,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -61,6 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -101,7 +102,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -110,6 +117,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -134,8 +142,35 @@ MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -144,55 +179,55 @@ MathJax = {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">EpiSim</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../instruction.html" rel="" target="">
- <span class="menu-text">Instruction</span></a>
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../introduction.html" rel="" target="">
- <span class="menu-text">Introduction</span></a>
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../simulation.html" rel="" target="">
- <span class="menu-text">Simulation</span></a>
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../likelihood.html" rel="" target="">
- <span class="menu-text">Likelihood</span></a>
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../iterated.html" rel="" target="">
- <span class="menu-text">Iterated filtering</span></a>
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
- <span class="menu-text">Bayesian</span></a>
+    <a class="nav-link" href="../../Bayesian.html"> 
+<span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../case study.html" rel="" target="">
- <span class="menu-text">Case study</span></a>
+    <a class="nav-link" href="../../case study.html"> 
+<span class="menu-text">Case study</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -228,7 +263,9 @@ MathJax = {
   </div>
   
 
+
 </header>
+
 
 <section id="objectives" class="level2">
 <h2 class="anchored" data-anchor-id="objectives">Objectives</h2>
@@ -335,7 +372,7 @@ MathJax = {
 \end{aligned}
 \end{equation*}\]</span>
 </div><div class="column" style="width:60%;">
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/det-skel_841531935e8a095a3f1e4735e6666c12">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">  DS = -Beta*S*I/N;</span></span>
@@ -370,9 +407,13 @@ MathJax = {
 <li><p>We then can relate the counting process to the common SIR reactions with the corresponding probabilities.</p></li>
 <li><p>Note that we are using <a href="./exercises.html#exercise-little-o-notation"><em>little o notation</em></a> and we write <span class="math inline">\(h(\delta)=o(\delta)\)</span> to mean <span class="math inline">\(\lim_{\delta\to 0} \frac{h(\delta)}{\delta} = 0\)</span>.</p></li>
 </ul>
-<div id="tbl-stochproc" class="anchored">
-<table class="table">
-<caption>Table&nbsp;1: Relationship between the counting processes, the reactions, and the probabilities.</caption>
+<div id="tbl-stochproc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-stochproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Relationship between the counting processes, the reactions, and the probabilities.
+</figcaption>
+<div aria-describedby="tbl-stochproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 21%">
@@ -409,11 +450,13 @@ MathJax = {
 </tbody>
 </table>
 </div>
+</figure>
+</div>
 </section>
 <section id="the-eulers-method" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="the-eulers-method">The Euler’s method</h2>
 <ul>
-<li>When referring the counting and its corresponding probability in <a href="#tbl-stochproc">Table&nbsp;1</a>, it is obvious that we can derive a continuous time Markov chain (CTMC) for the SIR model:</li>
+<li>When referring the counting and its corresponding probability in <a href="#tbl-stochproc" class="quarto-xref">Table&nbsp;1</a>, it is obvious that we can derive a continuous time Markov chain (CTMC) for the SIR model:</li>
 </ul>
 <p><span class="math display">\[
 \begin{aligned}
@@ -483,7 +526,7 @@ MathJax = {
 <ul>
 <li><p>Numerical methods, such as the Euler’s method, are approximations to the process by discretizing time using small time step <span class="math inline">\(\delta\)</span></p></li>
 <li><p>However, the Gillespie method is the exact <strong>Stochastic Simulation Method</strong>, which leverages the Markov Property as well.</p></li>
-<li><p>In <a href="#tbl-stochproc">Table&nbsp;1</a>, by consider the reactions and the probabilities, we can derive the Gillespie algorithm for the stochastic SIR model.</p></li>
+<li><p>In <a href="#tbl-stochproc" class="quarto-xref">Table&nbsp;1</a>, by consider the reactions and the probabilities, we can derive the Gillespie algorithm for the stochastic SIR model.</p></li>
 </ul>
 <p>With initialization, <span class="math inline">\(S(0)\)</span>, <span class="math inline">\(I(0)\)</span>, and <span class="math inline">\(R(0)\)</span>, at current time <span class="math inline">\(t\)</span>:</p>
 <ol type="1">
@@ -612,7 +655,7 @@ MathJax = {
 <!-- The town had population of 38820, with 737 births over the course of the year. -->
 <!-- \framebreak -->
 <!-- We download the data and examine them: -->
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/meas-data1_70595bf4ce8452984c59e6f4b4c4f79d">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"Measles_Consett_1948.csv"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(week,<span class="at">reports=</span>cases) <span class="ot">-&gt;</span> meas</span>
@@ -634,11 +677,11 @@ MathJax = {
 </ul>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/meas-data2_1dd222395ff1fbfeb2ccf04929c2775d">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/meas-data2-1.png" class="img-fluid figure-img" width="1800"></p>
+<p><img src="tmp//figure/meas-data2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -671,7 +714,7 @@ MathJax = {
 <ul>
 <li>Implement the dynamics in <code>pomp</code> as an R function:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rproc1R_d8a64a469cfaf6489c7a00fd6365ec31">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sir_stoch <span class="ot">&lt;-</span> <span class="cf">function</span> (S, I, R, N, Beta, Gamma, delta.t, ...) {</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  dN_SI <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="dv">1</span>,<span class="at">size=</span>S,<span class="at">prob=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>Beta<span class="sc">*</span>I<span class="sc">/</span>N<span class="sc">*</span>delta.t))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  dN_IR <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="dv">1</span>,<span class="at">size=</span>I,<span class="at">prob=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>Gamma<span class="sc">*</span>delta.t))</span>
@@ -684,7 +727,7 @@ MathJax = {
 <ul>
 <li>Note that, for a deterministic SIR model:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rproc_det1_1ae102bfb59d686dc8a9baeba826ef05">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dN_SI <span class="ot">&lt;-</span> Beta<span class="sc">*</span>S<span class="sc">*</span>I<span class="sc">/</span>N<span class="sc">*</span>delta.t</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dN_IR <span class="ot">&lt;-</span> Gamma<span class="sc">*</span>I<span class="sc">*</span>delta.t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -694,13 +737,13 @@ MathJax = {
 <li><p>At <span class="math inline">\(t0\)</span>, assume the initial number of infection is 1, that is <span class="math inline">\(I=1\)</span>.</p></li>
 <li><p>The initial number of susceptible is unknown, so we’ll treat this fraction, <span class="math inline">\(\eta\)</span>, as a parameter to be estimated.</p></li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/init1R_9318c1cf2ad19d91a720e104dfde3543">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sir_rinit <span class="ot">&lt;-</span> <span class="cf">function</span> (N, Eta, ...) {</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">S =</span> <span class="fu">round</span>(N<span class="sc">*</span>Eta), <span class="at">I =</span> <span class="dv">1</span>, <span class="at">R =</span> <span class="fu">round</span>(N<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Eta)))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>With the initialization function <code>sir_rinit</code> and the process function <code>sir_stoch</code>, we can build a <code>pomp</code> object with these two components and the data:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pomp1R_e3b6550794ca57477f6250a5d4c22aed">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pomp)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>meas <span class="sc">|&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(</span>
@@ -718,7 +761,7 @@ MathJax = {
 <li><p>We then define a new variable, <span class="math inline">\(H\)</span>, that tracks these daily counts.</p></li>
 </ul>
 <p>We now can modify the R functions to incorporate the new variable <span class="math inline">\(H\)</span>:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rproc2R_7ab6cf818457d53895a1b1c68df6a52a">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sir_stoch <span class="ot">&lt;-</span> <span class="cf">function</span> (S, I, R, N, Beta, Gamma, delta.t, H, ...) {</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  dN_SI <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="dv">1</span>,<span class="at">size=</span>S,<span class="at">prob=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>Beta<span class="sc">*</span>I<span class="sc">/</span>N<span class="sc">*</span>delta.t))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dN_IR <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n=</span><span class="dv">1</span>,<span class="at">size=</span>I,<span class="at">prob=</span><span class="dv">1</span><span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>Gamma<span class="sc">*</span>delta.t))</span>
@@ -734,7 +777,7 @@ MathJax = {
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Note that, we are so far accounting for the <em>flows</em> between compartments by days, while the <code>reports</code> are weekly cases. Since we want <span class="math inline">\(H\)</span> to tally only the incidence over the week, we’ll need to reset it to zero at the beginning of each week. Thus, in <code>pomp</code> terminology, <span class="math inline">\(H\)</span> is an <strong>accumulator variable</strong>. We accomplish this using the <code>accumvars</code> argument to <code>pomp</code> when build the object:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/zero1R_71ac7c88f38c7fc77f67520ae9e93077">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rprocess=</span><span class="fu">euler</span>(sir_stoch,<span class="at">delta.t=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>),</span>
@@ -752,7 +795,7 @@ MathJax = {
 <ul>
 <li>To include the observations in the model, we must write either a <code>dmeasure</code> or an <code>rmeasure</code> component, or both:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/meas-modelR_4b40e6d43315f99b6caf552c3fa9ee65">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sir_dmeas <span class="ot">&lt;-</span> <span class="cf">function</span> (reports, H, Rho, k, log, ...) {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dnbinom</span>(<span class="at">x=</span>reports, <span class="at">size=</span>k, <span class="at">mu=</span>Rho<span class="sc">*</span>H, <span class="at">log=</span>log)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -762,7 +805,7 @@ MathJax = {
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Eventually, we can add these two components to the previous <code>measSIR</code> object to update the <code>dmeasure</code> and <code>rmeasure</code> arguments:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/add-meas-modelR_e940f01f2c64ea5d371b00d7bea5f716">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmeasure=</span>sir_rmeas,</span>
@@ -877,7 +920,7 @@ MathJax = {
 <ul>
 <li>For example, a C snippet encoding the rprocess for an <code>sir</code> model is as follows.</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/csnips_387b34f9a5405c4700487c34168a01cd">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sir_stoch <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="st">  double dN_SI = rbinom(S,1-exp(-Beta*I/N*dt));</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="st">  double dN_IR = rbinom(I,1-exp(-Gamma*dt));</span></span>
@@ -894,7 +937,7 @@ MathJax = {
 <li><p>Remember to add a semicolon (<code>;</code>) after each line to ensure proper syntax.</p></li>
 <li><p>C snippets for the initializer and measurement model are:</p></li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/more-csnips_32311a7edea108e2be79ccbe1c58f1d9">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sir_rinit <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">  S = nearbyint(Eta*N);</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">  I = 1;</span></span>
@@ -918,7 +961,7 @@ MathJax = {
 <ul>
 <li>A call to <code>pomp</code> replaces the basic model components with these, much faster, implementations:</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/sir_pomp_42a6c0ab7abf3f6cd0854d29284cfe8f">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pomp</span>(</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rprocess=</span><span class="fu">euler</span>(sir_stoch,<span class="at">delta.t=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">7</span>),</span>
@@ -937,11 +980,11 @@ MathJax = {
 <li><p>We can tell from the summary table that CSnippet is approximate 50 times faster than R.</p></li>
 </ul>
 </div><div class="column" style="width:50%;">
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/CSnippet-compare_88d7632f701211e3372095763569144a">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/CSnippet-compare-1.png" class="img-fluid figure-img" width="1200"></p>
+<p><img src="tmp//figure/CSnippet-compare-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="1200"></p>
 </figure>
 </div>
 </div>
@@ -962,7 +1005,7 @@ MathJax = {
 Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\)</span>, so that <span class="math inline">\(\eta=\frac{S_0}{N}\approx0.027\)</span>.</p></li>
 <li><p>If the infectious period is roughly 2 weeks, then <span class="math inline">\(1/\mu_{IR} \approx 2~\text{wk}\)</span> and <span class="math inline">\(\beta = \mu_{IR}\,\Rzero \approx 7.5~\text{wk}^{-1}\)</span>.</p></li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/sir_sim1_plot_90bdd51357b74660ece896862b20ce0f">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span> </span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="fl">7.5</span>,<span class="at">Gamma=</span><span class="fl">0.5</span>,<span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>, <span class="at">Eta=</span><span class="fl">0.03</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -971,7 +1014,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/sir_sim1_plot-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/sir_sim1_plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -990,7 +1033,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <section id="worked-solutions-i-explore-the-sir-model" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="worked-solutions-i-explore-the-sir-model">Worked solutions I: Explore the SIR model</h2>
 <p>In the simulated outbreaks, the overall incidence is much too low, and the outbreak dies out immediately. We might try increasing the force of infection:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-1_9bfbf74d32c5c4a2031d2ad46260a858">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">25</span>,<span class="at">Gamma=</span><span class="fl">0.5</span>,<span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.03</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -999,13 +1042,13 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Taking it farther…</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-2_f4f88b668df3dbf0310f7b13af372d24">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">40</span>,<span class="at">Gamma=</span><span class="fl">0.5</span>,<span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.03</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -1014,13 +1057,13 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>While this increases the overall incidence, the epidemic is now peaking too quickly. To counteract this, we might try reducing the recovery rate.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-3_be31d4d7d130090d815a39727b8f9fc6">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">40</span>,<span class="at">Gamma=</span><span class="fl">0.2</span>,<span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.03</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -1029,13 +1072,13 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-3-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Additionally, we might have a look at the effects of changing the initial susceptible fraction, <span class="math inline">\(\eta\)</span>:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-4_43e4b38a8d2f83a87a3e155bb0bb6226">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">15</span>,<span class="at">Gamma=</span><span class="fl">0.5</span>,<span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.06</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">20</span>,<span class="at">format=</span><span class="st">"data.frame"</span>,<span class="at">include.data=</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
@@ -1044,7 +1087,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -1058,7 +1101,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <section id="worked-solutions-ii-the-seir-model" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="worked-solutions-ii-the-seir-model">Worked solutions II: The SEIR model</h2>
 <p>The existing code may be modified as follows:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-5_63e45907dd7cd70afefeaaaa98026a04">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>seir_stoch <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="st">  double dN_SE = rbinom(S,1-exp(-Beta*I/N*dt));</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="st">  double dN_EI = rbinom(E,1-exp(-Sigma*dt));</span></span>
@@ -1070,7 +1113,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="st">  H += dN_IR;</span></span>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-6_cf35467d5c45cb218cde4032ce4adbf6">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>seir_init <span class="ot">&lt;-</span> <span class="fu">Csnippet</span>(<span class="st">"</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="st">  S = nearbyint(Eta*N);</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="st">  E = 0; I = 1;</span></span>
@@ -1087,7 +1130,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> measSEIR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Using the rough estimate that the latent period in measles is 8–10da, we take <span class="math inline">\(\sigma\sim 0.8\)</span>wk<sup>-1</sup> and <span class="math inline">\(\gamma\sim 1.3\)</span>wk<sup>-1</sup> (roughly the same generation time as before).</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-7_5341ba37ac569fd5621bc9bb5f908ae7">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>measSEIR <span class="sc">|&gt;</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">30</span>,<span class="at">Sigma=</span><span class="fl">0.8</span>,<span class="at">Gamma=</span><span class="fl">1.3</span>,</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.06</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
@@ -1097,13 +1140,13 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-7-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Again one can increase the force of infection:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-8_23c1cc84deea9c74babd084275e949cb">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>measSEIR <span class="sc">|&gt;</span> </span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">simulate</span>(<span class="at">params=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">40</span>,<span class="at">Sigma=</span><span class="fl">0.8</span>,<span class="at">Gamma=</span><span class="fl">1.3</span>,</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Rho=</span><span class="fl">0.5</span>,<span class="at">k=</span><span class="dv">10</span>,<span class="at">Eta=</span><span class="fl">0.06</span>,<span class="at">N=</span><span class="dv">38000</span>),</span>
@@ -1113,7 +1156,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="2400"></p>
+<p><img src="tmp//figure/unnamed-chunk-8-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -1124,7 +1167,7 @@ Assuming 50% reporting, we have that <span class="math inline">\(S_0\approx1042\
 <h1>References</h1>
 <section id="references-1" class="level2">
 <h2 class="anchored" data-anchor-id="references-1">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-Anderson1991" class="csl-entry" role="listitem">
 Anderson, R. M., and R. M. May. 1991. <em>Infectious Diseases of Humans</em>. Oxford: Oxford Univesity Press.
 </div>
@@ -1139,7 +1182,7 @@ Bretó, Carles, Daihai He, Edward L. Ionides, and Aaron A. King. 2009. <span>“
 <li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
 <li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
 <li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
-<li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
+<li><p>Produced with R version 4.4.0 and pomp version 5.9.</p></li>
 <li><p>Compiled on 2024-07-24.</p></li>
 </ul>
 <p><a href="index.html">Back to Lesson</a></p>
@@ -1185,18 +1228,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1228,11 +1260,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1242,8 +1313,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1255,7 +1335,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1299,6 +1502,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1324,6 +1528,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1384,6 +1614,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

@@ -17,9 +17,11 @@ params:
   prefix: exercises
 ---
 
-------------------------------------------------------------------------
+-----------------------------------
 
-The **R** codes for this document are `r xfun::embed_file("exercises.R",text="provided as a script")`.
+[**R codes for this document**](./exercises.R)
+
+-----------------------------------
 
 ```{r knitr-opts}
 #| include: false

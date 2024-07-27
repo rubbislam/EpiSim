@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="author" content="Spencer J. Fox">
 <meta name="author" content="Zian (Larry) Zhuang">
 
-<title>EpiSim - Lesson 4: Iterated filtering: principles and practice</title>
+<title>Lesson 4: Iterated filtering: principles and practice – EpiSim</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,7 +25,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -61,6 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -101,7 +102,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -110,6 +117,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -134,8 +142,35 @@ MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -144,55 +179,55 @@ MathJax = {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">EpiSim</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../instruction.html" rel="" target="">
- <span class="menu-text">Instruction</span></a>
+    <a class="nav-link" href="../../instruction.html"> 
+<span class="menu-text">Instruction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../introduction.html" rel="" target="">
- <span class="menu-text">Introduction</span></a>
+    <a class="nav-link" href="../../introduction.html"> 
+<span class="menu-text">Introduction</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../simulation.html" rel="" target="">
- <span class="menu-text">Simulation</span></a>
+    <a class="nav-link" href="../../simulation.html"> 
+<span class="menu-text">Simulation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../likelihood.html" rel="" target="">
- <span class="menu-text">Likelihood</span></a>
+    <a class="nav-link" href="../../likelihood.html"> 
+<span class="menu-text">Likelihood</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../iterated.html" rel="" target="">
- <span class="menu-text">Iterated filtering</span></a>
+    <a class="nav-link" href="../../iterated.html"> 
+<span class="menu-text">Iterated filtering</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../Bayesian.html" rel="" target="">
- <span class="menu-text">Bayesian</span></a>
+    <a class="nav-link" href="../../Bayesian.html"> 
+<span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../case study.html" rel="" target="">
- <span class="menu-text">Case study</span></a>
+    <a class="nav-link" href="../../case study.html"> 
+<span class="menu-text">Case study</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -322,7 +357,9 @@ MathJax = {
   </div>
   
 
+
 </header>
+
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
@@ -506,14 +543,14 @@ In practice, we can test this claim on examples.</p>
 <h2 class="anchored" data-anchor-id="applying-if2-to-the-consett-measles-outbreak">Applying IF2 to the Consett measles outbreak</h2>
 <p>Let us apply IF2 to our analysis of the Consett measles outbreak we began to examine in Lessons 2 and 3.</p>
 <p>The following loads the data, pomp, and the stochastic SIR model we constructed there.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/model-construct_ae260fe823363a805f7bd0e8c665c3b6">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"model_measSIR.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/dataplot_b0c7cde8090f16fbf7d303e063e5a89f">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/dataplot-1.png" style="height:70.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/dataplot-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:70.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -547,7 +584,7 @@ In practice, we can test this claim on examples.</p>
 <h2 class="anchored" data-anchor-id="setting-up-the-estimation-problem-1">Setting up the estimation problem</h2>
 <p>Let’s assume that the population size, <span class="math inline">\(N\)</span>, is known accurately. We’ll fix that parameter.</p>
 <p>Let’s revisit the assumption that the infectious period is 2 weeks, imagining that we have access to the results of household and clinical studies that have concluded that infected patients shed the virus for 3–4~da. We’ll use these results to constrain the infectious period in our model to 3.5~da, i.e., <span class="math inline">\(\gamma=2~\mathrm{wk}^{-1}\)</span>. We also fix <span class="math inline">\(k=10\)</span>. Later, we can relax our assumptions.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/fixed_params_e7b756c0ef840b488de489fbca8e2420">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fixed_params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">N=</span><span class="dv">38000</span>, <span class="at">Gamma=</span><span class="dv">2</span>, <span class="at">k=</span><span class="dv">10</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(measSIR,<span class="fu">names</span>(fixed_params)) <span class="ot">&lt;-</span> fixed_params</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(measSIR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -561,11 +598,11 @@ In practice, we can test this claim on examples.</p>
 <section id="sanity-check" class="level2">
 <h2 class="anchored" data-anchor-id="sanity-check">Sanity check</h2>
 <p>In Lesson 3, we have introduced how to test the codes and the particle filter from three aspects. Now we can compare the simulations with the raw data using the proposed parameters:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/sanity_0ded17f681fa619c6e049b567512ea1a">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/sanity-1.png" style="height:70.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/sanity-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:70.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -583,7 +620,7 @@ In practice, we can test this claim on examples.</p>
 <section id="running-a-particle-filter" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="running-a-particle-filter">Running a particle filter</h2>
 <p>We proceed to carry out replicated particle filters at an initial guess of <span class="math inline">\(\beta=15\)</span>, <span class="math inline">\(\eta=0.06\)</span>, and <span class="math inline">\(\rho=0.5\)</span>.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf2_5d6969224095aacd4ea1a1304fb2c0dd">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,<span class="at">.combine=</span>c,</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="cn">TRUE</span>)) <span class="sc">%dofuture%</span> {</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  measSIR <span class="sc">|&gt;</span> <span class="fu">pfilter</span>(<span class="at">Np=</span><span class="dv">5000</span>)</span>
@@ -591,13 +628,13 @@ In practice, we can test this claim on examples.</p>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>pf <span class="sc">|&gt;</span> <span class="fu">logLik</span>() <span class="sc">|&gt;</span> <span class="fu">logmeanexp</span>(<span class="at">se=</span><span class="cn">TRUE</span>) <span class="ot">-&gt;</span> L_pf</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>L_pf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pf_5d8156810740e2f587c5644a9d743c77">
+<div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>         est           se 
 -274.2571683    0.8639223 </code></pre>
 </div>
 </div>
-<p>In 4.32 seconds, using 10 cores, we obtain an unbiased likelihood estimate of -274.3 with a Monte Carlo standard error of 0.86.</p>
+<p>In 4.2 seconds, using 8 cores, we obtain an unbiased likelihood estimate of -274.3 with a Monte Carlo standard error of 0.86.</p>
 </section>
 <section id="building-up-a-picture-of-the-likelihood-surface" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="building-up-a-picture-of-the-likelihood-surface">Building up a picture of the likelihood surface</h2>
@@ -626,7 +663,7 @@ In practice, we can test this claim on examples.</p>
 <li>For simplicity, we’ll use the same perturbation size on <span class="math inline">\(\rho\)</span>.</li>
 <li>We fix <code>cooling.fraction.50=0.5</code>, so that after 50 <code>mif2</code> iterations, the perturbations are reduced to half their original magnitudes.</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/local_search_07ab3d655632d9bc7a755ba2c2a3113a">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>,<span class="at">.combine=</span>c,</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">482947940</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -653,7 +690,7 @@ In practice, we can test this claim on examples.</p>
 <section id="iterated-filtering-diagnostics" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="iterated-filtering-diagnostics">Iterated filtering diagnostics</h2>
 <p>We obtain some diagnostic plots with the <code>plot</code> command applied to <code>mifs_local</code>. Here is a way to get a prettier version:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/local_search_plot_e8e15f30dd944ba892e4609a3bb57f04">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mifs_local <span class="sc">|&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">traces</span>() <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">melt</span>() <span class="sc">|&gt;</span></span>
@@ -664,7 +701,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/local_search_plot-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/local_search_plot-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -686,7 +723,7 @@ In practice, we can test this claim on examples.</p>
 <li>Partly, this is because <code>mif2</code> is usually carried out with fewer particles than are needed for a good likelihood evaluation.</li>
 </ul>
 <p>Therefore, we evaluate the likelihood, together with a standard error, using replicated particle filters at each point estimate.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/lik_local_b2496e4cf0134026a00b854eaecfaa6d">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">mf=</span>mifs_local,<span class="at">.combine=</span>rbind,</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">900242057</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -697,7 +734,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>} <span class="ot">-&gt;</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>On 10 processors, this local investigation took 14~sec for the maximization and 5~sec for the likelihood evaluation.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/mle_local_2be203242bc1fbd41ca1e3bf257e206e">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span> <span class="fu">filter</span>(loglik<span class="sc">==</span><span class="fu">max</span>(loglik))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 8
@@ -707,12 +744,12 @@ In practice, we can test this claim on examples.</p>
 </div>
 </div>
 <p>These repeated stochastic maximizations can also show us the geometry of the likelihood surface in a neighborhood of this point estimate:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pairs_local_cd7b5daccc1682a960ab75b171689573">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="sc">~</span>loglik<span class="sc">+</span>Beta<span class="sc">+</span>Eta<span class="sc">+</span>Rho,<span class="at">data=</span>results,<span class="at">pch=</span><span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pairs_local-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/pairs_local-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -747,7 +784,7 @@ In practice, we can test this claim on examples.</p>
 </ul>
 <p>For our measles model, a box containing reasonable parameter values might be <span class="math inline">\(\beta\in (5,80)\)</span>, <span class="math inline">\(\rho\in (0.2,0.9)\)</span>, <span class="math inline">\(\eta\in (0,1)\)</span>.</p>
 <p>We are now ready to carry out likelihood maximizations from diverse starting points.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/global_search1_35299af033333a03ce6fc1c26cdb9291">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2062379496</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">runif_design</span>(</span>
@@ -758,7 +795,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>mf1 <span class="ot">&lt;-</span> mifs_local[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/global_search2_a06c59bfbd1bd0e0fd9e1b249cd5f6a8">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">1270401374</span>)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -785,7 +822,7 @@ In practice, we can test this claim on examples.</p>
 </ul></li>
 <li><p>Following the <code>mif2</code> computations, the particle filter is used to evaluate the likelihood, as before.</p></li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/mle_global_9e292da2f01d982361a75bb99cbae547">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span> <span class="fu">filter</span>(loglik<span class="sc">==</span><span class="fu">max</span>(loglik))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 8
@@ -800,7 +837,7 @@ In practice, we can test this claim on examples.</p>
 <li>This took 13.7 minutes altogether using 10 processors.</li>
 </ul>
 <p>Again, we attempt to visualize the global geometry of the likelihood surface using a scatterplot matrix. In particular, here we plot both the starting values (grey) and the IF2 estimates (red).</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pairs_global1_c938d719f58521804e99a759485a372d">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">50</span>) <span class="sc">|&gt;</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(guesses) <span class="sc">|&gt;</span></span>
@@ -812,7 +849,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pairs_global1-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/pairs_global1-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -823,7 +860,7 @@ In practice, we can test this claim on examples.</p>
 <li>This gives us some confidence in our maximization procedure.</li>
 </ul>
 <p>The projections of the estimates give us `<code>poor man</code>s profiles’’:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/pairs_global2_cb70905b99fe00f62b90e5b311615ff2">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>all <span class="sc">|&gt;</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(type<span class="sc">==</span><span class="st">"result"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">10</span>) <span class="sc">|&gt;</span></span>
@@ -836,7 +873,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/pairs_global2-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/pairs_global2-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -854,7 +891,7 @@ In practice, we can test this claim on examples.</p>
 <li>To do this, we’ll first bound the uncertainty by putting a box around the highest-likelihood estimates we’ve found so far.</li>
 <li>Within this box, we’ll choose some random starting points, for each of several values of <span class="math inline">\(\eta\)</span>.</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile1a_b3a7d5a935d2f473dc4692a1c1fb76e1">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">20</span>,loglik.se<span class="sc">&lt;</span><span class="dv">2</span>) <span class="sc">|&gt;</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(range) <span class="ot">-&gt;</span> box</span>
@@ -868,7 +905,7 @@ In practice, we can test this claim on examples.</p>
 [2,] -104.2847 0.56960880</code></pre>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile1b_cd1e89297619c3c5743244eb3e5d98f1">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freeze</span>(<span class="at">seed=</span><span class="dv">1196696958</span>,</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">profile_design</span>(</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Eta=</span><span class="fu">seq</span>(<span class="fl">0.01</span>,<span class="fl">0.95</span>,<span class="at">length=</span><span class="dv">40</span>),</span>
@@ -880,7 +917,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile1b-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile1b-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -890,7 +927,7 @@ In practice, we can test this claim on examples.</p>
 <li>We’ll be careful to keep <span class="math inline">\(\eta\)</span> fixed.</li>
 <li>This is accomplished by not giving this parameter a random perturbation in the <code>mif2</code> call.</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile2_15e096bf61343a574a5e7107ffa997d1">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">830007657</span>)</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -917,7 +954,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>loglik) <span class="sc">|&gt;</span></span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="st">"measles_params.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile_pairs_154ef9ddb588a5651e12539360bb99ab">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">10</span>) <span class="ot">-&gt;</span> all</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -925,26 +962,26 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile_pairs-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile_pairs-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Plotting just the results of the profile calculation reveals that, while some of the IF2 runs either become “stuck” on local minima or run out of opportunity to reach the heights of the likelihood surface, many of the runs converge on high likelihoods.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile_plot1_35352c72205c3d7ad4a0dc4cf8fb6479">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Eta,<span class="at">y=</span>loglik))<span class="sc">+</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">xlab</span>(<span class="fu">expression</span>(eta))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile_plot1-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile_plot1-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>A closer look shows what at first appears to be quite a flat surface over much of the explored range of <span class="math inline">\(\eta\)</span>. Note that this appearance is due to the vertical scale, which is driven by the very low likelihoods associated with the smallest values of <span class="math inline">\(\eta\)</span>.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile_plot2_c9833fbb6314e925d040fe588fbbd0c2">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.finite</span>(loglik)) <span class="sc">|&gt;</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="fu">round</span>(Eta,<span class="dv">5</span>)) <span class="sc">|&gt;</span></span>
@@ -956,13 +993,13 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile_plot2-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile_plot2-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Focusing on just the top of the surface shows that, in fact, one is able to estimate <span class="math inline">\(\eta\)</span> using these data. In the following plot, the cutoff for the 95% confidence interval (CI) is shown.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile_plot3_87366a607d8d15d70487f93d68497392">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>maxloglik <span class="ot">&lt;-</span> <span class="fu">max</span>(results<span class="sc">$</span>loglik,<span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>ci.cutoff <span class="ot">&lt;-</span> maxloglik<span class="fl">-0.5</span><span class="sc">*</span><span class="fu">qchisq</span>(<span class="at">df=</span><span class="dv">1</span>,<span class="at">p=</span><span class="fl">0.95</span>)</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -979,7 +1016,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile_plot3-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile_plot3-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -991,7 +1028,7 @@ In practice, we can test this claim on examples.</p>
 <li>We can plot <span class="math inline">\(\rho\)</span> vs <span class="math inline">\(\eta\)</span> across the profile.</li>
 <li>This is called a <em>profile trace</em>.</li>
 </ul>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/eta_profile_eta_by_rho_41f60b638d163248bfbdceaf6b5d49ea">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.finite</span>(loglik)) <span class="sc">|&gt;</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="fu">round</span>(Eta,<span class="dv">5</span>)) <span class="sc">|&gt;</span></span>
@@ -1009,7 +1046,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/eta_profile_eta_by_rho-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/eta_profile_eta_by_rho-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -1019,7 +1056,7 @@ In practice, we can test this claim on examples.</p>
 <h2 class="allowframebreaks anchored" data-anchor-id="profile-over-rho">Profile over <span class="math inline">\(\rho\)</span></h2>
 <p>While the above profile trace is suggestive that the 95% CI for <span class="math inline">\(\rho\)</span> must be between roughly 4% and 20%, to confirm this, we should construct a proper profile likelihood over <span class="math inline">\(\rho\)</span>. We do so now.</p>
 <p>This time, we will initialize the IF2 computations at points we have already established have high likelihoods.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rho_profile1_f49fb33f79e4c47f3ea3778b8765e55c">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">cut=</span><span class="fu">round</span>(Rho,<span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">rank</span>(<span class="sc">-</span>loglik)<span class="sc">&lt;=</span><span class="dv">10</span>) <span class="sc">|&gt;</span></span>
@@ -1027,7 +1064,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>loglik) <span class="sc">|&gt;</span></span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>cut,<span class="sc">-</span>loglik,<span class="sc">-</span>loglik.se) <span class="ot">-&gt;</span> guesses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rho_profile2_128300bfb677d54178fa11829960fd01">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">2105684752</span>)</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -1047,25 +1084,25 @@ In practice, we can test this claim on examples.</p>
 </section>
 <section id="profile-over-rho-results" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="profile-over-rho-results">Profile over <span class="math inline">\(\rho\)</span>: results</h2>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/prof-rho1_670a40515d967c789e942e6e7490abf6">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/prof-rho1-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/prof-rho1-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-4_6aec387960446cc7a6621874020824ab">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/unnamed-chunk-4-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/unnamed-chunk-4-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/rho_ci_9e7e12b91ba1a07645fcc5fee0bec7d4">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="fl">0.5</span><span class="sc">*</span><span class="fu">qchisq</span>(<span class="at">df=</span><span class="dv">1</span>,<span class="at">p=</span><span class="fl">0.95</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">min=</span><span class="fu">min</span>(Rho),<span class="at">max=</span><span class="fu">max</span>(Rho)) <span class="ot">-&gt;</span> rho_ci</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1099,7 +1136,7 @@ In practice, we can test this claim on examples.</p>
 <section id="another-global-search" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="another-global-search">Another global search</h2>
 <p>We will estimate the model under the assumption that <span class="math inline">\(\rho=0.6\)</span>, but without making assumptions about the duration of the infectious period. As before, we’ll construct a random design of starting parameters.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/exp_global_search1_d04374594a3eb89e0245fb65c65a1380">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freeze</span>(<span class="at">seed=</span><span class="dv">55266255</span>,</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif_design</span>(</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower=</span><span class="fu">c</span>(<span class="at">Beta=</span><span class="dv">5</span>,<span class="at">Gamma=</span><span class="fl">0.2</span>,<span class="at">Eta=</span><span class="dv">0</span>),</span>
@@ -1116,7 +1153,7 @@ In practice, we can test this claim on examples.</p>
 <li>In the following, we’ll use a lot more computational power than we have so far.</li>
 </ul>
 <p>For each of the starting points, we’ll first perform 100 IF2 iterations:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/exp_global_search2a_ecd82f779f33b71e9b33ffe285dacc23">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>measSIR <span class="sc">|&gt;</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mif2</span>(<span class="at">params=</span>guess, <span class="at">Np=</span><span class="dv">2000</span>, <span class="at">Nmif=</span><span class="dv">100</span>,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cooling.fraction.50=</span><span class="fl">0.5</span>,</span>
@@ -1127,7 +1164,7 @@ In practice, we can test this claim on examples.</p>
 </div>
 <p>We use random perturbations of the same magnitude as before, taking care to transform the parameters we are estimating.</p>
 <p>We adopt a <em>simulated tempering</em> approach (following a metallurgical analogy), in which we increase the size of the random perturbations some amount (i.e., “reheat”), and then continue cooling.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/exp_global_search2b_737daca38b4f9989ec412ff31fa29095">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mf <span class="sc">|&gt;</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mif2</span>(</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Nmif=</span><span class="dv">100</span>,<span class="at">rw.sd=</span><span class="fu">rw_sd</span>(<span class="at">Beta=</span><span class="fl">0.01</span>,<span class="at">Gamma=</span><span class="fl">0.01</span>,<span class="at">Eta=</span><span class="fu">ivp</span>(<span class="fl">0.01</span>))</span>
@@ -1140,7 +1177,7 @@ In practice, we can test this claim on examples.</p>
 <p>We wrap the above in a <code>foreach</code> loop as before and take care to evaluate the likelihood at each end-point using <code>pfilter</code>.</p>
 <p>See the <a href="./main.R"><code>R</code> code for this lesson</a> to see exactly how this is done.</p>
 <p>The computations above required 55.8 minutes on 10 processors.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/another-search_096d3ae0951c55926694caa596d75b9f">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">20</span>) <span class="ot">-&gt;</span> all</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1149,12 +1186,12 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/another-search-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/another-search-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/poorman-gamma2_36a25e68c0f4d8efcfb17211d38d90ec">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">20</span>,loglik.se<span class="sc">&lt;</span><span class="dv">1</span>) <span class="sc">|&gt;</span></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Gamma,<span class="at">y=</span>loglik))<span class="sc">+</span></span>
@@ -1166,7 +1203,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/poorman-gamma2-1.png" style="height:80.0%" width="2400" class="figure-img"></p>
+<p><img src="tmp//figure/poorman-gamma2-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="2400"></p>
 </figure>
 </div>
 </div>
@@ -1175,7 +1212,7 @@ In practice, we can test this claim on examples.</p>
 <section id="profile-over-infectious-period" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="profile-over-infectious-period">Profile over infectious period</h2>
 <p>To make inferences about <span class="math inline">\(\gamma\)</span>, we can again compute a profile likelihood. As before, we bound the region we will search:</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/gamma_profile1a_8a0a38ed449f2d6008565e1ed0cff82e">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    loglik<span class="sc">&gt;</span><span class="fu">max</span>(loglik)<span class="sc">-</span><span class="dv">20</span>,</span>
@@ -1184,7 +1221,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sapply</span>(range) <span class="ot">-&gt;</span> box</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/gamma_profile1b_9677ae8a933dbf9b32b683cf6701a2da">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">freeze</span>(<span class="at">seed=</span><span class="dv">610408798</span>,</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">profile_design</span>(</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Gamma=</span><span class="fu">seq</span>(<span class="fl">0.2</span>,<span class="dv">2</span>,<span class="at">by=</span><span class="fl">0.1</span>),</span>
@@ -1198,7 +1235,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">k=</span><span class="dv">10</span></span>
 <span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> guesses</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/gamma_profile2_ebc6926b38889937df1e0fd5c2b2c2f5">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foreach</span>(<span class="at">guess=</span><span class="fu">iter</span>(guesses,<span class="st">"row"</span>), <span class="at">.combine=</span>rbind,</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">.options.future=</span><span class="fu">list</span>(<span class="at">seed=</span><span class="dv">610408798</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%dofuture%</span> {</span>
@@ -1220,7 +1257,7 @@ In practice, we can test this claim on examples.</p>
 </section>
 <section id="infectious-period-profile" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="infectious-period-profile">Infectious period profile</h2>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/gamma_profile_plot_3dbd9fdaa6e7f2ea0272aaaa46824551">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>results <span class="sc">|&gt;</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="fu">round</span>(Gamma,<span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">rank</span>(<span class="sc">-</span>loglik)<span class="sc">&lt;=</span><span class="dv">1</span>) <span class="sc">|&gt;</span></span>
@@ -1234,7 +1271,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/gamma_profile_plot-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/gamma_profile_plot-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -1248,7 +1285,7 @@ In practice, we can test this claim on examples.</p>
 <section id="visualizing-predictions" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="visualizing-predictions">Visualizing predictions</h2>
 <p>After all these analyses, we would like to visualize how exactly the model with the MLEs matches the data. We can do it by plotting the simulations with 95% the prediction interval.</p>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/unnamed-chunk-7_8a88282f68ce4dba7d0c73b6d9355a35">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"measles_params.csv"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(loglik <span class="sc">==</span> <span class="fu">max</span>(loglik)) <span class="sc">|&gt;</span></span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loglik, <span class="sc">-</span>loglik.se) <span class="ot">-&gt;</span> best.params</span>
@@ -1259,7 +1296,7 @@ In practice, we can test this claim on examples.</p>
 <span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim=</span><span class="dv">1000</span>, <span class="at">format=</span><span class="st">"data.frame"</span>, <span class="at">include.data=</span><span class="cn">TRUE</span></span>
 <span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> sims</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center" data-hash="tmp//cache/viz-predictions_3f56498ab3b7080b0575852c191a0a38">
+<div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>sims <span class="sc">|&gt;</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">data=</span>.id<span class="sc">==</span><span class="st">"data"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week,data) <span class="sc">|&gt;</span></span>
@@ -1276,7 +1313,7 @@ In practice, we can test this claim on examples.</p>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="tmp//figure/viz-predictions-1.png" style="height:80.0%" width="1800" class="figure-img"></p>
+<p><img src="tmp//figure/viz-predictions-1.png" class="quarto-figure quarto-figure-center figure-img" style="height:80.0%" data-fig-pos="h!" width="1800"></p>
 </figure>
 </div>
 </div>
@@ -1340,7 +1377,7 @@ In practice, we can test this claim on examples.</p>
 <h1>References</h1>
 <section id="references-1" class="level2 allowframebreaks">
 <h2 class="allowframebreaks anchored" data-anchor-id="references-1">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-Anderson1991" class="csl-entry" role="listitem">
 Anderson, R. M., and R. M. May. 1991. <em>Infectious Diseases of Humans</em>. Oxford: Oxford Univesity Press.
 </div>
@@ -1373,7 +1410,7 @@ Toni, Tina, David Welch, Natalja Strelkowa, Andreas Ipsen, and Michael P. H. Stu
 <li><p>This lesson is prepared for the <a href="https://rubbislam.quarto.pub/episim/">Simulation-based Inference for Epidemiological Dynamics</a> module at the Summer Institute in Statistics and Modeling in Infectious Diseases, <a href="https://sph.emory.edu/SISMID/index.html">SISMID</a>.</p></li>
 <li><p>The materials build on <a href="../acknowledge.html">previous versions of this course and related courses</a>.</p></li>
 <li><p>Licensed under the <a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial license</a>. Please share and remix non-commercially, mentioning its origin. </p></li>
-<li><p>Produced with R version 4.3.2 and pomp version 5.10.</p></li>
+<li><p>Produced with R version 4.4.0 and pomp version 5.9.</p></li>
 <li><p>Compiled on 2024-07-24.</p></li>
 </ul>
 <p><a href="index.html">Back to Lesson</a></p>
@@ -1419,18 +1456,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1462,11 +1488,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1476,8 +1541,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1489,7 +1563,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1533,6 +1730,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1558,6 +1756,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1618,6 +1842,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
