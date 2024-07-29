@@ -42,32 +42,18 @@
     "text": "Troubleshooting\n\nLinux and unix users\nIf you have trouble with any of the scripts above, make sure you have the GNU compiler collection (GCC), including gfortran, installed on your computer. Linux distributions typically include this by default but it is not impossible that you have somehow avoided this.\n\n\nMacOS users\nIf the pompTest.R script fails because you cannot load pomp, try installing it from source. The easiest way to do this is to execute\n\ninstall.packages(\"pomp\",repos=\"https://kingaa.github.io/\")\n\nin an R session. You can also use the devtools package. Do\n\ninstall.packages(\"devtools\")\nlibrary(devtools)\ninstall_github(\"kingaa/pomp\")\n\nIf, while trying to install from source, you receive the error,\n\nmake: gfortran-8.2: No such file or directory\n\nor one that otherwise refers to gfortran, then it is likely that you do not have the necessary version of gfortran installed. Have a look at these instructions and contact me at the address above if these don’t work for you.\nSome users have reported receiving an error complaining that\n\n'stdlib.h' file not found\n\nThis indicates that the command-line tools from Xcode have not been properly installed. In a unix terminal, run\n\nxcode-select --install\n\nto correct this problem.\n\n\nWindows users\nYou have probably failed to install the Rtools correctly. Revisit the instructions above.\n\nPre-course instructions for Windows users (Video)\nPre-course instructions for MacOS users (Video)"
   },
   {
-    "objectID": "likelihood.html",
-    "href": "likelihood.html",
-    "title": "Likelihood-based inference for POMP models",
+    "objectID": "simulation.html",
+    "href": "simulation.html",
+    "title": "Simulation of stochastic dynamic models",
     "section": "",
-    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (112 min)\n\n\nQuiz\nPDF\n\n\nData for the lesson\ndata\n\n\nR script for the Measles SIR model\nR\n\n\nR script for the lesson\nR\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models\nHTML\n\n\nSupplement: Monte Carlo Methods\nPDF\n\n\nSupplement: Likelihood by direct simulation: Consett measles example\nHTML\n\n\nSupplement: Standard errors via the observed Fisher information\nHTML\n\n\nSupplement: Bootstrap methods\nHTML\n\n\nSupplement: Direct maximization of the particle filter likelihood\nHTML\n\n\nWorked solution to Exercise 3.1\nHTML\n\n\nWorked solution to Exercise 3.2\nHTML\n\n\nWorked solution to Exercise 3.3\nHTML"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020)\nVideo (98 min)\n\n\nQuiz\nPDF\n\n\nMeasles data for the lesson\ndata\n\n\nR script for the lesson\nR\n\n\nWorked solutions to the Exercises\nHTML"
   },
   {
-    "objectID": "introduction.html",
-    "href": "introduction.html",
-    "title": "Introduction to Simulation-based Inference for Epidemiological Dynamics",
+    "objectID": "iterated.html",
+    "href": "iterated.html",
+    "title": "Iterated filtering: principles and practice",
     "section": "",
-    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021,2022)\nVideo (50 min)\n\n\nAnother example (Ricker model)\nHTML"
-  },
-  {
-    "objectID": "case study.html",
-    "href": "case study.html",
-    "title": "Case study: Meta population modelling",
-    "section": "",
-    "text": "Meta-population slides\nPDF\n\n\nSpanish Flu data for the lesson\ndata\n\n\nR script for the meta-population model\nR"
-  },
-  {
-    "objectID": "Bayesian.html",
-    "href": "Bayesian.html",
-    "title": "Bayesian statistics and PMCMC in pomp",
-    "section": "",
-    "text": "Lecture slides\nPDF\n\n\nR script for Bayesian inference\nR"
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (110 min)\n\n\nQuiz\nPDF\n\n\nData for the lesson\ndata\n\n\nR script for the Measles SIR model\nR\n\n\nR script for the lesson\nR\n\n\nWorkflow slides\nPDF\n\n\nR script for the workflow\nR\n\n\nWindows-safe R script for the lesson\nR\n\n\nSupplement: Tuning IF2\nHTML\n\n\nWorked solution to Exercise 4.1\nHTML\n\n\nWorked solution to Exercise 4.2\nHTML"
   },
   {
     "objectID": "index.html",
@@ -112,17 +98,38 @@
     "text": "Acknowledgements\nThis website and all the materials are adapted from https://kingaa.github.io/sbied/. We would like send our sincere gratitude to Professors Aaron A. King and Edward L. Ionides for creating this wonderful course and for helping us developing our own version."
   },
   {
-    "objectID": "iterated.html",
-    "href": "iterated.html",
-    "title": "Iterated filtering: principles and practice",
+    "objectID": "Bayesian.html",
+    "href": "Bayesian.html",
+    "title": "Bayesian statistics and PMCMC in pomp",
     "section": "",
-    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (110 min)\n\n\nQuiz\nPDF\n\n\nData for the lesson\ndata\n\n\nR script for the Measles SIR model\nR\n\n\nR script for the lesson\nR\n\n\nWorkflow slides\nPDF\n\n\nR script for the workflow\nR\n\n\nWindows-safe R script for the lesson\nR\n\n\nSupplement: Tuning IF2\nHTML\n\n\nWorked solution to Exercise 4.1\nHTML\n\n\nWorked solution to Exercise 4.2\nHTML"
+    "text": "Lecture slides\nPDF\n\n\nR script for Bayesian inference\nR"
   },
   {
-    "objectID": "simulation.html",
-    "href": "simulation.html",
-    "title": "Simulation of stochastic dynamic models",
+    "objectID": "case study.html",
+    "href": "case study.html",
+    "title": "Case study: Meta population modelling",
     "section": "",
-    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020)\nVideo (98 min)\n\n\nQuiz\nPDF\n\n\nMeasles data for the lesson\ndata\n\n\nR script for the lesson\nR\n\n\nWorked solutions to the Exercises\nHTML"
+    "text": "Meta-population slides\nPDF\n\n\nSpanish Flu data for the lesson\ndata\n\n\nR script for the meta-population model\nR"
+  },
+  {
+    "objectID": "introduction.html",
+    "href": "introduction.html",
+    "title": "Introduction to Simulation-based Inference for Epidemiological Dynamics",
+    "section": "",
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021,2022)\nVideo (50 min)\n\n\nAnother example (Ricker model)\nHTML"
+  },
+  {
+    "objectID": "likelihood.html",
+    "href": "likelihood.html",
+    "title": "Likelihood-based inference for POMP models",
+    "section": "",
+    "text": "Lecture slides\nPDF\n\n\nReference Recording (2020,2021)\nVideo (112 min)\n\n\nQuiz\nPDF\n\n\nData for the lesson\ndata\n\n\nR script for the Measles SIR model\nR\n\n\nR script for the lesson\nR\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models\nHTML\n\n\nSupplement: Monte Carlo Methods\nPDF\n\n\nSupplement: Likelihood by direct simulation: Consett measles example\nHTML\n\n\nSupplement: Standard errors via the observed Fisher information\nHTML\n\n\nSupplement: Bootstrap methods\nHTML\n\n\nSupplement: Direct maximization of the particle filter likelihood\nHTML\n\n\nWorked solution to Exercise 3.1\nHTML\n\n\nWorked solution to Exercise 3.2\nHTML\n\n\nWorked solution to Exercise 3.3\nHTML"
+  },
+  {
+    "objectID": "workflow.html",
+    "href": "workflow.html",
+    "title": "Suggested workflow for epidemiological modeling and inference",
+    "section": "",
+    "text": "Suggested workflow slides\nPDF\n\n\nData for the lesson.\ndata\n\n\nR script for the Measles SIR model\nR\n\n\nR script for the workflow\nR"
   }
 ]

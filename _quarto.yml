@@ -24,6 +24,8 @@ website:
         text: Likelihood
       - href: iterated.qmd
         text: Iterated filtering
+      - href: workflow.qmd
+        text: Workflow
       - href: Bayesian.qmd
         text: Bayesian
       - href: case study.qmd

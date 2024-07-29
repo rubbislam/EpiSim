@@ -1,5 +1,5 @@
 ---
-title: "Summary: workflow"
+title: "Suggested workflow for epidemiological modeling and inference"
 author:
   - Qianying (Ruby) Lin
   - Spencer J. Fox

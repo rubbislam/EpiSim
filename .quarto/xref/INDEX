@@ -404,5 +404,8 @@
   },
   "slides/mif/workflow.qmd": {
     "workflow.html": "50d83b1a"
+  },
+  "workflow.qmd": {
+    "workflow.html": "b3545ee8"
   }
 }
