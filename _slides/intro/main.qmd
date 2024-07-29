@@ -111,10 +111,6 @@ source("../_includes/setup.R", local = knitr::knit_global())
 
 <!-- ::: -->
 
-## Survey results
-
--   A few key points from the surbey that we want to highlight - maybe move to before the course objective depending on what we think
-
 ## Objectives for this lesson
 
 -   To understand the motivations for simulation-based inference in the study of epidemiological and ecological systems.

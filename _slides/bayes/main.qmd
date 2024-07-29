@@ -3,6 +3,7 @@ title: "Bayesian statistics and pomp"
 author:
   - Qianying (Ruby) Lin
   - Spencer J. Fox
+  - Zian (Larry) Zhuang
 format: 
   beamer:
     keep_tex: true

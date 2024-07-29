@@ -510,7 +510,7 @@ read_csv("Measles_Consett_1948.csv") |>
 meas |> as.data.frame() |> head(n=3)
 ```
 
-\vspace{-25mm}
+\vspace{-15mm}
 
 ::: columns
 ::: {.column width="30%"}
