@@ -50,35 +50,35 @@ plan(multisession)
 ## Summary {.allowframebreaks}
 
 1. **Data Preparation and Model Specification**
-    - **Data Initialization**: Visualize the initial data to get a sense of the disease outbreak dynamics. 
+    - **Data Initialization**: Visualize the initial data to get a sense of the disease outbreak dynamics. (*Simulation P22*)
     - **Model Definition**: Implement the defined SIR model in `pomp`
-      - Set up a stochastic SIR (Susceptible, Infected, Recovered) model using custom C snippets for state transitions and measurements.
-      - Specify the measurement, process, and initialization functions along with model parameters.
+      - Set up a stochastic SIR (Susceptible, Infected, Recovered) model using custom C snippets for state transitions and measurements. (*Simulation P36*)
+      - Specify the measurement, process, and initialization functions along with model parameters. (*Simulation P38-40*)
 
 2. **Preliminary Analysis**
-    - **Simulation and Visualization**: Simulate the SIR model to visualize potential outcomes and compare to data.
-    - **Likelihood Estimation**: Evaluate the likelihood and Effective Sample Size of the initial parameter estimates using particle filtering.
+    - **Simulation and Visualization**: Simulate the SIR model to visualize potential outcomes and compare to data. (*Simulation P44*)
+    - **Likelihood Estimation**: Evaluate the likelihood and Effective Sample Size of the initial parameter estimates using particle filtering. (*likelihood P28-29*)
     
 \framebreak
 
 3. **Local Optimization**
-    - **Iterated Filtering for Local Maximum**: Apply iterated filtering to find a local maximum near the initial guesses.
-    - **Diagnostics and Visualization**: Diagnose the iterated filtering process and visualize parameter traces to assess convergence.
+    - **Iterated Filtering for Local Maximum**: Apply iterated filtering to find a local maximum near the initial guesses. (*Iterated filtering P27*)
+    - **Diagnostics and Visualization**: Diagnose the iterated filtering process and visualize parameter traces to assess convergence. (*Iterated filtering P30*)
 
 4. **Global Optimization**
-    - **Set Up for Global Search**: Define a parameter space for global optimization.
-    - **Global Search Execution**: Conduct global optimization using multiple starting points to ensure robustness of the findings.
-    - **Result Compilation**: Compile and compare results from global searches, focusing on the best parameter estimates.
+    - **Set Up for Global Search**: Define a parameter space for global optimization. (*Iterated filtering P38*)
+    - **Global Search Execution**: Conduct global optimization using multiple starting points to ensure robustness of the findings. (*Iterated filtering P39*)
+    - **Result Compilation**: Compile and compare results from global searches, focusing on the best parameter estimates. (*Iterated filtering P42,45*)
 
 \framebreak
 
 5. **Profile Likelihood Estimation**
-    - **Parameter Profiling**: For each parameter, perform profiling to map the likelihood landscape and establish confidence intervals.
-    - **Visualization of Profile Likelihoods**: Visualize the profile likelihoods to understand parameter sensitivity and uncertainty.
+    - **Parameter Profiling**: For each parameter, perform profiling to map the likelihood landscape and establish confidence intervals. (*Iterated filtering P48,49,52*)
+    - **Visualization of Profile Likelihoods**: Visualize the profile likelihoods to understand parameter sensitivity and uncertainty. (*Iterated filtering P53, 57, 60*)
 
 6. **Final Model Evaluation**
-    - **Model Predictions**: Use the best-fitting parameters to simulate the model outcomes and compare these against observed data.
-    - **Visualization of Predictions**: Create visualizations to compare the model predictions with actual data, highlighting the prediction intervals.
+    - **Model Predictions**: Use the best-fitting parameters to simulate the model outcomes and compare these against observed data. (*Iterated filtering P87*)
+    - **Visualization of Predictions**: Create visualizations to compare the model predictions with actual data, highlighting the prediction intervals. (*Iterated filtering P88*)
     
 7. **Documentation and Storage**
     - **Record-Keeping**: All intermediate and final results should be stored in CSV files for further analysis or reproducibility of the study.
@@ -135,7 +135,7 @@ meas |>
     dmeasure=dmeas, accumvars="H",
     statenames=c("S","I","R","H"),
     paramnames=c("Beta","Gamma","Eta","Rho","k","N"),
-    params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000)
+    params=c(Beta=15,Gamma=2,Rho=0.5,k=10,Eta=0.06,N=38000)
   ) -> measSIR
 ```
 
