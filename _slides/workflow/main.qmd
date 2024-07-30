@@ -63,7 +63,7 @@ plan(multisession)
 
 3. **Local Optimization**
     - **Iterated Filtering for Local Maximum**: Apply iterated filtering to find a local maximum near the initial guesses. (*Iterated filtering P27*)
-    - **Diagnostics and Visualization**: Diagnose the iterated filtering process and visualize parameter traces to assess convergence. (*Iterated filtering P30*)
+    - **Diagnostics and Visualization**: Diagnose the iterated filtering process and visualize parameter traces to assess convergence. (*Iterated filtering P29,33,34*)
 
 4. **Global Optimization**
     - **Set Up for Global Search**: Define a parameter space for global optimization. (*Iterated filtering P38*)
@@ -233,6 +233,40 @@ mifs_local |>
   geom_line()+
   guides(color="none")+
   facet_wrap(~name,scales="free_y")
+```
+
+- evaluate the likelihood, together with a standard error
+
+```{r lik_local,eval=FALSE,purl=FALSE}
+foreach(mf=mifs_local,.combine=rbind,
+  .options.future=list(seed=900242057)
+) %dofuture% {
+  evals <- replicate(10, logLik(pfilter(mf,Np=5000)))
+  ll <- logmeanexp(evals,se=TRUE)
+  mf |> coef() |> bind_rows() |>
+    bind_cols(loglik=ll[1],loglik.se=ll[2])
+} -> results
+```
+
+```{r lik_local_eval,include=FALSE}
+bake(file="lik_local.rds",{
+  <<lik_local>>
+  attr(results,"ncpu") <- nbrOfWorkers()
+  results
+}) -> results
+t_local <- attr(results,"system.time")
+ncpu_local <- attr(results,"ncpu")
+```
+
+```{r mle_local}
+results |> filter(loglik==max(loglik))
+```
+
+- Generate likelihood surface
+
+```{r pairs_local,fig.width=8, fig.height=6, dpi=300}
+#| out-height: 80%
+pairs(~loglik+Beta+Eta+Rho,data=results,pch=16)
 ```
 
 # Global Optimization 
