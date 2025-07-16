@@ -14,7 +14,12 @@ engine: knitr
 
 ## Module Description
 
-This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in **R** to carry out maximum likelihood and Bayesian inference. Knowledge of the material in Module 1 is assumed. Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tutorial/) before the module.
+This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. 
+The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. 
+Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. 
+Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in **R** to carry out maximum likelihood and Bayesian inference. 
+Knowledge of the material in Module 1 is assumed. 
+Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tutorial/) before the module.
 
 ## Course objectives
 
@@ -50,8 +55,10 @@ This module introduces statistical inference techniques and computational method
 
 ## Stochastic SIR simulator
 
-For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework.
+For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course. 
+This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework.
 
 ## Acknowledgements
 
-This website and all the materials are adapted from <https://kingaa.github.io/sbied/>. We would like send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) for creating this wonderful course and for helping us developing our own version.
+This website and all the materials are adapted from <https://kingaa.github.io/sbied/>. 
+We would like to send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) for creating this wonderful course and for helping us developing our own version.

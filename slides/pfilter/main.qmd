@@ -3,7 +3,7 @@ title: "Lesson 3: Likelihood-based inference for POMP models"
 author:
   - Qianying (Ruby) Lin
   - Spencer J. Fox
-  - Zian (Larry) Zhuang
+  - Jesse Wheeler
 format: 
   beamer:
     classoption: "t"
@@ -161,19 +161,31 @@ Thus, the objective of this lesson is to discuss how we compute the
 likelihood given a model of interest with a proposed set of parameters
 in both theory and in `pomp`.
 
-## Definition of the likelihood function
+## Definition of the likelihood function {.allowframebreaks}
 
--   Notations:
+-   How likely the data are drawn from a distribution or sampled from a model?
+
+\vfill
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=5.5cm]{../graphics/likely_graph.pdf}
+  \end{center}
+```
+
+
+\framebreak
+
+- Notations:
     -   $y_{1:N}^*$: the data, a sequence of $N$ observations
     -   $f_{Y_{1:N}}(y_{1:N};\theta)$: the statistical model, a
         probability distribution for each value of a parameter vector
         $\theta$
     -   $Y_{1:N} \sim f_{Y_{1:N}}(y_{1:N};\theta)$: a random variable
         drawn from distribution $f_{Y_{1:N}}(y_{1:N};\theta)$
--   The likelihood function is
-    $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta),$$ the density
-    function evaluated at the data.
--   It is often convenient to work with the log-likelihood function,
+-   The likelihood function is used to measure the ``how likely'':
+    $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta).$$
+-   The log-likelihood function:
     $$\loglik(\theta)= \log \lik(\theta) = \log f_{Y_{1:N}}(y^*_{1:N};\theta).$$
 
 <!-- ## Modeling using discrete and continuous distributions -->
@@ -204,7 +216,7 @@ in both theory and in `pomp`.
 
 <!--     apply also to discrete models. -->
 
-## A simulator is implicitly a statistical model
+## Simulation is easy for complex models
 
 -   $f_{Y_{1:N}}(y_{1:N};\theta)$ is simple and with an explicit
     expression:
@@ -217,6 +229,8 @@ in both theory and in `pomp`.
         model, is a bit more complex but convenient
     -   the likelihood function exists with a complicated expression or
         even without an explicit expression
+
+\vfill
 
 Thus, we can develop numerical methods to compute the complex or
 implicit likelihood functions!
@@ -279,29 +293,26 @@ Recall the following definitions and properties:
     2.  The distribution of the measurement $Y_{n}$, conditional on
         $X_{n}$, is independent of all other variables.
 
--   **The latent process**: $X(t)$, may be defined at all times, but we
+-   The **latent process**: $X(t)$, may be defined at all times, but we
     are particularly interested in its value at observation times.
     Therefore, we write $$X_n=X(t_n).$$
 
     -   We write collections of random variables using the notation
         $X_{0:N}=(X_0,\dots,X_N)$.
 
--   **The one-step transition density**:
-    $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the measurement
-    density, $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the initial density,
+-   The **one-step transition density**,
+    $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the **measurement density**,
+    $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the **initial density**,
     $f_{X_0}(x_0;\theta)$, specify the entire joint density via
 
-    $$
-      \begin{split}
+    $$\begin{split}
               &f_{X_{0:N},Y_{1:N}}(x_{0:N},y_{1:N};\theta)\\
               & \qquad = f_{X_0}(x_0;\theta)\,\prod_{n=1}^N\!f_{X_n | X_{n-1}}(x_n|x_{n-1};\theta)\,f_{Y_n|X_n}(y_n|x_n;\theta).
-      \end{split}
-    $$
+      \end{split}$$
 
 -   **The marginal density for sequence of measurements**: $Y_{1:N}$,
-    evaluated at the data, $y_{1:N}^*$, is $$
-      \lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta)=\int\!f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}.
-    $$
+    evaluated at the data, $y_{1:N}^*$, is 
+    $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta)=\int\!f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}.$$
 
 ## Special case: deterministic latent process
 
@@ -316,8 +327,8 @@ Recall the following definitions and properties:
     then the log-likelihood contains a sum of squares which is exactly
     the criterion that nonlinear least squares regression seeks to
     minimize.
--   More details on deterministic latent process models are given as a
-    [supplement](deterministic.html).
+<!-- -   More details on deterministic latent process models are given as a -->
+    <!-- [supplement](deterministic.html). -->
 
 ## General case: stochastic unobserved state process
 
@@ -361,7 +372,7 @@ but **very short** time series.
 $$
     \begin{aligned}
       \lik(\theta) &= f_{Y_{1:N}}({y^*_{1:N}};\theta)\\
-      &= \int\!\left\{\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| x_n; \theta)\right\}\,f_{X_{0:N}}(x_{0:N};\theta)\, dx_{0:N}.
+      &= \int\!\left\{\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| x_n; \theta)\right\}\,\textcolor{blue}{f_{X_{0:N}}(x_{0:N};\theta)\, dx_{0:N}}.
     \end{aligned}
 $$ {#eq-L2}
 
@@ -378,26 +389,31 @@ $$ {#eq-L2}
     $$ where $\{X^j_{0:N}, j=1,\dots,J\}$ is a Monte Carlo sample of
     size $J$ drawn from $f_{X_{0:N}}(x_{0:N};\theta)$.
 
-\framebreak    
+\framebreak   
 
-In conclusion, we can generate trajectories by simulation and all we need to do
-to get a Monte Carlo estimate  of the likelihood is to evaluate the measurement
-density of the data at each trajectory and average. 
-In the context of the **plug-and-play** framework, our algorithm depends on 
-`rprocess` for simulation but does not require `dprocess` for evaluation.
-However, this naive approach scales poorly with dimension:  
 
-  -   it requires a Monte Carlo effort that scales exponentially with the
-    length of the time series, and so is infeasible on anything but a
-    short data set;
-    
-  -   due to stochasticity, once a simulated trajectory diverges from the data, it will seldom come back; 
+\begin{center}
+    \includegraphics[height=7cm]{../graphics/directsim_graph.pdf}
+\end{center}
 
-  -   simulations that lose track and deviate from the data are harmful for likelihood estimation;
+<!-- In conclusion, we can generate trajectories by simulation and all we need to do -->
+<!-- to get a Monte Carlo estimate  of the likelihood is to evaluate the measurement -->
+<!-- density of the data at each trajectory and average.  -->
+<!-- In the context of the **plug-and-play** framework, our algorithm depends on  -->
+<!-- `rprocess` for simulation but does not require `dprocess` for evaluation. -->
+<!-- However, this naive approach scales poorly with dimension:   -->
 
-  -   when simulating a long time series, almost all the simulated trajectories will eventually lose track of the data.
+<!--   -   it requires a Monte Carlo effort that scales exponentially with the -->
+<!--     length of the time series, and so is infeasible on anything but a -->
+<!--     short data set; -->
 
-  -   measles outbreak example: [supplementary material](directSimulation.html).
+<!--   -   due to stochasticity, once a simulated trajectory diverges from the data, it will seldom come back;  -->
+
+<!--   -   simulations that lose track and deviate from the data are harmful for likelihood estimation; -->
+
+<!--   -   when simulating a long time series, almost all the simulated trajectories will eventually lose track of the data. -->
+
+<!--   -   measles outbreak example: [supplementary material](directSimulation.html). -->
 
 # Sequential Monte Carlo
 
@@ -421,7 +437,7 @@ $$ with the understanding that $f_{X_1|Y_{1:0}}=f_{X_1}$.
 $$
   \begin{aligned}
       &f_{X_n|Y_{1:n-1}}(x_n|y^*_{1:n-1}; \theta) \\
-      &\quad = \int \! f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)\, f_{X_{n-1}|Y_{1:n-1}}(x_{n-1}| y^*_{1:n-1}; \theta) \, dx_{n-1}.
+      &\quad = \int \! \textcolor{red}{f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)}\, f_{X_{n-1}|Y_{1:n-1}}(x_{n-1}| y^*_{1:n-1}; \theta) \, dx_{n-1}.
   \end{aligned}
 $$
 
@@ -430,7 +446,7 @@ $$
     \begin{aligned}
         &f_{X_n|Y_{1:n}}(x_n|y^*_{1:n}; \theta)\\
         &\quad = f_{X_n|Y_n,Y_{1:n-1}}(x_n|y^*_n,y^*_{1:n-1}; \theta) \\
-        &\quad =\frac{f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)}{\int f_{Y_n|X_n}(y^*_{n}|u_{n};\theta)\,f_{X_n|Y_{1:n-1}}(u_{n}|y^*_{1:n-1};\theta)\, du_n}.
+        &\quad =\frac{\textcolor{red}{f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)}{\int \textcolor{red}{f_{Y_n|X_n}(y^*_{n}|u_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(u_{n}|y^*_{1:n-1};\theta)\, du_n}.
     \end{aligned}
 $$
 
@@ -457,52 +473,69 @@ $$
 
 \framebreak
 
-A basic particle filter is described as follows:
+<!-- A basic particle filter is visualized as follows, with the number of particles $J=5$: -->
 
-1.  Suppose $X_{n-1,j}^{F}$, $j=1,\dots,J$ is a set of $J$ points drawn
-    from the filtering distribution at time $t_{n-1}$.
-2.  We obtain a sample $X_{n,j}^{P}$ of points drawn from the prediction
-    distribution at time $t_n$ by simply simulating the process model:
-$$
-    X_{n,j}^{P} \sim \mathrm{process}(X_{n-1,j}^{F},\theta), \qquad j=1,\dots,J.
-$$
-3.  Having obtained $x_{n,j}^{P}$, we obtain a sample of points from the
-    filtering distribution at time $t_n$ by *resampling* from
-    $\big\{X_{n,j}^{P},j\in 1:J\big\}$ with weights 
-$$
-    w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta).
-$$
-4.  The Monte Carlo principle tells us that the conditional likelihood
-$$
-    \begin{aligned}
-      \lik_n(\theta) &= f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\\
-      &= \int f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)\, dx_n
-    \end{aligned}
-$$
-  is approximated by
-$$
-  \hat{\lik}_n(\theta)\approx\frac{1}{J}\,\sum_j\,f_{Y_n|X_n}(y^*_{n}|X_{n,j}^{P};\theta)
-$$
-    since $X_{n,j}^{P}$ is approximately a draw from
-    $f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)$.
-5.  We can iterate this procedure through the data, one step at a time,
-    alternately simulating and resampling, until we reach $n=N$.
-6.  The full log-likelihood then has approximation 
+<!-- \vspace{-1cm} -->
+
+<!-- 1.  Suppose $X_{n-1,j}^{F}$, $j=1,\dots,J$ is a set of $J$ points drawn -->
+<!--     from the filtering distribution at time $t_{n-1}$. -->
+<!-- 2.  We obtain a sample $X_{n,j}^{P}$ of points drawn from the prediction -->
+<!--     distribution at time $t_n$ by simply simulating the process model: -->
+<!-- $$ -->
+<!--     X_{n,j}^{P} \sim \mathrm{process}(X_{n-1,j}^{F},\theta), \qquad j=1,\dots,J. -->
+<!-- $$ -->
+<!-- 3.  Having obtained $x_{n,j}^{P}$, we obtain a sample of points from the -->
+<!--     filtering distribution at time $t_n$ by *resampling* from -->
+<!--     $\big\{X_{n,j}^{P},j\in 1:J\big\}$ with weights  -->
+<!-- $$ -->
+<!--     w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta). -->
+<!-- $$ -->
+<!-- 4.  The Monte Carlo principle tells us that the conditional likelihood -->
+<!-- $$ -->
+<!--     \begin{aligned} -->
+<!--       \lik_n(\theta) &= f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\\ -->
+<!--       &= \int f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)\, dx_n -->
+<!--     \end{aligned} -->
+<!-- $$ -->
+<!--   is approximated by -->
+<!-- $$ -->
+<!--   \hat{\lik}_n(\theta)\approx\frac{1}{J}\,\sum_j\,f_{Y_n|X_n}(y^*_{n}|X_{n,j}^{P};\theta) -->
+<!-- $$ -->
+<!--     since $X_{n,j}^{P}$ is approximately a draw from -->
+<!--     $f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)$. -->
+<!-- 5.  We can iterate this procedure through the data, one step at a time, -->
+<!--     alternately simulating and resampling, until we reach $n=N$. -->
+
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/pfilter_graph.pdf}
+\end{center}
+
+\vfill
+
+The full log-likelihood then has approximation 
 $$
     \loglik(\theta) = \log{{\lik}(\theta)} = \sum_n \log{{\lik}_n(\theta)} \approx \sum_n\log\hat{\lik}_n(\theta).
 $$
 
--   References on the particle filter include @Kitagawa1987,
-    @Arulampalam2002, @Doucet2001, @King2016.
+## Sequential Monte Carlo: conclusion
+
+::: columns
+::: {.column width="40%"}
+
 -   It can be shown that the particle filter provides an unbiased
-    estimate of the likelihood. This implies a consistent but biased
-    estimate of the log-likelihood.
+    estimate of the likelihood (@Kitagawa1987,
+    @Arulampalam2002, @Doucet2001, @King2016).
+-   This implies a consistent but biased estimate of the log-likelihood.
+:::
 
-## A block diagram representation of a particle filter
-
+::: {.column width="60%"}
+<!-- \vspace{-10mm} -->
 \begin{center}
     \includegraphics[height=6cm]{../graphics/lec3pf.png}
 \end{center}
+:::
+:::
+
 
 ## Parallel computing
 
@@ -536,7 +569,7 @@ given the parameters chosen by looking at simulations.
 We can execute this code by sourcing the file and check the parameters:
 
 ```{r model-construct,purl=TRUE}
-source("model_measSIR.R")
+source("scripts/model_measSIR.R")
 measSIR@params
 ```
 
@@ -584,7 +617,7 @@ plot(pf)
 :::
 
 ::: {.column width="60%"}
-\vspace{-10mm}
+<!-- \vspace{-10mm} -->
 ```{r pf-diagnostic-2-2, echo=FALSE, fig.width=4, fig.height=3.5}
 plot(pf)
 ```

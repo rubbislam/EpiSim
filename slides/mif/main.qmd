@@ -1,9 +1,9 @@
 ---
 title: "Lesson 4: Iterated filtering: principles and practice"
 author:
-  - Qianying (Ruby) Lin
   - Spencer J. Fox
-  - Zian (Larry) Zhuang
+  - Qianying (Ruby) Lin
+  - Jesse Wheeler
 format: 
   beamer:
     classoption: "t"
@@ -131,30 +131,12 @@ set.seed(1350254336)
 ```
 # Iterated filtering in theory
 
-## Full-information, plug-and-play, frequentist methods {.allowframebreaks}
+## Full-information, plug-and-play, frequentist methods
 
--   Iterated filtering methods [@Ionides2006,@Ionides2015] are the only currently available, full-information, plug-and-play, frequentist methods for POMP models.
+-   Iterated filtering methods [@Ionides2015] are the only currently available, full-information, plug-and-play, frequentist methods for POMP models.
 -   Iterated filtering methods have been shown to solve likelihood-based inference problems for epidemiological situations which are computationally intractable for available Bayesian methodology [@Ionides2015].
 
 ## An iterated filtering algorithm (IF2) {.allowframebreaks}
-
-We focus on the IF2 algorithm of @Ionides2015. In this algorithm:
-
--   Each iteration consists of a particle filter, carried out with the parameter vector, for each particle, doing a random walk.
--   At the end of the time series, the collection of parameter vectors is recycled as starting parameters for the next iteration.
--   The random-walk variance decreases at each iteration.
-
-In theory, this procedure converges toward the region of parameter space maximizing the maximum likelihood.\
-In practice, we can test this claim on examples.
-
-\framebreak
-
-```{=tex}
-\begin{center}
-  \includegraphics[height=8cm]{../graphics/lec4 pf.png}
-\end{center}
-```
-## IF2 algorithm pseudocode {.allowframebreaks}
 
 **Input:**
 
@@ -166,51 +148,78 @@ In practice, we can test this claim on examples.
 
 -   number of iterations, \texttt{Nmif} = $M$
 -   number of particles, \texttt{Np} = $J$
--   initial parameter swarm, \texttt{params} = $\{\Theta^0_j, j=1,\dots,J\}$
--   random walk standard deviation for each parameter, \texttt{rw.sd}, squared to construct a diagonal variance matrix, $V_n$
--   cooling fraction in 50 iterations, \texttt{cooling.fraction.50} = $a$
+-   initial parameter swarm
+<!-- , \texttt{params} = $\{\Theta^{j,0}, j=1,\dots,J\}$ -->
+-   perturbation, random walk standard deviation for each parameter, \texttt{rw.sd}, squared to construct a diagonal variance matrix, $V_n$
+-   decay of perturbation, cooling fraction in 50 iterations, \texttt{cooling.fraction.50} = $a$
 
 **Output:**
 
--   final parameter swarm, $\{\Theta^M_j, j=1,\dots,J\}$
+-   final parameter swarm
+<!-- , $\{\Theta^{j,M}, j=1,\dots,J\}$ -->
 
 \framebreak
 
-**Procedure:**
-
-1.  For $m$ in $1{:}M$
-2.  $\qquad$ $\Theta^{F,m}_{0,j}\sim \normal\big(\Theta^{m-1}_{j},V_0 \, a^{2m/50}\big)$ for $j$ in $1{:} J$
-3.  $\qquad$ $X_{0,j}^{F,m}\sim f_{X_0}(x_0 ; \Theta^{F,m}_{0,j})$ for $j$ in $1{:} J$
-4.  $\qquad$ For $n$ in $1{:} N$
-5.  $\qquad\qquad$ $\Theta^{P,m}_{n,j}\sim \normal\big(\Theta^{F,m}_{n-1,j},V_n \, a^{2m/50}\big)$ for $j$ in $1{:} J$
-6.  $\qquad\qquad$ $X_{n,j}^{P,m}\sim f_{X_n|X_{n-1}}(x_n | X^{F,m}_{n-1,j}; \Theta^{P,m}_{n,j})$ for $j$ in $1{:} J$
-7.  $\qquad\qquad$ $w_{n,j}^m = f_{Y_n|X_n}(y^*_n| X_{n,j}^{P,m} ; \Theta^{P,m}_{n,j})$ for $j$ in $1{:} J$
-8.  $\qquad\qquad$ Draw $k_{1{:}J}$ with $P[k_j=i]= w_{n,i}^m\Big/\sum_{u=1}^J w_{n,u}^m$
-9.  $\qquad\qquad$ $\Theta^{F,m}_{n,j}=\Theta^{P,m}_{n,k_j}$ and $X^{F,m}_{n,j}=X^{P,m}_{n,k_j}$ for $j$ in $1{:} J$
-10. $\qquad$ End For
-11. $\qquad$ Set $\Theta^{m}_{j}=\Theta^{F,m}_{N,j}$ for $j$ in $1{:} J$
-12. End For
+\begin{center}
+  \includegraphics[height=7cm]{../graphics/mif_graph.pdf}
+\end{center}
 
 \framebreak
 
-**Remarks:**
+<!-- **Procedure:** -->
 
--   The $N$ loop (lines 4 through 10) is a basic particle filter applied to a model with stochastic perturbations to the parameters.
--   The $M$ loop repeats this particle filter with decreasing perturbations.
--   The superscript $F$ in $\Theta^{F,m}_{n,j}$ and $X^{F,m}_{n,j}$ denote solutions to the *filtering problem*, with the particles $j=1,\dots,J$ providing a Monte Carlo representation of the conditional distribution at time $n$ given data $y^*_{1:n}$ for filtering iteration $m$.
--   The superscript $P$ in $\Theta^{P,m}_{n,j}$ and $X^{P,m}_{n,j}$ denote solutions to the *prediction problem*, with the particles $j=1,\dots,J$ providing a Monte Carlo representation of the conditional distribution at time $n$ given data $y^*_{1:n-1}$ for filtering iteration $m$.
--   The *weight* $w^m_{n,j}$ gives the likelihood of the data at time $n$ for particle $j$ in filtering iteration $m$.
+<!-- 1.  For $m$ in $1{:}M$ -->
+<!-- 2.  $\qquad$ $\Theta^{F,m}_{0,j}\sim \normal\big(\Theta^{m-1}_{j},V_0 \, a^{2m/50}\big)$ for $j$ in $1{:} J$ -->
+<!-- 3.  $\qquad$ $X_{0,j}^{F,m}\sim f_{X_0}(x_0 ; \Theta^{F,m}_{0,j})$ for $j$ in $1{:} J$ -->
+<!-- 4.  $\qquad$ For $n$ in $1{:} N$ -->
+<!-- 5.  $\qquad\qquad$ $\Theta^{P,m}_{n,j}\sim \normal\big(\Theta^{F,m}_{n-1,j},V_n \, a^{2m/50}\big)$ for $j$ in $1{:} J$ -->
+<!-- 6.  $\qquad\qquad$ $X_{n,j}^{P,m}\sim f_{X_n|X_{n-1}}(x_n | X^{F,m}_{n-1,j}; \Theta^{P,m}_{n,j})$ for $j$ in $1{:} J$ -->
+<!-- 7.  $\qquad\qquad$ $w_{n,j}^m = f_{Y_n|X_n}(y^*_n| X_{n,j}^{P,m} ; \Theta^{P,m}_{n,j})$ for $j$ in $1{:} J$ -->
+<!-- 8.  $\qquad\qquad$ Draw $k_{1{:}J}$ with $P[k_j=i]= w_{n,i}^m\Big/\sum_{u=1}^J w_{n,u}^m$ -->
+<!-- 9.  $\qquad\qquad$ $\Theta^{F,m}_{n,j}=\Theta^{P,m}_{n,k_j}$ and $X^{F,m}_{n,j}=X^{P,m}_{n,k_j}$ for $j$ in $1{:} J$ -->
+<!-- 10. $\qquad$ End For -->
+<!-- 11. $\qquad$ Set $\Theta^{m}_{j}=\Theta^{F,m}_{N,j}$ for $j$ in $1{:} J$ -->
+<!-- 12. End For -->
 
-## Analogy with evolution by natural selection {.allowframebreaks}
+<!-- \framebreak -->
 
--   The parameters characterize the *genotype*.
--   The swarm of particles is a *population*.
--   The likelihood, a measure of the compatibility between the parameters and the data, is the analogue of *fitness*.
--   Each successive observation is a new *generation*.
--   Since particles reproduce in each generation in proportion to their likelihood, the particle filter acts like *natural selection*.
--   The artificial perturbations augment the "genetic" variance and therefore correspond to *mutation*.
--   IF2 increases the *fitness* of the population of particles.
--   However, because our scientific interest focuses on the model without the artificial perturbations, we decrease the intensity of the latter with successive iterations.
+<!-- **Remarks:** -->
+
+<!-- -   The $N$ loop (lines 4 through 10) is a basic particle filter applied to a model with stochastic perturbations to the parameters. -->
+<!-- -   The $M$ loop repeats this particle filter with decreasing perturbations. -->
+<!-- -   The superscript $F$ in $\Theta^{F,m}_{n,j}$ and $X^{F,m}_{n,j}$ denote solutions to the *filtering problem*, with the particles $j=1,\dots,J$ providing a Monte Carlo representation of the conditional distribution at time $n$ given data $y^*_{1:n}$ for filtering iteration $m$. -->
+<!-- -   The superscript $P$ in $\Theta^{P,m}_{n,j}$ and $X^{P,m}_{n,j}$ denote solutions to the *prediction problem*, with the particles $j=1,\dots,J$ providing a Monte Carlo representation of the conditional distribution at time $n$ given data $y^*_{1:n-1}$ for filtering iteration $m$. -->
+<!-- -   The *weight* $w^m_{n,j}$ gives the likelihood of the data at time $n$ for particle $j$ in filtering iteration $m$. -->
+
+
+
+## The IF2 diagram in \texttt{pomp}
+
+<!-- We focus on the IF2 algorithm of @Ionides2015. In this algorithm: -->
+
+<!-- -   Each iteration consists of a particle filter, carried out with the parameter vector, for each particle, doing a random walk. -->
+<!-- -   At the end of the time series, the collection of parameter vectors is recycled as starting parameters for the next iteration. -->
+<!-- -   The random-walk variance decreases at each iteration. -->
+
+<!-- In theory, this procedure converges toward the region of parameter space maximizing the maximum likelihood.\ -->
+<!-- In practice, we can test this claim on examples. -->
+
+```{=tex}
+\begin{center}
+  \includegraphics[height=8cm]{../graphics/lec4 pf.png}
+\end{center}
+```
+
+<!-- ## Analogy with evolution by natural selection {.allowframebreaks} -->
+
+<!-- -   The parameters characterize the *genotype*. -->
+<!-- -   The swarm of particles is a *population*. -->
+<!-- -   The likelihood, a measure of the compatibility between the parameters and the data, is the analogue of *fitness*. -->
+<!-- -   Each successive observation is a new *generation*. -->
+<!-- -   Since particles reproduce in each generation in proportion to their likelihood, the particle filter acts like *natural selection*. -->
+<!-- -   The artificial perturbations augment the "genetic" variance and therefore correspond to *mutation*. -->
+<!-- -   IF2 increases the *fitness* of the population of particles. -->
+<!-- -   However, because our scientific interest focuses on the model without the artificial perturbations, we decrease the intensity of the latter with successive iterations. -->
 
 # Iterated filtering in practice
 
@@ -226,12 +235,12 @@ The following loads the data, pomp, and the stochastic SIR model we constructed 
 source("model_measSIR.R")
 ```
 
-\vspace{-20mm}
+<!-- \vspace{-20mm} -->
 
 \hspace{-20mm}
 
 ```{r dataplot,purl=FALSE,echo=FALSE, fig.width=6, fig.height=4, dpi=300}
-#| out-height: 70%
+#| out-height: 50%
 plot(measSIR, mar=c(.1,3,0,2))
 ```
 
@@ -329,7 +338,6 @@ L_pf
 ```
 
 ```{r pf,echo=FALSE}
-<<pf1>>
 tic <- Sys.time()
 <<pf2>>
 toc <- Sys.time()
