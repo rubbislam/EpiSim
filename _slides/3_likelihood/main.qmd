@@ -1,0 +1,608 @@
+---
+title: "Lesson 3: Likelihood-based inference for POMP models"
+author:
+  - Qianying (Ruby) Lin
+  - Spencer J. Fox
+  - Jesse Wheeler
+format: 
+  beamer:
+    classoption: "t"
+    # fontsize: "10pt"
+    link-citations: true
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    include-in-header: "../_includes/header.tex"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r prelims,echo=FALSE,cache=FALSE}
+library(tidyverse)
+library(pomp)
+library(foreach)
+library(iterators)
+library(doFuture)
+options(stringsAsFactors=FALSE)
+set.seed(1350254336)
+```
+
+# Introduction
+
+## Objectives
+
+Students completing this lesson will:
+
+1.  Gain an understanding of the nature of the problem of likelihood
+    computation for POMP models.
+2.  Be able to explain the simplest particle filter algorithm.
+3.  Gain experience in the visualization and exploration of likelihood
+    surfaces.
+4.  Be able to explain the tools of likelihood-based statistical
+    inference that become available given numerical accessibility of the
+    likelihood function.
+
+## Overview {.allowframebreaks}
+
+A general framework of epidemiological inference includes three layers:
+
+::: columns
+::: {.column width="50%"}
+-   The input: a model of interest and the given data
+-   A method for inference
+-   Inferences include estimation, uncertainty, prediction and forecast,
+    and model selection.
+:::
+
+::: {.column width="50%"}
+```{=tex}
+\begin{center}
+  \includegraphics[height=4.5cm]{../graphics/lec3_overview}
+\end{center}
+```
+:::
+:::
+
+\framebreak
+
+Methods for inference can be categorized into three groups:
+
+-   Optimization-based: minimize a cost function (e.g., SSE, MSE, MAE)
+    that measures the difference between observed data and model
+    predictions
+-   Likelihood-based: maximize a likelihood function, which represents
+    the probability of observing the given data given the parameters
+-   Summary Statistics-based: use a set of features of the data instead
+    of the full set of data
+
+In this lesson, we focus on the likelihood-based method because
+
+-   it fits for stochastic models and
+-   it incorporates all data (i.e., full-information).
+
+<!-- ## Overview {.allowframebreaks} -->
+
+<!--   The following schematic diagram represents conceptual links between different components of the methodological approach we're developing for statistical inference on epidemiological dynamics. -->
+
+<!-- \begin{center} -->
+
+<!--     \includegraphics[height=4cm]{../graphics/lec3 overview} -->
+
+<!--   \end{center} -->
+
+<!--   -  In this lesson, we're going to discuss the orange compartments. -->
+
+<!--   -  The Monte Carlo technique called the "particle filter" is central for connecting the higher-level ideas of POMP models and likelihood-based inference to the lower-level tasks involved in carrying out data analysis. -->
+
+<!--   -  We employ a standard toolkit for likelihood based inference: -->
+
+<!--     Maximum likelihood estimation, profile likelihood confidence intervals, likelihood ratio tests for model selection, and other likelihood-based model comparison tools such as AIC. -->
+
+<!--   -  We seek to better understand these tools, and to figure out how to implement and interpret them in the specific context of POMP models. -->
+
+# The likelihood function
+
+# General considerations
+
+## The likelihood {.allowframebreaks}
+
+-   The basis for modern frequentist, Bayesian, and
+    information-theoretic inference.
+-   Method of maximum likelihood introduced by @Fisher1922.
+-   The likelihood function itself is a representation of the what the
+    data have to say about the parameters.
+-   A good general reference on likelihood is by @Pawitan2001.
+
+\framebreak
+
+::: columns
+::: {.column width="50%"}
+-   Goal: fit the model to the data and conduct statistical inferences,
+    such as parameter estimation.
+-   The likelihood, thus, can be considered as a metric to assess the
+    *goodness* of the proposed parameters.
+-   By exploring the space of parameters, we can eventually obtain the
+    maximum likelihood estimator (MLE).
+:::
+
+::: {.column width="50%"}
+```{=tex}
+\begin{center}
+  \includegraphics[height=4.5cm]{../graphics/lec3_procedure}
+\end{center}
+```
+:::
+:::
+
+\vfill
+
+Thus, the objective of this lesson is to discuss how we compute the
+likelihood given a model of interest with a proposed set of parameters
+in both theory and in `pomp`.
+
+## Definition of the likelihood function {.allowframebreaks}
+
+-   How likely the data are drawn from a distribution or sampled from a model?
+
+\vfill
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=5.5cm]{../graphics/likely_graph.pdf}
+  \end{center}
+```
+
+
+\framebreak
+
+- Notations:
+    -   $y_{1:N}^*$: the data, a sequence of $N$ observations
+    -   $f_{Y_{1:N}}(y_{1:N};\theta)$: the statistical model, a
+        probability distribution for each value of a parameter vector
+        $\theta$
+    -   $Y_{1:N} \sim f_{Y_{1:N}}(y_{1:N};\theta)$: a random variable
+        drawn from distribution $f_{Y_{1:N}}(y_{1:N};\theta)$
+-   The likelihood function is used to measure the ``how likely'':
+    $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta).$$
+-   The log-likelihood function:
+    $$\loglik(\theta)= \log \lik(\theta) = \log f_{Y_{1:N}}(y^*_{1:N};\theta).$$
+
+<!-- ## Modeling using discrete and continuous distributions -->
+
+<!-- -   Recall that the probability distribution -->
+
+<!--     $f_{Y_{1:N}}(y_{1:N};\theta)$ defines a random variable $Y_{1:N}$ -->
+
+<!--     for which probabilities can be computed as integrals of -->
+
+<!--     $f_{Y_{1:N}}(y_{1:N};\theta)$. -->
+
+<!-- -   Specifically, for any event $E$ describing a set of possible -->
+
+<!--     outcomes of $Y_{1:N}$, -->
+
+<!--     $$\prob{Y_{1:N} \in E} = \int_E f_{Y_{1:N}}(y_{1:N};\theta)\, dy_{1:N}.$$ -->
+
+<!-- -   If the model corresponds to a discrete distribution, then the -->
+
+<!--     integral is replaced by a sum and the probability density function -->
+
+<!--     is called a *probability mass function*. -->
+
+<!-- -   The definition of the likelihood function remains unchanged. We will -->
+
+<!--     use the notation of continuous random variables, but all the methods -->
+
+<!--     apply also to discrete models. -->
+
+## Simulation is easy for complex models
+
+-   $f_{Y_{1:N}}(y_{1:N};\theta)$ is simple and with an explicit
+    expression:
+    -   the simulation of $Y_{1:N}$ is direct, e.g., $Y_k \sim N(0,1)$
+        for $k=1,\dots,N$
+    -   the likelihood function is explicit
+-   $f_{Y_{1:N}}(y_{1:N};\theta)$ is complex or even without an explicit
+    expression:
+    -   the simulation of $Y_{1:N}$, given the underlying dynamical
+        model, is a bit more complex but convenient
+    -   the likelihood function exists with a complicated expression or
+        even without an explicit expression
+
+\vfill
+
+Thus, we can develop numerical methods to compute the complex or
+implicit likelihood functions!
+
+<!-- -   For simple statistical models, we may describe the model by -->
+
+<!--     explicitly writing the density function -->
+
+<!--     $f_{Y_{1:N}}(y_{1:N};\theta)$. One may then ask how to simulate a -->
+
+<!--     random variable $Y_{1:N}\sim f_{Y_{1:N}}(y_{1:N};\theta)$. -->
+
+<!-- -   For many dynamic models it is much more convenient to define the -->
+
+<!--     model via a procedure to simulate the random variable $Y_{1:N}$. -->
+
+<!--     This *implicitly* defines the corresponding density -->
+
+<!--     $f_{Y_{1:N}}(y_{1:N};\theta)$. -->
+
+<!-- -   For a complicated simulation procedure, it may be difficult or -->
+
+<!--     impossible to write down or even compute -->
+
+<!--     $f_{Y_{1:N}}(y_{1:N};\theta)$ exactly. -->
+
+<!-- -   It is important to bear in mind that the likelihood function exists -->
+
+<!--     even when we don't know what it is! We can still talk about the -->
+
+<!--     likelihood function, and develop numerical methods that take -->
+
+<!--     advantage of its statistical properties. -->
+
+# Likelihood of a POMP model
+
+## The likelihood for a POMP model {.allowframebreaks}
+
+Recall the following schematic diagram, showing dependence among
+variables in a POMP model.
+
+```{=tex}
+\begin{center}
+    \includegraphics[height=5.5cm]{../graphics/lec3ll.png}
+  \end{center}
+```
+\framebreak
+
+Recall the following definitions and properties:
+
+-   **Measurements**: $Y_n$, at time $t_n$ depend on the latent process,
+    $X_n$, at that time.
+
+-   **The Markov property**: latent process variables depend on their
+    value at the previous timestep.
+
+    1.  The distribution of the state $X_{n+1}$, conditional on $X_{n}$,
+        is independent of the values of $X_{k}$, $k<n$ and $Y_{k}$,
+        $k\le n$.
+    2.  The distribution of the measurement $Y_{n}$, conditional on
+        $X_{n}$, is independent of all other variables.
+
+-   The **latent process**: $X(t)$, may be defined at all times, but we
+    are particularly interested in its value at observation times.
+    Therefore, we write $$X_n=X(t_n).$$
+
+    -   We write collections of random variables using the notation
+        $X_{0:N}=(X_0,\dots,X_N)$.
+
+-   The **one-step transition density**,
+    $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the **measurement density**,
+    $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the **initial density**,
+    $f_{X_0}(x_0;\theta)$, specify the entire joint density via
+
+    $$\begin{split}
+              &f_{X_{0:N},Y_{1:N}}(x_{0:N},y_{1:N};\theta)\\
+              & \qquad = f_{X_0}(x_0;\theta)\,\prod_{n=1}^N\!f_{X_n | X_{n-1}}(x_n|x_{n-1};\theta)\,f_{Y_n|X_n}(y_n|x_n;\theta).
+      \end{split}$$
+
+-   **The marginal density for sequence of measurements**: $Y_{1:N}$,
+    evaluated at the data, $y_{1:N}^*$, is 
+    $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta)=\int\!f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}.$$
+
+## Special case: deterministic latent process
+
+-   When the latent process is non-random, the log-likelihood for a POMP
+    model closely resembles a nonlinear regression model.
+-   In this case, we can write $X_{n}=x_n(\theta)$, and the
+    log-likelihood is
+    $$\loglik(\theta) = \sum_{n=1}^N \log f_{Y_n|X_n}\big(y_n^*| x_n(\theta); \theta\big).$$
+-   If we have a Gaussian measurement model, where $Y_n$ given
+    $X_n=x_n(\theta)$ is conditionally normal with mean
+    $\hat{y}_n\big(x_n(\theta)\big)$ and constant variance $\sigma^2$,
+    then the log-likelihood contains a sum of squares which is exactly
+    the criterion that nonlinear least squares regression seeks to
+    minimize.
+<!-- -   More details on deterministic latent process models are given as a -->
+    <!-- [supplement](deterministic.html). -->
+
+## General case: stochastic unobserved state process
+
+-   For a POMP model, the likelihood takes the form of an integral:
+
+$$
+\begin{aligned}
+\lik(\theta) &= f_{Y_{1:N}}({y^*_{1:N}};\theta)\\
+        = &\int f_{X_0}(x_0;\theta)\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| x_n; \theta)\, f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)\, dx_{0:N}.
+\end{aligned}
+$$ {#eq-L1}
+
+-   This integral is high dimensional and, except for the simplest
+    cases, can not be reduced analytically.
+
+# Computing the likelihood
+
+# Monte Carlo algorithms
+
+## Monte Carlo likelihood: direct simulation {.allowframebreaks}
+
+<!-- We work toward introducing the particle filter by first proposing a -->
+
+<!--     simpler method that usually doesn't work on anything but very short -->
+
+<!--     time series. -->
+
+**Spoiler Alert**: This section serves to introduce the concept of the
+**particle filter** and the approach of [Monte Carlo
+integration](monteCarlo.pdf) by first proposing an intuitive and a
+simpler method. This simple method usually **does NOT work** on anything
+but **very short** time series.
+
+
+
+1. Let's rewrite the likelihood integral using an equivalent
+    factorization. As an exercise, you could check how the equivalence
+    of @eq-L1 and @eq-L2 follows algebraically from the Markov property
+    and the definition of conditional density.
+
+$$
+    \begin{aligned}
+      \lik(\theta) &= f_{Y_{1:N}}({y^*_{1:N}};\theta)\\
+      &= \int\!\left\{\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| x_n; \theta)\right\}\,\textcolor{blue}{f_{X_{0:N}}(x_{0:N};\theta)\, dx_{0:N}}.
+    \end{aligned}
+$$ {#eq-L2}
+
+2. Notice, using the representation in @eq-L2, that the likelihood can
+    be written as an expectation, \begin{equation*}
+     \lik(\theta) = \E \left[ \prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X_n; \theta) \right],
+        \end{equation*} where the expectation is taken with
+    $X_{0:N}\sim f_{X_{0:N}}(x_{0:N};\theta)$.
+3. Now, using a [law of large
+    numbers](https://en.wikipedia.org/wiki/Law_of_large_numbers), we can
+    approximate an expectation by the average of a Monte Carlo sample.
+    Thus, $$
+     \lik(\theta) \approx \frac{1}{J} \sum_{j=1}^{J}\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X^j_n; \theta),
+    $$ where $\{X^j_{0:N}, j=1,\dots,J\}$ is a Monte Carlo sample of
+    size $J$ drawn from $f_{X_{0:N}}(x_{0:N};\theta)$.
+
+\framebreak   
+
+
+\begin{center}
+    \includegraphics[height=7cm]{../graphics/directsim_graph.pdf}
+\end{center}
+
+<!-- In conclusion, we can generate trajectories by simulation and all we need to do -->
+<!-- to get a Monte Carlo estimate  of the likelihood is to evaluate the measurement -->
+<!-- density of the data at each trajectory and average.  -->
+<!-- In the context of the **plug-and-play** framework, our algorithm depends on  -->
+<!-- `rprocess` for simulation but does not require `dprocess` for evaluation. -->
+<!-- However, this naive approach scales poorly with dimension:   -->
+
+<!--   -   it requires a Monte Carlo effort that scales exponentially with the -->
+<!--     length of the time series, and so is infeasible on anything but a -->
+<!--     short data set; -->
+
+<!--   -   due to stochasticity, once a simulated trajectory diverges from the data, it will seldom come back;  -->
+
+<!--   -   simulations that lose track and deviate from the data are harmful for likelihood estimation; -->
+
+<!--   -   when simulating a long time series, almost all the simulated trajectories will eventually lose track of the data. -->
+
+<!--   -   measles outbreak example: [supplementary material](directSimulation.html). -->
+
+# Sequential Monte Carlo
+
+## Sequential Monte Carlo: The particle filter {.allowframebreaks}
+
+Fortunately, we can compute the likelihood for a POMP model by a
+much more efficient algorithm than direct Monte Carlo integration:
+
+1. We proceed by factorizing the likelihood in a different way:
+
+$$
+  \begin{aligned}
+    \lik(\theta)&=f_{Y_{1:N}}(y^*_{1:N}; \theta) =\prod_{n=1}^N\,f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\\
+    &=\prod_{n=1}^N\,\int f_{Y_n|X_n}(y^*_n|x_n;\theta)\,f_{X_n|Y_{1:n-1}}(x_n|y^*_{1:n-1};\theta)\, dx_{n},
+  \end{aligned}
+$$ with the understanding that $f_{X_1|Y_{1:0}}=f_{X_1}$.
+
+\framebreak
+
+2. The Markov property leads to the **prediction formula:** 
+$$
+  \begin{aligned}
+      &f_{X_n|Y_{1:n-1}}(x_n|y^*_{1:n-1}; \theta) \\
+      &\quad = \int \! \textcolor{red}{f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)}\, f_{X_{n-1}|Y_{1:n-1}}(x_{n-1}| y^*_{1:n-1}; \theta) \, dx_{n-1}.
+  \end{aligned}
+$$
+
+3. Bayes' theorem gives the **filtering formula:** 
+$$
+    \begin{aligned}
+        &f_{X_n|Y_{1:n}}(x_n|y^*_{1:n}; \theta)\\
+        &\quad = f_{X_n|Y_n,Y_{1:n-1}}(x_n|y^*_n,y^*_{1:n-1}; \theta) \\
+        &\quad =\frac{\textcolor{red}{f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)}{\int \textcolor{red}{f_{Y_n|X_n}(y^*_{n}|u_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(u_{n}|y^*_{1:n-1};\theta)\, du_n}.
+    \end{aligned}
+$$
+
+\framebreak
+
+-   This suggests that we keep track of two key distributions at each
+    time $t_n$,
+
+    -   The **prediction distribution** is
+        $f_{X_n | Y_{1:n-1}}(x_n| y^*_{1:n-1})$.
+    -   The **filtering distribution** is
+        $f_{X_{n} | Y_{1:n}}(x_n| y^*_{1:n})$.
+
+-   The prediction and filtering formulas give us a two-step recursion:
+
+    -   The prediction formula gives the prediction distribution at time
+        $t_n$ using the filtering distribution at time $t_{n-1}$.
+    -   The filtering formula gives the filtering distribution at time
+        $t_n$ using the prediction distribution at time $t_n$.
+
+-   The **particle filter** use Monte Carlo techniques to sequentially
+    estimate the integrals in the prediction and filtering recursions.
+    Hence, the alternative name of **sequential Monte Carlo (SMC)**.
+
+\framebreak
+
+<!-- A basic particle filter is visualized as follows, with the number of particles $J=5$: -->
+
+<!-- \vspace{-1cm} -->
+
+<!-- 1.  Suppose $X_{n-1,j}^{F}$, $j=1,\dots,J$ is a set of $J$ points drawn -->
+<!--     from the filtering distribution at time $t_{n-1}$. -->
+<!-- 2.  We obtain a sample $X_{n,j}^{P}$ of points drawn from the prediction -->
+<!--     distribution at time $t_n$ by simply simulating the process model: -->
+<!-- $$ -->
+<!--     X_{n,j}^{P} \sim \mathrm{process}(X_{n-1,j}^{F},\theta), \qquad j=1,\dots,J. -->
+<!-- $$ -->
+<!-- 3.  Having obtained $x_{n,j}^{P}$, we obtain a sample of points from the -->
+<!--     filtering distribution at time $t_n$ by *resampling* from -->
+<!--     $\big\{X_{n,j}^{P},j\in 1:J\big\}$ with weights  -->
+<!-- $$ -->
+<!--     w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta). -->
+<!-- $$ -->
+<!-- 4.  The Monte Carlo principle tells us that the conditional likelihood -->
+<!-- $$ -->
+<!--     \begin{aligned} -->
+<!--       \lik_n(\theta) &= f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\\ -->
+<!--       &= \int f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)\, dx_n -->
+<!--     \end{aligned} -->
+<!-- $$ -->
+<!--   is approximated by -->
+<!-- $$ -->
+<!--   \hat{\lik}_n(\theta)\approx\frac{1}{J}\,\sum_j\,f_{Y_n|X_n}(y^*_{n}|X_{n,j}^{P};\theta) -->
+<!-- $$ -->
+<!--     since $X_{n,j}^{P}$ is approximately a draw from -->
+<!--     $f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)$. -->
+<!-- 5.  We can iterate this procedure through the data, one step at a time, -->
+<!--     alternately simulating and resampling, until we reach $n=N$. -->
+
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/pfilter_graph.pdf}
+\end{center}
+
+\vfill
+
+The full log-likelihood then has approximation 
+$$
+    \loglik(\theta) = \log{{\lik}(\theta)} = \sum_n \log{{\lik}_n(\theta)} \approx \sum_n\log\hat{\lik}_n(\theta).
+$$
+
+## Sequential Monte Carlo: conclusion
+
+::: columns
+::: {.column width="40%"}
+
+-   It can be shown that the particle filter provides an unbiased
+    estimate of the likelihood (@Kitagawa1987,
+    @Arulampalam2002, @Doucet2001, @King2016).
+-   This implies a consistent but biased estimate of the log-likelihood.
+:::
+
+::: {.column width="60%"}
+<!-- \vspace{-10mm} -->
+\begin{center}
+    \includegraphics[height=6cm]{../graphics/lec3pf.png}
+\end{center}
+:::
+:::
+
+
+## Parallel computing: general
+
+It will be helpful to parallelize most of the computations. 
+Most machines nowadays have multiple cores and using this computational capacity is as simple as:
+
+1.  letting `R` know you plan to use multiple processors;
+2.  using the parallel for loop provided by the `foreach` package; and
+3.  paying proper attention to the use of parallel random number
+    generators (RNG).
+
+For example:
+
+```{r parallel-setup,eval=FALSE,purl=FALSE}
+library(foreach)              # load foreach
+library(doFuture)             # load doFuture/future
+plan(multisession)            # using multiple R sessions
+                              # handling global environment
+```
+
+The second line tells `foreach` that we will use the `doFuture` backend, along with `%dofuture%` when we set up the `foreach` loop.
+The third line explicitly exports the global environment to each of the session on Windows machines; macOS/Linux does that automatically.
+
+<!-- ## Parallel computing: Windows -->
+
+## Parallel computing: Exercise
+
+The following codes (or the `/scripts/exercise_parallel.R` script) is an example of setting up a parallel computing scheme.
+
+```{r eval=FALSE}
+library(foreach)
+library(doFuture)
+plan(multisession, workers=8)
+source("model_measSIR.R")
+
+foreach(
+  i=1:20, .combine="c", .options.future = list(seed=TRUE),
+  .errorhandling = "remove"
+) %dofuture% {
+  measSIR |> pfilter(Np=5000)
+} -> pfs
+
+pfs |> logLik() |> logmeanexp(se=TRUE)
+```
+
+# References
+
+## References
+\small
+
+::: {#refs}
+:::
+
+## License, acknowledgments, and links
+
+-   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://sph.emory.edu/SISMID/index.html).
+
+-   The materials build on [previous versions of this course and related courses](../acknowledge.html).
+
+-   Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/). Please share and remix non-commercially, mentioning its origin. \includegraphics[height=12pt]{../graphics/cc-by-nc}
+
+-   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
+
+-   Compiled on 2024-07-24.
+
+\vfill
+
+[Back to Lesson](index.html)
+
+[`R` code for this lesson](./main.R)

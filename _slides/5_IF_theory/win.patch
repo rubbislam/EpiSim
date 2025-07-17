@@ -1,0 +1,151 @@
+*** main.R	2023-07-14 05:36:19.164565054 -0400
+--- main_win.R	2023-07-14 06:57:10.859813265 -0400
+***************
+*** 1,9 ****
+--- 1,11 ----
+  library(tidyverse)
+  library(pomp)
+  set.seed(1350254336)
+  
++ options(pomp_cdir="./tmp")
++ 
+  source("https://kingaa.github.io/sbied/pfilter/model.R")
+  
+  
+  
+  measSIR |>
+***************
+*** 37,56 ****
+  
+  ## What is this 'bake' function?
+  ## See https://kingaa.github.io/sbied/pfilter/bake.html
+  ## for an explanation.
+  bake(file="local_search.rds",{
+    foreach(i=1:20,.combine=c,
+      .options.future=list(seed=482947940)
+    ) %dofuture% {
+      measSIR |>
+        mif2(
+          Np=2000, Nmif=50,
+          cooling.fraction.50=0.5,
+!         rw.sd=rw_sd(Beta=0.02, rho=0.02, eta=ivp(0.02)),
+!         partrans=parameter_trans(log="Beta",logit=c("rho","eta")),
+!         paramnames=c("Beta","rho","eta")
+        )
+    } -> mifs_local
+    attr(mifs_local,"ncpu") <- nbrOfWorkers()
+    mifs_local
+  }) -> mifs_local
+--- 39,61 ----
+  
+  ## What is this 'bake' function?
+  ## See https://kingaa.github.io/sbied/pfilter/bake.html
+  ## for an explanation.
+  bake(file="local_search.rds",{
++   measSIR |>
++     pomp(
++       partrans=parameter_trans(log="Beta",logit=c("rho","eta")),
++       paramnames=c("Beta","rho","eta")
++     ) -> measSIR
+    foreach(i=1:20,.combine=c,
+      .options.future=list(seed=482947940)
+    ) %dofuture% {
+      measSIR |>
+        mif2(
+          Np=2000, Nmif=50,
+          cooling.fraction.50=0.5,
+!         rw.sd=rw_sd(Beta=0.02, rho=0.02, eta=ivp(0.02))
+        )
+    } -> mifs_local
+    attr(mifs_local,"ncpu") <- nbrOfWorkers()
+    mifs_local
+  }) -> mifs_local
+***************
+*** 322,341 ****
+  
+  
+  
+  bake(file="global_search2.rds",
+    dependson=guesses,{
+      foreach(
+        guess=iter(guesses,"row"), .combine=rbind,
+        .options.future=list(seed=610408798)
+      ) %dofuture% {
+        measSIR |>
+          mif2(params=guess, Np=2000, Nmif=100,
+            cooling.fraction.50=0.5,
+-           partrans=parameter_trans(
+-             log=c("Beta","mu_IR"),
+-             logit="eta"), paramnames=c("Beta","mu_IR","eta"),
+            rw.sd=rw_sd(Beta=0.02,mu_IR=0.02,eta=ivp(0.02))) -> mf
+        mf |>
+          mif2(
+            Nmif=100,rw.sd=rw_sd(Beta=0.01,mu_IR=0.01,eta=ivp(0.01))
+          ) |>
+--- 327,351 ----
+  
+  
+  
+  bake(file="global_search2.rds",
+    dependson=guesses,{
++   measSIR |>
++     pomp(
++       partrans=parameter_trans(
++         log=c("Beta","mu_IR"),
++         logit="eta"
++       ),
++       paramnames=c("Beta","mu_IR","eta")
++     ) -> measSIR
+      foreach(
+        guess=iter(guesses,"row"), .combine=rbind,
+        .options.future=list(seed=610408798)
+      ) %dofuture% {
+        measSIR |>
+          mif2(params=guess, Np=2000, Nmif=100,
+            cooling.fraction.50=0.5,
+            rw.sd=rw_sd(Beta=0.02,mu_IR=0.02,eta=ivp(0.02))) -> mf
+        mf |>
+          mif2(
+            Nmif=100,rw.sd=rw_sd(Beta=0.01,mu_IR=0.01,eta=ivp(0.01))
+          ) |>
+***************
+*** 403,419 ****
+  
+  
+  
+  bake(file="mu_IR_profile1.rds",
+    dependson=guesses,{
+      foreach(guess=iter(guesses,"row"), .combine=rbind,
+        .options.future=list(seed=610408798)
+      ) %dofuture% {
+        measSIR |>
+          mif2(params=guess, Np=2000, Nmif=100,
+!           partrans=parameter_trans(log="Beta",logit="eta"),
+!           paramnames=c("Beta","eta"), cooling.fraction.50=0.5,
+            rw.sd=rw_sd(Beta=0.02,eta=ivp(0.02))
+          ) |>
+          mif2(Nmif=100) |>
+          mif2(Nmif=100,rw.sd=rw_sd(Beta=0.01,eta=ivp(0.01))) |>
+          mif2(Nmif=100,rw.sd=rw_sd(Beta=0.005,eta=ivp(0.005))) -> mf
+--- 413,433 ----
+  
+  
+  
+  bake(file="mu_IR_profile1.rds",
+    dependson=guesses,{
++     measSIR |>
++       pomp(
++         partrans=parameter_trans(log="Beta",logit="eta"),
++         paramnames=c("Beta","eta")
++       ) -> measSIR
+      foreach(guess=iter(guesses,"row"), .combine=rbind,
+        .options.future=list(seed=610408798)
+      ) %dofuture% {
+        measSIR |>
+          mif2(params=guess, Np=2000, Nmif=100,
+!           cooling.fraction.50=0.5,
+            rw.sd=rw_sd(Beta=0.02,eta=ivp(0.02))
+          ) |>
+          mif2(Nmif=100) |>
+          mif2(Nmif=100,rw.sd=rw_sd(Beta=0.01,eta=ivp(0.01))) |>
+          mif2(Nmif=100,rw.sd=rw_sd(Beta=0.005,eta=ivp(0.005))) -> mf
