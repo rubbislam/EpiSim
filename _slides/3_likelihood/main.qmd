@@ -551,33 +551,46 @@ For example:
 
 ```{r parallel-setup,eval=FALSE,purl=FALSE}
 library(foreach)              # load foreach
-library(doFuture)             # load doFuture/future
-plan(multisession)            # using multiple R sessions
-                              # handling global environment
+library(doParallel)           # load doParallel
+library(doRNG)                # load doRNG
 ```
 
-The second line tells `foreach` that we will use the `doFuture` backend, along with `%dofuture%` when we set up the `foreach` loop.
-The third line explicitly exports the global environment to each of the session on Windows machines; macOS/Linux does that automatically.
+## Parallel computing: macOS/Linux and Windows
+Note that, the macOS and Linux systems automatically export the global environment to each core, 
+while Windows does not do that.
+The setup to let `foreach` to use `doParallel` backend to run parallel computing will be a bit different.
 
-<!-- ## Parallel computing: Windows -->
+- On macOX/Linus
+```{r setup-mac, eval=FALSE}
+registerDoParallel(cores=8)         # the number of cores
+# codes to run parallel computing
+```
+
+- On Windows
+```{r setup-win, eval=FALSE}
+cl <- makePSOCKcluster(8)
+registerDoParallel(cl)
+# codes to run parallel computing
+stopCluster(cl)
+```
 
 ## Parallel computing: Exercise
 
-The following codes (or the `/scripts/exercise_parallel.R` script) is an example of setting up a parallel computing scheme.
+The following codes (also see the `/scripts/exercise_parallel_*.R` script) is an example of setting up a parallel computing scheme.
 
 ```{r eval=FALSE}
 library(foreach)
-library(doFuture)
-plan(multisession, workers=8)
+library(doParallel)
+library(doRNG)
 source("model_measSIR.R")
-
-foreach(
-  i=1:20, .combine="c", .options.future = list(seed=TRUE),
-  .errorhandling = "remove"
-) %dofuture% {
+registerDoParallel(cores=8)
+# cl <- makePSOCKcluster(8)
+# registerDoParallel(cl)
+foreach(i=1:20, .combine="c", .packages="pomp", 
+        .options.RNG = 1234) %dorng% {
   measSIR |> pfilter(Np=5000)
 } -> pfs
-
+# stopCluster(cl)
 pfs |> logLik() |> logmeanexp(se=TRUE)
 ```
 

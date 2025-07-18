@@ -1,6 +1,8 @@
 library(foreach)
-library(doFuture)
-plan(multisession, workers=8)   # number of cores
+library(doParallel)
+library(doRNG)
+cl <- makePSOCKcluster(8)
+registerDoParallel(cl)
 
 ## -------- load model -------- ##
 source("model_measSIR.R")
@@ -34,8 +36,11 @@ plot(mf)
 ## ------- 2. mif in parallel ------- ##
 
 foreach(
-  i=1:20,.combine=c, .options.future=list(seed=482947940)
-) %dofuture% {
+  i=1:20,
+  .combine=c,                         # concatenate all results
+  .packages = "pomp",
+  .options.RNG = 482947940            # set random seed
+) %dorng% {
   measSIR |>
     mif2(
       Np=2000, Nmif=50, cooling.fraction.50=0.5,
@@ -58,13 +63,16 @@ mifs_local |>
 ## ------- 3. likelihood after mif ------- ##
 foreach(
   mf = mifs_local,                 # loop over each object in `mifs_local`
-  .combine=rbind,
-  .options.future=list(seed=900242057)
-) %dofuture% {
+  .combine = rbind,                # row bind all results
+  .package = "pomp",
+  .options.RNG = 900242057
+) %dorng% {
   evals <- replicate(10, logLik(pfilter(mf,Np=5000)))
   ll <- logmeanexp(evals,se=TRUE)
   mf |> coef() |> bind_rows() |>
     bind_cols(loglik=ll[1],loglik.se=ll[2])
 } -> results
+
+stopCluster(cl)
 
 results |> filter(loglik==max(loglik))

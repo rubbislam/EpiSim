@@ -222,7 +222,7 @@ set.seed(1350254336)
 <!-- -   However, because our scientific interest focuses on the model without the artificial perturbations, we decrease the intensity of the latter with successive iterations. -->
 
 ## Exercise 1: IF2 in \texttt{pomp}, `mif2` basics  {.allowframebreaks}
-The following codes (also see `/scripts/exercise_mif.R`) run ONE iterated filtering with 50 iterations and show how parameters change over iteration.
+The following codes (also see `/scripts/exercise_mif_*.R` for your OS) run ONE iterated filtering with 50 iterations and show how parameters change over iteration.
 Change some numbers to see how the results are impacted by those changes.
 
 ```{r mif2-basics1, eval=FALSE}
@@ -257,11 +257,12 @@ The following codes run `mif2` for 20 replicates within a parallel computing sch
 
 ```{r mif2-parallel1, eval=FALSE}
 library(foreach)
-library(doFuture)
-plan(multisession, workers=8)
+library(doParallel)
+library(doRNG)
+registerDoParallel(cores=8)
 foreach(
-  i=1:20,.combine=c, .options.future=list(seed=482947940)
-) %dofuture% {
+  i=1:20,.combine=c, .packages="pomp", .options.RNG=482947940
+) %dorng% {
   measSIR |>
     mif2(Np=2000, Nmif=50, cooling.fraction.50=0.5,
       rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02)),
@@ -291,9 +292,9 @@ Why we need to estimate the likelihood in a different manner?
 
 ```{r mif2-likelihood1, eval=FALSE}
 foreach(
-  mf=mifs_local,.combine=rbind,
-  .options.future=list(seed=900242057)
-) %dofuture% {
+  mf=mifs_local,.combine=rbind, .packages = "pomp",
+  .options.RNG=900242057
+) %dorng% {
   evals <- replicate(10, logLik(pfilter(mf,Np=5000)))
   ll <- logmeanexp(evals,se=TRUE)
   mf |> coef() |> bind_rows() |>
