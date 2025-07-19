@@ -598,8 +598,6 @@ approximately one minute on your machine.
 -   Use doFuture to take advantage of multiple cores on your computer to
     improve your estimate.
 
-[Worked solution to the Exercise](./loglikest.html)
-
 ## Exercises
 
 1.  **One-dimensional likelihood slice**: Compute several likelihood
