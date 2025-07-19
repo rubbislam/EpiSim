@@ -1,6 +1,6 @@
 ---
 title: "Likelihood-based inference for POMP models"
-author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+author: Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler
 format: 
   html: 
     include-after-body:
@@ -13,26 +13,31 @@ params:
   prefix: likelihood
 ---
 
-
-| &nbsp;                            | &nbsp;                                                                                     |
-|-----------------------------------|--------------------------------------------------------------------------------------------|
-| Lecture slides | [PDF](slides/pfilter/main.pdf) |
+|   |   |
+|---------------------|---------------------------------------------------|
+| Lecture materials 1 | [zip](slides/3_likelihood.zip) |
+| Lecture materials 2 | [zip](slides/4_pfilter.zip) |
 | Reference Recording (2020,2021) | [Video (112 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8) |
-| Quiz | [PDF](slides/pfilter/quiz.pdf) |
-| **Data** for the lesson | [data](slides/pfilter/Measles_Consett_1948.csv)|
-| **R** script for the Measles SIR model | [**R**](slides/pfilter/model_measSIR.R)|
-| **R** script for the lesson | [**R**](slides/pfilter/main.R) |
 | Supplement: Deterministic latent process models and their role in benchmarking POMP models | [HTML](slides/pfilter/deterministic.html) |
 | Supplement: Monte Carlo Methods | [PDF](slides/pfilter/monteCarlo.pdf) |
 | Supplement: Likelihood by direct simulation: Consett measles example | [HTML](slides/pfilter/directSimulation.html) |
 | Supplement: Standard errors via the observed Fisher information | [HTML](slides/pfilter/fisherSE.html) |
 | Supplement: Bootstrap methods | [HTML](slides/pfilter/bootstrap.html) |
 | Supplement: Direct maximization of the particle filter likelihood | [HTML](slides/pfilter/pf-in-Nelder-Mead.html) |
-| Worked solution to Exercise 3.1 | [HTML](slides/pfilter/Q_slice.html) |
-| Worked solution to Exercise 3.2 | [HTML](slides/pfilter/expense.html) |
-| Worked solution to Exercise 3.3 | [HTML](slides/pfilter/loglikest.html) |
 
+<!-- | Worked solution to Exercise 3.1 | [HTML](slides/pfilter/Q_slice.html) | -->
 
+<!-- | Worked solution to Exercise 3.2 | [HTML](slides/pfilter/expense.html) | -->
+
+<!-- | Worked solution to Exercise 3.3 | [HTML](slides/pfilter/loglikest.html) | -->
+
+<!-- | Quiz | [PDF](slides/pfilter/quiz.pdf) | -->
+
+<!-- | **Data** for the lesson | [data](slides/pfilter/Measles_Consett_1948.csv)| -->
+
+<!-- | **R** script for the Measles SIR model | [**R**](slides/pfilter/model_measSIR.R)| -->
+
+<!-- | **R** script for the lesson | [**R**](slides/pfilter/main.R) | -->
 
 <iframe width="0" height="0">
 

@@ -1,6 +1,6 @@
 ---
 title: "Simulation-based Inference for Epidemiological Dynamics"
-author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+author: Qianying (Ruby) Lin, Spencer J. Fox, Jesse Wheeler
 toc: true
 format:
   html:
@@ -10,15 +10,19 @@ format:
         - _slides/_includes/main_bottom.html
         - _slides/_includes/license.html
 engine: knitr
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
 ## Module Description
 
-This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. 
-The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. 
-Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. 
-Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in **R** to carry out maximum likelihood and Bayesian inference. 
-Knowledge of the material in Module 1 is assumed. 
+This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems.
+The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models.
+Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection.
+Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques.
+Students will learn to implement these in **R** to carry out maximum likelihood and Bayesian inference.
+Knowledge of the material in Module 1 is assumed.
 Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tutorial/) before the module.
 
 ## Course objectives
@@ -37,28 +41,29 @@ Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tu
 
 ## Lessons
 
-0.  [Instructions for preparing your laptop for the course exercises.](https://rubbislam.quarto.pub/episim/instruction.html)
+0.  [Instructions for preparing your laptop for the course exercises.](instruction.html)
 
-1.  [Introduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.](https://rubbislam.quarto.pub/episim/introduction.html)
+1.  [Introduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.](introduction.html)
 
-2.  [Simulation of stochastic dynamic models.](https://rubbislam.quarto.pub/episim/simulation.html)
+2.  [Simulation of stochastic dynamic models.](simulation.html)
 
-3.  [Likelihood for POMPs: theory and practice.](https://rubbislam.quarto.pub/episim/likelihood.html)
+3.  [Likelihood for POMPs: theory and practice.](likelihood.html)
 
-4.  [Iterated filtering: theory and practice.](https://rubbislam.quarto.pub/episim/iterated.html)
+4.  [Iterated filtering: theory and practice.](iterated.html)
 
-5.  [Bayesian statistics and PMCMC in pomp](https://rubbislam.quarto.pub/episim/Bayesian.html)
+5.  [Bayesian statistics and PMCMC in pomp.](Bayesian.html)
 
-6.  [Case study: 1918 Spanish Flu in three cities of UK](https://rubbislam.quarto.pub/episim/case%20study.html)
+6.  [Epidemic forecasting with pomp.](forecast.html)
 
-7.  [Case study:](https://rubbislam.quarto.pub/episim/case%20study.html)
+7.  [Derivative packages from pomp.](derivatives.html)
 
-## Stochastic SIR simulator
+## Stochastic SIR/SEIR simulator
 
-For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course. 
-This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR framework.
+For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course.
+This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR/SEIR framework.
 
 ## Acknowledgements
 
-This website and all the materials are adapted from <https://kingaa.github.io/sbied/>. 
-We would like to send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) for creating this wonderful course and for helping us developing our own version.
+This website and all the materials are adapted from <https://kingaa.github.io/sbied/>.
+We would like to send our sincere gratitude to Professors [Aaron A. King](https://kinglab.eeb.lsa.umich.edu/king) and [Edward L. Ionides](https://dept.stat.lsa.umich.edu/~ionides/) at University of Michigan for creating this wonderful course and for helping us developing our own version.
+We would also like to thank [Zian (Larry) Zhuang](https://www.zianzhuang.com/) from UCLA for serving as a Teaching Assistant in 2024.

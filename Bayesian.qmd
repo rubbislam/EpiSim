@@ -1,6 +1,6 @@
 ---
 title: "Bayesian statistics and PMCMC in pomp"
-author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+author: Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler
 format: 
   html: 
     include-after-body:
@@ -13,7 +13,8 @@ params:
   prefix: bayesian
 ---
 
-| &nbsp;                              | &nbsp;                                                                                     |
-|-------------------------------------|--------------------------------------------------------------------------------------------|
-| Lecture slides                      | [PDF](slides/bayes/main.pdf)|
-| **R** script for Bayesian inference | [**R**](slides/bayes/main.R)|
+|                   |                           |
+|-------------------|---------------------------|
+| Lecture materials | [zip](slides/8_bayes.zip) |
+
+<!-- | **R** script for Bayesian inference | [**R**](slides/bayes/main.R)| -->

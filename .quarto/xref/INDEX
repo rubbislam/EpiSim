@@ -407,5 +407,11 @@
   },
   "workflow.qmd": {
     "workflow.html": "b3545ee8"
+  },
+  "forecast.qmd": {
+    "forecast.html": "0dc04b45"
+  },
+  "derivatives.qmd": {
+    "derivatives.html": "50eebf03"
   }
 }

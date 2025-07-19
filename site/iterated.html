@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang">
+<meta name="author" content="Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler">
 
-<title>Iterated filtering: principles and practice – EpiSim</title>
+<title>Iterated filtering: principles and practice</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,140 +24,24 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
-<script>
-MathJax = {
-  loader: {
-    load: ['[tex]/boldsymbol']
-  },
-  tex: {
-    tags: "all",
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    displayMath: [['$$','$$'], ['\\[','\\]']],
-    processEscapes: true,
-    processEnvironments: true,
-    packages: {
-      '[+]': ['boldsymbol']
-    }
-  }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script src="iterated_files/libs/clipboard/clipboard.min.js"></script>
+<script src="iterated_files/libs/quarto-html/quarto.js"></script>
+<script src="iterated_files/libs/quarto-html/popper.min.js"></script>
+<script src="iterated_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="iterated_files/libs/quarto-html/anchor.min.js"></script>
+<link href="iterated_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="iterated_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="iterated_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="iterated_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="iterated_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="fullcontent">
 
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">EpiSim</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./instruction.html"> 
-<span class="menu-text">Instruction</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./introduction.html"> 
-<span class="menu-text">Introduction</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./simulation.html"> 
-<span class="menu-text">Simulation</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./likelihood.html"> 
-<span class="menu-text">Likelihood</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./iterated.html" aria-current="page"> 
-<span class="menu-text">Iterated filtering</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./workflow.html"> 
-<span class="menu-text">Workflow</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./Bayesian.html"> 
-<span class="menu-text">Bayesian</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./case study.html"> 
-<span class="menu-text">Case study</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
-<!-- sidebar -->
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
-    </div>
-<!-- main -->
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -172,7 +56,7 @@ MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang </p>
+             <p>Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler </p>
           </div>
   </div>
     
@@ -194,63 +78,39 @@ MathJax = {
 </thead>
 <tbody>
 <tr class="odd">
-<td>Lecture slides</td>
-<td><a href="slides/mif/main.pdf">PDF</a></td>
+<td>Lecture materials 1</td>
+<td><a href="slides/5_IF_theory.zip">zip</a></td>
 </tr>
 <tr class="even">
+<td>Lecture materials 2</td>
+<td><a href="slides/6_mif.zip">zip</a></td>
+</tr>
+<tr class="odd">
 <td>Reference Recording (2020,2021)</td>
 <td><a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi">Video (110 min)</a></td>
-</tr>
-<tr class="odd">
-<td>Quiz</td>
-<td><a href="slides/mif/quiz.pdf">PDF</a></td>
-</tr>
-<tr class="even">
-<td><strong>Data</strong> for the lesson</td>
-<td><a href="slides/mif/Measles_Consett_1948.csv">data</a></td>
-</tr>
-<tr class="odd">
-<td><strong>R</strong> script for the Measles SIR model</td>
-<td><a href="slides/mif/model_measSIR.R"><strong>R</strong></a></td>
-</tr>
-<tr class="even">
-<td><strong>R</strong> script for the lesson</td>
-<td><a href="slides/mif/main.R"><strong>R</strong></a></td>
-</tr>
-<tr class="odd">
-<td>Workflow slides</td>
-<td><a href="slides/mif/workflow.pdf">PDF</a></td>
-</tr>
-<tr class="even">
-<td><strong>R</strong> script for the workflow</td>
-<td><a href="slides/mif/workflow.R"><strong>R</strong></a></td>
-</tr>
-<tr class="odd">
-<td>Windows-safe <strong>R</strong> script for the lesson</td>
-<td><a href="slides/mif/main_win.R"><strong>R</strong></a></td>
 </tr>
 <tr class="even">
 <td>Supplement: Tuning IF2</td>
 <td><a href="slides/mif/if2_settings.html">HTML</a></td>
 </tr>
-<tr class="odd">
-<td>Worked solution to Exercise 4.1</td>
-<td><a href="slides/mif/Q_fit_seir.html">HTML</a></td>
-</tr>
-<tr class="even">
-<td>Worked solution to Exercise 4.2</td>
-<td><a href="slides/mif/Q_fit_all.html">HTML</a></td>
-</tr>
 </tbody>
 </table>
+<!-- | Worked solution to Exercise 4.1 | [HTML](slides/mif/Q_fit_seir.html) | -->
+<!-- | Worked solution to Exercise 4.2 | [HTML](slides/mif/Q_fit_all.html) | -->
+<!-- | Quiz | [PDF](slides/mif/quiz.pdf) | -->
+<!-- | **Data** for the lesson | [data](slides/mif/Measles_Consett_1948.csv)| -->
+<!-- | **R** script for the Measles SIR model | [**R**](slides/mif/model_measSIR.R)| -->
+<!-- | **R** script for the lesson | [**R**](slides/mif/main.R) | -->
+<!-- | Workflow slides | [PDF](slides/mif/workflow.pdf) | -->
+<!-- | **R** script for the workflow | [**R**](slides/mif/workflow.R) | -->
+<!-- | Windows-safe **R** script for the lesson | [**R**](slides/mif/main_win.R) | -->
 <iframe width="0" height="0">
 </iframe>
 <iframe data-external="1" width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
 </iframe>
 
-
-
-</main> <!-- /main -->
+</main>
+<!-- /main column -->
 <div style="padding-top: 1em; padding-bottom: 2em;">
 <hr width="100%">
 <a href="#" onclick="goBack()">Previous page</a><br>
@@ -361,7 +221,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

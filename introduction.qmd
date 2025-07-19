@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Simulation-based Inference for Epidemiological Dynamics"
-author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+author: Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler
 format: 
   html: 
     include-after-body:
@@ -13,11 +13,20 @@ params:
   prefix: intro
 ---
 
+In the first lesson, we have three goals:
+
+1. help students understand the motivations for simulation-based inference in the study of
+epidemiological and ecological systems;
+
+2. introduce the class of partially observed Markov process (POMP) models; and 
+
+3. introduce the pomp R package.
+
 | &nbsp;                               | &nbsp;                                                                                     |
 |--------------------------------------|--------------------------------------------------------------------------------------------|
-| Lecture slides                       | [PDF](slides/intro/main.pdf)                                                               |
+| Lecture materials                       | [zip](slides/0_intro.zip)                                                               |
 | Reference Recording (2020,2021,2022) | [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) |
-| Another example (Ricker model)       | [HTML](slides/intro/ricker.html)                                                           | 
+<!-- | Another example (Ricker model)       | [HTML](slides/intro/ricker.html)                                                           |  -->
 
 <iframe width="0" height="0">
 

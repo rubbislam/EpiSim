@@ -1,0 +1,27 @@
+---
+title: "Derivative packages from pomp"
+author: Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler
+format: 
+  html: 
+    include-after-body:
+        - _slides/_includes/lesson_bottom.html
+        - _slides/_includes/license.html
+output:
+  html_document:
+    toc: no
+params:
+  prefix: metapop
+---
+
+In this lesson, we aim to introduce three main derivative packages:
+[panelPomp](https://panelpomp-org.github.io/about.html), 
+[spatPomp](https://spatpomp-org.github.io/spatPomp/), and
+[phylopomp](https://github.com/kingaa/phylopomp).
+
+| &nbsp;                            | &nbsp;                                                 |
+|-----------------------------------|--------------------------------------------------------|
+| Lecture materials         | [zip](slides/9_derivatives.zip)|
+<!-- | **Data** for the lesson.          | [data](slides/workflow/Measles_Consett_1948.csv)| -->
+<!-- | **R** script for the Measles SIR model | [**R**](slides/workflow/model_measSIR.R)| -->
+<!-- | **R** script for the workflow     | [**R**](slides/workflow/main.R)| -->
+

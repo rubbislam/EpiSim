@@ -1,6 +1,6 @@
 ---
 title: "Iterated filtering: principles and practice"
-author: Qianying (Ruby) Lin, Spencer J. Fox, Zian (Larry) Zhuang
+author: Spencer J. Fox, Qianying (Ruby) Lin, Jesse Wheeler
 format: 
   html: 
     include-after-body:
@@ -13,21 +13,30 @@ params:
   prefix: iterated
 ---
 
-| &nbsp;                            | &nbsp;                                                                                     |
-|-----------------------------------|--------------------------------------------------------------------------------------------|
-| Lecture slides | [PDF](slides/mif/main.pdf) |
+|   |   |
+|--------------------|---------------------------------------------------|
+| Lecture materials 1 | [zip](slides/5_IF_theory.zip) |
+| Lecture materials 2 | [zip](slides/6_mif.zip) |
 | Reference Recording (2020,2021) | [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) |
-| Quiz | [PDF](slides/mif/quiz.pdf) |
-| **Data** for the lesson | [data](slides/mif/Measles_Consett_1948.csv)|
-| **R** script for the Measles SIR model | [**R**](slides/mif/model_measSIR.R)|
-| **R** script for the lesson | [**R**](slides/mif/main.R) |
-| Workflow slides | [PDF](slides/mif/workflow.pdf) |
-| **R** script for the workflow | [**R**](slides/mif/workflow.R) |
-| Windows-safe **R** script for the lesson | [**R**](slides/mif/main_win.R) |
 | Supplement: Tuning IF2 | [HTML](slides/mif/if2_settings.html) |
-| Worked solution to Exercise 4.1 | [HTML](slides/mif/Q_fit_seir.html) |
-| Worked solution to Exercise 4.2 | [HTML](slides/mif/Q_fit_all.html) |
 
+<!-- | Worked solution to Exercise 4.1 | [HTML](slides/mif/Q_fit_seir.html) | -->
+
+<!-- | Worked solution to Exercise 4.2 | [HTML](slides/mif/Q_fit_all.html) | -->
+
+<!-- | Quiz | [PDF](slides/mif/quiz.pdf) | -->
+
+<!-- | **Data** for the lesson | [data](slides/mif/Measles_Consett_1948.csv)| -->
+
+<!-- | **R** script for the Measles SIR model | [**R**](slides/mif/model_measSIR.R)| -->
+
+<!-- | **R** script for the lesson | [**R**](slides/mif/main.R) | -->
+
+<!-- | Workflow slides | [PDF](slides/mif/workflow.pdf) | -->
+
+<!-- | **R** script for the workflow | [**R**](slides/mif/workflow.R) | -->
+
+<!-- | Windows-safe **R** script for the lesson | [**R**](slides/mif/main_win.R) | -->
 
 <iframe width="0" height="0">
 
