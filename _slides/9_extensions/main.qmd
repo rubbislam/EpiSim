@@ -1,0 +1,239 @@
+---
+title: "Extensions to the `pomp` package and framework"
+author:
+  - Spencer J. Fox
+  - Qianying (Ruby) Lin
+  - Jesse Wheeler
+format: 
+  beamer:
+    classoption: "t"
+    # fontsize: "10pt"
+    link-citations: true
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    include-in-header: "../_includes/header.tex"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r load-packages, echo=FALSE}
+library(tidyverse)
+library(pomp)
+library(ggplot2)
+library(reshape2)
+```
+
+# `pomp` extensions
+
+## Package Extensions 
+
+Mathematically, POMP models are very versatile, and many of the ideas useful to the models described so far are also applicable in more general settings.
+This gives rise to a few useful extensions of the `pomp` package, which we try to describe here.
+
+\vspace{6mm}
+
+- Meta-population data and models 
+   - `panelPomp`
+   - `spatPomp`
+- Genomic / phylogenetic data 
+   - `phylopomp`
+
+Each of these packages extend the `pomp` package to other useful cases.
+
+\vspace{6mm}
+
+## Meta-population: Data and Models
+
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\linewidth]{ppomp.png}\\
+\textbf{panelPomp: data from related, independent systems.}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\linewidth]{spatPomp.png}\\
+\textbf{spatPomp: data from a single interacting system.}
+\end{minipage}
+
+## Meta-population packages: Examples
+
+Both packages require `pomp` to be installed, and the internal workings of both packages actually use many of the `pomp` functions. Thus, familiarity with `pomp` is a prerequisite.
+
+
+- `panelPomp`:
+   - We have *panel* or *longitudinal* data. 
+   - Several independent yet related systems. Information from all systems is useful, not just one location.
+   - Simultaneously allows for features shared by each system as well as system unique features. 
+   - Example: Late-stage COVID-19 measured in 3 locations: New York, London, Atlanta. Same disease in all places, but we can treat each as an (approximately) independent system. They may share features (recover rate, vaccine efficacy, etc.) that we want to estimate using all data, but may also have unique features at each place (reporting rate, contact rate, etc.)
+- `spatPomp`: 
+   - The name comes from the idea that we have spatially explicit POMP models. 
+   - The data at multiple locations are thought of as location-specific measurements from the same system. That is, the dynamic systems underlying the data are connected. 
+   - Also allows for both shared and unique features for each location. 
+   - Example: Modeling early stages of COVID-19 in China. Here, we might have measurements for many cities, but at first cases were only found in Wuhan; thus, the model may include details of how the disease spread from Wuhan to other cities.
+
+
+
+## Background: genomic sequences & phylogenetic tree
+
+\begin{center}
+  \includegraphics[height=7cm]{../graphics/nextstrain_geneal.png}
+\end{center}
+
+## Background: phylogenetics & phylodynamics
+
+\begin{center}
+  \includegraphics[height=7cm]{../graphics/phylogen_phylodyn.pdf}
+\end{center}
+
+The goal of `phylopomp` is to infer the partially observed
+epidemiological dynamics, formulated by compartmental models, using the
+genealogy/phylogeny, reconstructed from sampled genomic sequences.
+
+## Installation
+
+The github repo for `phylopomp` is on
+\url{https://github.com/kingaa/phylopomp/}.
+
+We can install the latest released version from github using `devtools`.
+
+```{r install, eval=FALSE}
+library(devtools)
+install_github("kingaa/phylopomp@0.14.8.0")
+```
+
+To confirm the package is installed successfully,
+
+```{r install-check}
+packageVersion("phylopomp")
+library(phylopomp)
+```
+
+## Simulation and inference
+
+-   The first useful function of `phylopomp` is to build customized
+    models and simulate genealogies from it. Pre-defined models are
+    included: linear birth-death model (`lbdp`), moran model, SIR, SEIR,
+    two-class SIR model with super-infection (`si2r`), two-strain SIR
+    model (`siir`), etc.
+-   The second is to infer the models given genealogies using `pomp`.
+    This function is currently under development, while a few models are
+    available: `lbdp`, `moran`, `sir`, and `seir`.
+
+## Example: simulation, pre-defined model {.allowframebreaks}
+
+```{r sim-sir, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 55%
+set.seed(1234)
+simulate("SIR",Beta=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
+  simulate(Beta=5,gamma=2,time=5,psi=3) -> model.sir # update params
+plot(model.sir)
+```
+
+\framebreak
+
+```{r sim-seir1, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 55%
+set.seed(1234)
+simulate("SEIR",Beta=2,sigma=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
+  simulate(Beta=5,gamma=2,time=5,psi=3) -> model.seir
+plot(model.seir)
+```
+
+\framebreak
+
+```{r sim-seir2, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 65%
+plot(model.seir, obscure=FALSE)       # show E and I transitions
+```
+
+\framebreak
+
+```{r sim-seir3, fig.width=6, fig.height=4, dpi=300}
+#| out-height: 70%
+lineages(model.seir, obscure=FALSE) |> plot()
+```
+
+## Example: inference, pre-defined model {.allowframebreaks}
+
+```{r infer-sir}
+library(pomp)
+set.seed(1234)
+# simulate a geneal object from an SIR model
+simulate("SIR",Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5,time=10) -> x
+# build a pomp object
+x |>
+  sir_pomp(
+    Beta=3,gamma=1,psi=2,omega=1,
+    S0=100,I0=5,R0=0
+  ) -> po
+po |> pfilter(Np=5000) -> pf
+
+pf |> logLik()
+```
+
+\framebreak
+
+```{r infer-seir}
+set.seed(1234)
+simulate("SEIRS",      # simulate a genealogy from an SEIR model
+  Beta=4,sigma=1,gamma=1,psi=1,omega=1,
+  S0=100,E0=3,I0=5,R0=100, time=5
+) -> G
+G |>
+  seirs_pomp(
+    Beta=4,sigma=1,gamma=1,psi=1,omega=1,
+    S0=100,E0=3,I0=5,R0=100
+  ) |> pfilter(Np=1000) |> 
+  replicate(n=20) |> concat() -> pf
+pf |> logLik() |> logmeanexp(se=TRUE)
+```
+
+## License, acknowledgments, and links
+
+-   This lesson is prepared for the [Simulation-based Inference for
+    Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/)
+    module at the Summer Institute in Statistics and Modeling in
+    Infectious Diseases,
+    [SISMID](https://sph.emory.edu/SISMID/index.html).
+
+-   The materials build on [previous versions of this course and related
+    courses](../acknowledge.html).
+
+-   Licensed under the [Creative Commons Attribution-NonCommercial
+    license](https://creativecommons.org/licenses/by-nc/4.0/). Please
+    share and remix non-commercially, mentioning its origin.
+    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+
+-   Produced with R version `r getRversion()` and pomp version
+    `r packageVersion("pomp")`.
+
+-   Compiled on 2025-07-23.
+
+\vfill
+
+[Back to Lesson](index.html)
+
+[`R` code for this lesson](./main.R)
