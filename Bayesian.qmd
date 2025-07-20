@@ -15,6 +15,6 @@ params:
 
 |                   |                           |
 |-------------------|---------------------------|
-| Lecture materials | [zip](slides/8_bayes.zip) |
+| Lecture materials | [zip](_slides/8_bayes.zip) |
 
 <!-- | **R** script for Bayesian inference | [**R**](slides/bayes/main.R)| -->

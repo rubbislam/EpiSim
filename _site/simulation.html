@@ -195,14 +195,10 @@ MathJax = {
 </thead>
 <tbody>
 <tr class="odd">
-<td>Lecture materials 1</td>
-<td><a href="slides/1_stochsim.zip">zip</a></td>
+<td>Lecture materials</td>
+<td><a href="_slides/2_Stochastic/2_Stochastic.zip">zip</a></td>
 </tr>
 <tr class="even">
-<td>Lecture materials 2</td>
-<td><a href="slides/2_stochsim.zip">zip</a></td>
-</tr>
-<tr class="odd">
 <td>Reference Recording (2020)</td>
 <td><a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2RBA4OQ_OdJj5CEJSjRGxut">Video (98 min)</a></td>
 </tr>
@@ -310,7 +306,7 @@ function goBack() {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

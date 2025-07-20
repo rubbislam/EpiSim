@@ -1,80 +1,17 @@
 [
   {
+    "objectID": "simulation.html",
+    "href": "simulation.html",
+    "title": "Simulation of stochastic dynamic models",
+    "section": "",
+    "text": "Lecture materials\nzip\n\n\nReference Recording (2020)\nVideo (98 min)"
+  },
+  {
     "objectID": "iterated.html",
     "href": "iterated.html",
     "title": "Iterated filtering: principles and practice",
     "section": "",
     "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (110 min)\n\n\nSupplement: Tuning IF2\nHTML"
-  },
-  {
-    "objectID": "Bayesian.html",
-    "href": "Bayesian.html",
-    "title": "Bayesian statistics and PMCMC in pomp",
-    "section": "",
-    "text": "Lecture materials\nzip"
-  },
-  {
-    "objectID": "simulation.html",
-    "href": "simulation.html",
-    "title": "Simulation of stochastic dynamic models",
-    "section": "",
-    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020)\nVideo (98 min)"
-  },
-  {
-    "objectID": "likelihood.html",
-    "href": "likelihood.html",
-    "title": "Likelihood-based inference for POMP models",
-    "section": "",
-    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (112 min)\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models\nHTML\n\n\nSupplement: Monte Carlo Methods\nPDF\n\n\nSupplement: Likelihood by direct simulation: Consett measles example\nHTML\n\n\nSupplement: Standard errors via the observed Fisher information\nHTML\n\n\nSupplement: Bootstrap methods\nHTML\n\n\nSupplement: Direct maximization of the particle filter likelihood\nHTML"
-  },
-  {
-    "objectID": "forecast.html",
-    "href": "forecast.html",
-    "title": "Epidemic forecasting with pomp",
-    "section": "",
-    "text": "Lecture materials\nzip"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "",
-    "text": "This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in R to carry out maximum likelihood and Bayesian inference. Knowledge of the material in Module 1 is assumed. Students new to R should complete a tutorial before the module."
-  },
-  {
-    "objectID": "index.html#module-description",
-    "href": "index.html#module-description",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "",
-    "text": "This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in R to carry out maximum likelihood and Bayesian inference. Knowledge of the material in Module 1 is assumed. Students new to R should complete a tutorial before the module."
-  },
-  {
-    "objectID": "index.html#course-objectives",
-    "href": "index.html#course-objectives",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "Course objectives",
-    "text": "Course objectives\n\nTo introduce partially observed Markov process (POMP) models as tools for scientific investigation and public health policy.\nTo give students the ability to formulate POMP models of their own.\nTo teach efficient approaches for performing scientific inference using POMP models.\nTo familiarize students with the pomp package.\nTo give students opportunities to work with such inference methods.\nTo provide documented examples for student re-use."
-  },
-  {
-    "objectID": "index.html#lessons",
-    "href": "index.html#lessons",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "Lessons",
-    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPs: theory and practice.\nIterated filtering: theory and practice.\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
-  },
-  {
-    "objectID": "index.html#stochastic-sirseir-simulator",
-    "href": "index.html#stochastic-sirseir-simulator",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "Stochastic SIR/SEIR simulator",
-    "text": "Stochastic SIR/SEIR simulator\nFor an interactive exploration of the stochastic SIR model, you can access the dedicated shiny app developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR/SEIR framework."
-  },
-  {
-    "objectID": "index.html#acknowledgements",
-    "href": "index.html#acknowledgements",
-    "title": "Simulation-based Inference for Epidemiological Dynamics",
-    "section": "Acknowledgements",
-    "text": "Acknowledgements\nThis website and all the materials are adapted from https://kingaa.github.io/sbied/. We would like to send our sincere gratitude to Professors Aaron A. King and Edward L. Ionides at University of Michigan for creating this wonderful course and for helping us developing our own version. We would also like to thank Zian (Larry) Zhuang from UCLA for serving as a Teaching Assistant in 2024."
   },
   {
     "objectID": "instruction.html",
@@ -119,11 +56,18 @@
     "text": "Troubleshooting\n\nLinux and unix users\nIf you have trouble with any of the scripts above, make sure you have the GNU compiler collection (GCC), including gfortran, installed on your computer. Linux distributions typically include this by default but it is not impossible that you have somehow avoided this.\n\n\nMacOS users\nIf the pompTest.R script fails because you cannot load pomp, try installing it from source. The easiest way to do this is to execute\n\ninstall.packages(\"pomp\",repos=\"https://kingaa.github.io/\")\n\nin an R session. You can also use the devtools package. Do\n\ninstall.packages(\"devtools\")\nlibrary(devtools)\ninstall_github(\"kingaa/pomp\")\n\nIf, while trying to install from source, you receive the error,\n\nmake: gfortran-8.2: No such file or directory\n\nor one that otherwise refers to gfortran, then it is likely that you do not have the necessary version of gfortran installed. Have a look at these instructions and contact me at the address above if these don’t work for you.\nSome users have reported receiving an error complaining that\n\n'stdlib.h' file not found\n\nThis indicates that the command-line tools from Xcode have not been properly installed. In a unix terminal, run\n\nxcode-select --install\n\nto correct this problem.\n\n\nWindows users\nYou have probably failed to install the Rtools correctly. Revisit the instructions above.\n\nPre-course instructions for Windows users (Video)\nPre-course instructions for MacOS users (Video)"
   },
   {
-    "objectID": "introduction.html",
-    "href": "introduction.html",
-    "title": "Introduction to Simulation-based Inference for Epidemiological Dynamics",
+    "objectID": "forecast.html",
+    "href": "forecast.html",
+    "title": "Epidemic forecasting with pomp",
     "section": "",
-    "text": "In the first lesson, we have three goals:\n\nhelp students understand the motivations for simulation-based inference in the study of epidemiological and ecological systems;\nintroduce the class of partially observed Markov process (POMP) models; and\nintroduce the pomp R package.\n\n\n\n\n \n \n\n\n\n\nLecture materials\nzip\n\n\nReference Recording (2020,2021,2022)\nVideo (50 min)"
+    "text": "Lecture materials\nzip"
+  },
+  {
+    "objectID": "Bayesian.html",
+    "href": "Bayesian.html",
+    "title": "Bayesian statistics and PMCMC in pomp",
+    "section": "",
+    "text": "Lecture materials\nzip"
   },
   {
     "objectID": "derivatives.html",
@@ -131,5 +75,61 @@
     "title": "Derivative packages from pomp",
     "section": "",
     "text": "In this lesson, we aim to introduce three main derivative packages: panelPomp, spatPomp, and phylopomp.\n\n\n\n \n \n\n\n\n\nLecture materials\nzip"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "",
+    "text": "This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in R to carry out maximum likelihood and Bayesian inference. Knowledge of the material in Module 1 is assumed. Students new to R should complete a tutorial before the module."
+  },
+  {
+    "objectID": "index.html#module-description",
+    "href": "index.html#module-description",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "",
+    "text": "This module introduces statistical inference techniques and computational methods for dynamic models of epidemiological systems. The course will explore deterministic and stochastic formulations of epidemiological dynamics and develop inference methods appropriate for a range of models. Special emphasis will be on exact and approximate likelihood as the key elements in parameter estimation, hypothesis testing, and model selection. Specifically, the course will cover sequential Monte Carlo and synthetic likelihood techniques. Students will learn to implement these in R to carry out maximum likelihood and Bayesian inference. Knowledge of the material in Module 1 is assumed. Students new to R should complete a tutorial before the module."
+  },
+  {
+    "objectID": "index.html#course-objectives",
+    "href": "index.html#course-objectives",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "Course objectives",
+    "text": "Course objectives\n\nTo introduce partially observed Markov process (POMP) models as tools for scientific investigation and public health policy.\nTo give students the ability to formulate POMP models of their own.\nTo teach efficient approaches for performing scientific inference using POMP models.\nTo familiarize students with the pomp package.\nTo give students opportunities to work with such inference methods.\nTo provide documented examples for student re-use."
+  },
+  {
+    "objectID": "index.html#lessons",
+    "href": "index.html#lessons",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "Lessons",
+    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPs: theory and practice.\nIterated filtering: theory and practice.\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
+  },
+  {
+    "objectID": "index.html#stochastic-sirseir-simulator",
+    "href": "index.html#stochastic-sirseir-simulator",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "Stochastic SIR/SEIR simulator",
+    "text": "Stochastic SIR/SEIR simulator\nFor an interactive exploration of the stochastic SIR model, you can access the dedicated shiny app developed for this course. This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR/SEIR framework."
+  },
+  {
+    "objectID": "index.html#acknowledgements",
+    "href": "index.html#acknowledgements",
+    "title": "Simulation-based Inference for Epidemiological Dynamics",
+    "section": "Acknowledgements",
+    "text": "Acknowledgements\nThis website and all the materials are adapted from https://kingaa.github.io/sbied/. We would like to send our sincere gratitude to Professors Aaron A. King and Edward L. Ionides at University of Michigan for creating this wonderful course and for helping us developing our own version. We would also like to thank Zian (Larry) Zhuang from UCLA for serving as a Teaching Assistant in 2024."
+  },
+  {
+    "objectID": "introduction.html",
+    "href": "introduction.html",
+    "title": "Introduction to Simulation-based Inference for Epidemiological Dynamics",
+    "section": "",
+    "text": "In the first lesson, we have three goals:\n\nhelp students understand the motivations for simulation-based inference in the study of epidemiological and ecological systems;\nintroduce the class of partially observed Markov process (POMP) models; and\nintroduce the pomp R package.\n\n\n\n\n \n \n\n\n\n\nLecture materials\nzip\n\n\nReference Recording (2020,2021,2022)\nVideo (50 min)"
+  },
+  {
+    "objectID": "likelihood.html",
+    "href": "likelihood.html",
+    "title": "Likelihood-based inference for POMP models",
+    "section": "",
+    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (112 min)"
   }
 ]
