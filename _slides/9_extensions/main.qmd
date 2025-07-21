@@ -20,6 +20,49 @@ format:
     header-includes: |
        \setbeamertemplate{navigation symbols}{}
        \setbeamertemplate{footline}[page number]
+       \newcommand\Wsat{W_{\mathrm{sat}}}
+       \newcommand\muIR{\mu_{IR}}
+       \newcommand\muEI{\mu_{EI}}
+       \newcommand\transmission{\beta}
+       \newcommand\seasAmplitude{a}
+       \newcommand\rainfallExponent{r}
+       \newcommand\muRS{\mu_{RS}}
+       \newcommand\vaccineEfficacy{\vartheta}
+       \newcommand\muBirth{\mu_S}
+       \newcommand\muDeath{d}
+       \newcommand\choleraDeath{d_{C}}
+       \newcommand\symptomFrac{f}
+       \newcommand\asymptomRelativeInfect{\epsilon}
+       \newcommand\asymptomRelativeShed{\epsilon_{W}}
+       \newcommand\Wbeta[1]{\beta_{W#1}}
+       \newcommand\Whur[1]{\beta_{W#1}^{hm}}
+       \newcommand\hHur[1]{h_{#1}^{hm}}
+       \newcommand\tHur{t_{hm}}
+       \newcommand\Iinit{I_{0,0}}
+       \newcommand\Einit{E_{0, 0}}
+       \newcommand\Wremoval{\delta_W}
+       \newcommand\Wshed{\mu_W}
+       \newcommand\mixExponent{\nu}
+       \newcommand\sigmaProc{\sigma_{\mathrm{proc}}}
+       \newcommand\reportRate{\rho}
+       \newcommand\obsOverdispersion{\psi}
+       \newcommand\phaseParm{\phi}
+       \newcommand\transmissionTrend{\zeta}
+       \newcommand\Binit{\xi}
+       \newcommand\vaccClass{Z}
+       \newcommand\vaccCounter{z}
+       \newcommand\modelCounter{m}
+       \newcommand\missing{}
+       \newcommand\fixed{^\dagger}
+       \newcommand\demography{\bullet}
+       \newcommand\figTitle{\bf}
+       \newcommand\childReduce{q}
+       \newcommand\NBintercept{\alpha}
+       \newcommand\NBar{\beta}
+       \newcommand\NBsize{\varphi}
+       \newcommand\reportChange{\delta}
+       \usepackage{pict2e}
+       \usepackage{algorithm2e}
     hyperrefoptions:
       - linktoc=all
   html:
@@ -42,6 +85,7 @@ source("../_includes/setup.R", local = knitr::knit_global())
 library(tidyverse)
 library(pomp)
 library(panelPomp)
+library(phylopomp)
 library(ggplot2)
 library(reshape2)
 ```
@@ -200,13 +244,421 @@ We need a new algorithm for conducting maximum likelihood, either the
 panel iterated filter (PIF), or marginalized panel iterated filter
 (MPIF). We don't even need to change the code!
 
-```{r ppompMif2, eval=FALSE}
+```{r ppompMif2, eval=TRUE}
 mif2Out <- mif2(
   measSIR, rw.sd = rw_sd(rho = 0.02, R_0 = 0.02), 
   Nmif = 10, Np = 200, cooling.fraction.50 = 0.5, 
   block = TRUE  # block = TRUE does MPIF, usually best + faster.
   )
 ```
+
+## panelPomp: likelihood {.allowframebreaks}
+
+Because units are independent, the likelihood can be computed independently for each unit, and the total log-likelihood is the sum of unit log-likelihoods.
+
+```{r}
+unitLogLik(mif2Out)
+sum(unitLogLik(mif2Out))
+logLik(mif2Out)
+```
+
+\framebreak
+
+When we do repeated particle filters, we get better estimates if we first average log-likelihood over the units, then take the sum. 
+
+```{r calcPfilter, cache=TRUE}
+library(foreach)
+library(doParallel)
+library(doRNG)
+registerDoParallel(detectCores()-1)
+foreach(rep=1:10, .combine = c) %dopar% {
+  pfilter(measSIR, Np = 5000)
+} -> pfOut  # Object of length 10
+```
+
+\framebreak
+
+Like in `pomp`, we can average results using `logmeanexp`. However, because there is more than one way to do it, we have a new function `panel_logmeanexp`.
+The preferred approach is averaging over the unit, then summing:
+
+```{r logmeanexp}
+panel_logmeanexp(
+  sapply(pfOut, unitLogLik), MARGIN = 1, se = TRUE
+)
+```
+
+We usually have larger error than in `pomp`, because there is error for each unit that adds up across the entire `panelPomp` object.
+
+## panelPomp: sumary
+
+- Easy extension of `pomp` that allows to fit related models to many locations. 
+- Useful for (approximately) independent systems (e.g., outbreaks within various hospitals, approximately geographically isolated outbreaks of same disease, controlled randomized experiments,...)
+- Very useful if limited data is available, we can pool information from all sources.
+- Allows for estimating shared and unit-specific parameters. 
+- To learn more, see the panelPomp research paper (to appear in the R Journal) [@panelPomp].
+
+# SpatPOMP
+
+## spatPomp: Introduction
+
+`spatPomp` is another extension that can be used to fit meta-population models.
+The difference between `spatPomp` and `panelPomp` is that `spatPomp` allows for dependence between units.
+
+- Both mathematically and computationally, this is a much more difficult task.
+- It can lead to very interesting and high-dimensional models.
+
+Note that any `panelPomp` model can be expressed as a `spatPomp`, so you can use `spatPomp` methods to fit `panelPomp` models.
+However, if a `panelPomp` is appropriate, it is both theoretically and computationally more efficient to treat the model as a `panelPomp`. 
+
+## High-dimensional models 
+
+`spatPomp` is relatively new, the software paper was published last year [@spatPomp]. It enables fitting higher-dimensional POMP models than has been possible in the past. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{spatPomp.png}
+\caption{Limits of POMP modeling. Credit: Asfaw et al. 2024.}
+\end{figure}
+
+## Dependent States
+
+Unlike `panelPomp`, the latent process $X(t)$ is assumed to be linked for each unit (e.g., infectious individuals from city 1 can infect susceptible individuals in city 2).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{spatPompX.png}
+\caption{Credit: Asfaw et al. 2024.}
+\end{figure}
+
+## Implications
+
+- Allowing for spatially dependent latent processes can lead to more interesting, more realistic models.
+- However, they become more complicated to build in practice, because we have to carefully describe how the systems interact. 
+- Mathematically, these models are also more complex. Until very recently, plug-and-play methods for fitting and evaluating these models did not exist.
+
+## spatPomp: methods
+
+Parts of a `spatPomp` that can be implemented
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{spatPompFuns.png}
+\end{figure}
+
+## Block particle filter (`bpfilter`)
+
+To perform inference, it is similar to `pomp`, but we will use an algorithm called the Block-Particle Filter (BPF). Particle filters don't work well in high-dimensions (even as low as 3 dimensions is "high"). The BPF is similar to the particle filter, but does the following:
+
+- Simulate the entire process forward with `rprocess`.
+- Use `dunit_meas` to calculate weights independently for all units, and update particles independently. 
+
+**Pro:** This algorithm is surprisingly fast and effective. Best if coupling between units is weak. 
+
+**Con:** Does not satisfy conservation of mass properties. Alternative options can be found in the `spatPomp` tutorial [@spatPompTutorial]. 
+
+## Iterated block particle filter (IBPF)
+
+Like iterating filtering is a special type of particle filter, with model parameters doing a random walk, we can iterate the BPF to get an IBPF to fit model parameters [@IBPF24].
+
+Like the BPF, the IBPF is surprisingly effective at maximizing the likelihood [@spatPompTutorial], but does not conserve mass.
+
+## Example: Cholera in Haiti
+
+ \begin{tabular}{cl}  
+         \begin{tabular}{c}
+           \includegraphics[height=4.3cm, width=5.5cm]{vaccination.jpeg}
+           \end{tabular}
+           & \begin{tabular}{l}
+             \parbox{0.5\linewidth}{%  change the parbox width as appropiate
+             \begin{itemize}
+              \item Haiti experienced a cholera outbreak following the devastating 2010 earthquake. 
+              \item From 2010-2019, more than \alert{800,000} recorded cases, making it one of the largest recorded outbreaks.
+              \item Oral cholera vaccination (OCV) is available, but in limited supply.
+              \item A modeling goal is to study the potential impact of various vaccination strategies.
+              \item Image credit: UNICEF.
+             \end{itemize}
+    }
+         \end{tabular}  \\
+\end{tabular}
+
+This example is from [@Wheeler24]
+
+## Haiti Data
+
+```{r haitiDepartments, fig.height=3.5, echo=FALSE}
+library(haitipkg)
+library(tidyverse)
+
+dep_plot_df <- haitiCholera %>%
+  select(-report) %>%
+  pivot_longer(
+    data = .,
+    cols = -date_saturday,
+    values_to = 'cases',
+    names_to = 'dep'
+  ) %>%
+  mutate(
+    date = as.Date(date_saturday),
+    dep = gsub("\\.", "_", dep)
+  ) %>%
+  mutate(
+    dep = case_when(dep == "Grand_Anse" ~ "Grande_Anse", TRUE ~ dep)
+  )
+
+dep_labeller <- as_labeller(
+  c(
+    'Artibonite' = 'Artibonite',
+    'Sud_Est' = 'Sud-Est',
+    'Sud.Est' = 'Sud-Est',
+    'Nippes' = 'Nippes',
+    'Nord_Est' = 'Nord-Est',
+    'Nord.Est' = 'Nord-Est',
+    'Ouest' = 'Ouest',
+    'Centre' = 'Centre',
+    'Nord' = 'Nord',
+    'Sud' = 'Sud',
+    'Nord_Ouest' = 'Nord-Ouest',
+    'Nord.Ouest' = 'Nord-Ouest',
+    'Grande_Anse' = 'Grand\'Anse',
+    'Grand.Anse' = 'Grand\'Anse'
+  )
+)
+
+# Vector used to arrange figures in the same order that was used in Lee et al (2020)
+plot_order <- c(
+  'Artibonite',
+  'Sud_Est',
+  'Nippes',
+  'Nord_Est',
+  'Ouest',
+  'Centre',
+  'Nord',
+  'Sud',
+  'Nord_Ouest',
+  'Grande_Anse'
+)
+
+# Plot reported cholera cases, by department. Creates Figure 1.
+ggplot(dep_plot_df, aes(x = date, y = cases + 1)) +
+  facet_wrap(~dep, nrow = 2, labeller = dep_labeller) +
+  geom_line() +
+  theme(axis.title.x = element_blank()) +
+  ylab('Reported Cases') +
+  scale_y_log10(
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  ) +
+  scale_x_date(
+    date_labels = "'%y",
+    breaks = seq.Date(
+      from = as.Date("2011-01-01"),
+      to = as.Date("2019-01-01"),
+      by = '2 years'
+    )
+  ) + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank())
+```
+
+## Cholera Model 
+
+ \begin{tabular}{ll}  
+         \begin{tabular}{l}
+          %%%%% SEAIR diagram
+  \resizebox{0.55\textwidth}{!}{
+    \Large
+    \setlength{\unitlength}{5pt}
+    \begin{picture}(100,70)(1,15)
+
+    % COMPARTMENTS
+    \put(39, 50){\circle{6}}
+    \put(37, 49){$\mathrm{W}_{u}$}
+
+    \put(8, 55){\framebox(6, 6){$\mathrm{S_{u0}}$}}
+    \put(8, 39){\framebox(6, 6){$\mathrm{S_{u\vaccCounter}}$}}
+    \put(36, 62.5){\framebox(6, 6){$\mathrm{A_{u}}$}}
+    \put(36, 31.5){\framebox(6, 6){$\mathrm{I_{u}}$}}
+    \put(56, 55){\framebox(6, 6){$\mathrm{R^1_{u0}}$}}
+    \put(71, 55){\framebox(6, 6){$\mathrm{R^2_{u0}}$}}
+    \put(86, 55){\framebox(6, 6){$\mathrm{R^3_{u0}}$}}
+    \put(56, 39){\framebox(6, 6){$\mathrm{R^1_{u\vaccCounter}}$}}
+    \put(71, 39){\framebox(6, 6){$\mathrm{R^2_{u\vaccCounter}}$}}
+    \put(86, 39){\framebox(6, 6){$\mathrm{R^3_{u\vaccCounter}}$}}
+
+    % INDIVIDUAL MOVEMENT
+    % S_u0 -> A_u
+    \put(15, 58.5){\vector(3, 1.2){20}}
+
+    % S_u0 -> I_u
+    \put(15, 57.5){\vector(1, -1.1){20}}
+
+    % S_uz -> I_u
+    \put(15, 41.5){\vector(3, -1.2){20}}
+
+    % S_uz -> A_u
+    \put(15, 42.5){\vector(1, 1.1){20}}
+
+    % I_u -> R_u0
+    \put(43, 66){\vector(2, -1){12}}
+
+    % A_u -> R_uz
+    \multiput(43, 64)(1.25, -1.6){12}{\line(1, -1.3){0.7}}
+    \put(57, 46){\vector(1, -1.3){0.2}}
+
+    \put(43, 36){\vector(1.7, 2){15}}
+
+    \multiput(60, 54)(0, -2){4}{\line(0, -1){1}}
+    \put(60, 46){\vector(0, -1){0.5}}
+
+    \multiput(74, 54)(0, -2){4}{\line(0, -1){1}}
+    \put(74, 46){\vector(0, -1){0.5}}
+
+    \multiput(89, 54)(0, -2){4}{\line(0, -1){1}}
+    \put(89, 46){\vector(0, -1){0.5}}
+
+    \put(63, 58){\vector(1, 0){7}}
+    \put(78, 58){\vector(1, 0){7}}
+
+    \put(63, 42){\vector(1, 0){7}}
+    \put(78, 42){\vector(1, 0){7}}
+
+    \multiput(39, 61.5)(0, -1){8}{\line(0, -1){0.3}}
+    \put(39,54){\vector(0, -1){0.5}}
+
+    \multiput(39, 38.5)(0, 1){8}{\line(0, 1){0.3}}
+    \put(39,46){\vector(0, 1){0.5}}
+
+    \cbezier(89,62)(80, 85)(20, 85)(12,62)
+    \put(12.2,62.5){\vector(-1, -3.5){0.3}}
+
+    \cbezier(89,38)(80, 15)(20, 15)(12,38)
+    \put(12.2,37.5){\vector(-1, 3.5){0.3}}
+
+    \multiput(11, 54)(0, -2){4}{\line(0, -1){1}}
+    \put(11, 46){\vector(0, -1){0.5}}
+
+    % DEMOGRAPHY
+    % -> S
+    \put(0, 58){\vector(1, 0){7}}
+    \put(1, 59){$\mathrm{\mu_{\demography S_{u0}}}$}
+
+    % S Death
+    \put(10, 62){\vector(0, 1){7}}
+    \put(8, 64){$\mathrm{\muDeath}$}
+    \put(10, 38){\vector(0, -1){7}}
+    \put(8, 34){$\mathrm{\muDeath}$}
+
+    % A + I death
+    \put(39, 69.5){\vector(0, 1){7}}
+    \put(37, 71.5){$\mathrm{\muDeath}$}
+
+    \put(39, 31.5){\vector(0, -1){7}}
+    \put(30, 27.5){$\mathrm{\muDeath + \choleraDeath}$}
+
+    % R Death
+    \put(59, 62){\vector(0, 1){7}}
+    \put(57, 64){$\mathrm{\muDeath}$}
+
+    \put(74, 62){\vector(0, 1){7}}
+    \put(72, 64){$\mathrm{\muDeath}$}
+
+    \put(59, 38){\vector(0, -1){7}}
+    \put(57, 34){$\mathrm{\muDeath}$}
+
+    \put(74, 38){\vector(0, -1){7}}
+    \put(72, 34){$\mathrm{\muDeath}$}
+
+    \put(93, 42){\vector(1, 0){7}}
+    \put(95.5, 43){$\mathrm{\muDeath}$}
+
+    \put(93, 58){\vector(1, 0){7}}
+    \put(95.5, 59){$\mathrm{\muDeath}$}
+
+    % W death
+    \multiput(43, 50)(1, 0){7}{\line(1, 0){0.2}}
+    \put(50.2, 50){\vector(1, 0){0.5}}
+    \put(44, 51){$\mathrm{\Wremoval}$}
+
+    \end{picture}
+  }  
+         \end{tabular}
+           & \begin{tabular}{l}
+             \parbox{0.4\linewidth}{%  change the parbox width as appropiate
+             \begin{itemize}
+              \item SIAR3W Model 
+              \item Spatial Dependence between units.
+              \item Stochastic transmission rates.
+              \item Overdispersed Markov counting system.
+              \item Rainfall driven transmission.
+              \item Environmental reservoir of bacteria.
+              \item Adjustments for Hurricane Mathew (Oct 2016).
+              \item For details on implementation, see (Wheeler et al. 2024).
+             \end{itemize}
+    }
+         \end{tabular}  \\
+\end{tabular}
+
+
+## Pre-built model in the `haitipkg` R package
+
+Rather than build this from scratch, we can use a constructor function from `haitipkg`.
+
+```{r}
+devtools::install_github('jeswheel/haitipkg')
+sp_mod <- haitipkg::haiti3_spatPomp()
+```
+
+Performing inference for this model is similar to the `pomp` Measles example, but it takes much longer to compute in practice
+
+```{r showBPF, eval=FALSE}
+bpf_out <- bpfilter(sp_mod, Np = 1000, block_size = 1)
+```
+
+```{r evalBPF, cache = TRUE, echo=FALSE}
+tic <- Sys.time()
+<<showBPF>>
+toc <- Sys.time()
+bpf_time <- toc - tic
+```
+
+This took `r round(as.numeric(bpf_time), 2)` seconds to run. 
+
+## Parameter Estimation
+
+The functionality for estimating parameters using IBPF is similar to using `mif2` in pomp: 
+
+```{r IBPFexample, eval=FALSE}
+## NOT RUN
+ibpf(
+  h3_spat,
+  Nbpf = 100,  # Equivalent to Nmif
+  Np = 2000,
+  sharedParNames = <character vector of shared parameter names>,
+  unitParNames = <character vector of unit-specific parameter names>,
+  spat_regression = 0.1,
+  rw.sd = ...,
+  cooling.fraction.50 = ...,
+  block_size = 1
+)
+```
+
+## Confidence Intervals 
+
+For `spatPomp`, we can compute confidence intervals in a similar way as `pomp`. That is, we can fix the parameter of interest at a range of values, and maximize the likelihood for the remaining parameters.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{spatPompCI.png}
+\caption{\label{fig:CI}Confidence interval for one of the model parameters. Credit: Wheeler et al. 2024.}
+\end{figure}
+
+## spatPomp: Summary 
+
+- The `spatPomp` package is an extension of `pomp` that enables building and fitting interacting dynamic meta-population models. 
+- Algorithms and software are a little bit different than `pomp`, but similar enough that you `pomp` skills are applicable. 
+- The nature of these models mean that things run much slower, for two reasons: 
+   - If you have data from $U$ units, then the code is roughly $U$ times slower for the same number of iterations and particles. 
+   - Because there are $U$ times as many parameters, the likelihood surface is usually more complex, and we may need more iterations and particles than for low-dimensional systems.
+- To learn more, see the package tutorial [@spatPompTutorial] or the Haiti Cholera example we discussed [@Wheeler24].
 
 # Phylopomp
 
@@ -303,13 +755,14 @@ plot(model.sir)
 ```{r sim-sir-2, fig.width=6, fig.height=4, dpi=300, echo=FALSE}
 #| out-height: 70%
 #| fig-cap: "Simulated genealogy from an SIR model."
+library(phylopomp)
 set.seed(1234)
-simulate(
+phylopomp::simulate(
   "SIR",time=2,
   Beta=2,gamma=1,psi=2,
   S0=1000,I0=5
 )|>
-  simulate(
+  phylopomp::simulate(
     Beta=5,gamma=2,time=5,psi=3
   ) -> model.sir # update params
 plot(model.sir)
@@ -345,8 +798,8 @@ plot(model.seir)
 #| out-height: 70%
 #| fig-cap: "Simulated genealogy from an SEIR model."
 set.seed(1234)
-simulate("SEIR",Beta=2,sigma=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
-  simulate(Beta=5,gamma=2,time=5,psi=3) -> model.seir
+phylopomp::simulate("SEIR",Beta=2,sigma=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
+  phylopomp::simulate(Beta=5,gamma=2,time=5,psi=3) -> model.seir
 plot(model.seir)
 ```
 :::
@@ -406,9 +859,10 @@ model.seir |>
 
 ```{r infer-sir}
 library(pomp)
+library(phylopomp)
 set.seed(1234)
 # simulate a geneal object from an SIR model
-simulate("SIR",time=10,Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
+phylopomp::simulate("SIR",time=10,Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
 # build a pomp object
 x |>
   sir_pomp(
@@ -436,6 +890,14 @@ G |>
   replicate(n=20) |> concat() -> pf
 pf |> logLik() |> logmeanexp(se=TRUE)
 ```
+
+
+# References
+
+## References {.allowframebreaks}
+
+::: {#refs}
+:::
 
 ## License, acknowledgments, and links
 
