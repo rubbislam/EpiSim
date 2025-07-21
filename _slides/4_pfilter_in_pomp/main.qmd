@@ -1,8 +1,8 @@
 ---
 title: "Lesson 4: Particle Filtering in POMP"
 author:
-  - Qianying (Ruby) Lin
   - Spencer J. Fox
+  - Qianying (Ruby) Lin
   - Jesse Wheeler
 format: 
   beamer:
@@ -124,9 +124,13 @@ plot(pf)
 
 3.  The Monte Carlo variability of the likelihood:
 
-- The `pfilter` function provides a single Monte-Carlo approximation of the log-likelihood for a fixed parameter value. That is, there is some randomness in the parameter estimate.
-- Like all Monte Carlo evaluations, it makes sense to obtain multiple estimates to check the variance of the Monte Carlo algorithm.
-- Because each call to `pfilter` is an independent Monte Carlo, we can leverage parallel computing to redo the evaluation multiple times.
+-   The `pfilter` function provides a single Monte-Carlo approximation
+    of the log-likelihood for a fixed parameter value. That is, there is
+    some randomness in the parameter estimate.
+-   Like all Monte Carlo evaluations, it makes sense to obtain multiple
+    estimates to check the variance of the Monte Carlo algorithm.
+-   Because each call to `pfilter` is an independent Monte Carlo, we can
+    leverage parallel computing to redo the evaluation multiple times.
 
 \framebreak
 
@@ -146,7 +150,8 @@ logLik(pf) -> ll
 logmeanexp(ll,se=TRUE)
 ```
 
-Note that registerDoRNG sets random seed for parallel computing, converting `%dopar%` loops into `%doRNG%` loops. 
+Note that registerDoRNG sets random seed for parallel computing,
+converting `%dopar%` loops into `%doRNG%` loops.
 
 <!-- Here, we'll get some practical experience with the particle filter, and -->
 
@@ -220,10 +225,15 @@ Note that registerDoRNG sets random seed for parallel computing, converting `%do
 
 What have we done?
 
-- After building a model, giving it parameters, we can approximate the log-likelihood using `pfilter`.
-- There are tools to check things are working properly. For instance, `plot` simulations to check `rprocess` and `rmeas` components are working. 
-- Plotting `pfiltered` objects helps us check how good the Monte-Carlo approximation is.
-- We can use parallel computing to do multiple `pfilter` evaluations, and combine results to get a single estimate. 
+-   After building a model, giving it parameters, we can approximate the
+    log-likelihood using `pfilter`.
+-   There are tools to check things are working properly. For instance,
+    `plot` simulations to check `rprocess` and `rmeas` components are
+    working.
+-   Plotting `pfiltered` objects helps us check how good the Monte-Carlo
+    approximation is.
+-   We can use parallel computing to do multiple `pfilter` evaluations,
+    and combine results to get a single estimate.
 
 We have so far used fixed parameter values. What about estimation?
 
@@ -234,8 +244,11 @@ We have so far used fixed parameter values. What about estimation?
 ## Review of likelihood-based inference
 
 <!-- For now, let us suppose that software exists to evaluate and maximize -->
+
 <!-- the likelihood function, up to a tolerable numerical error, for the -->
+
 <!-- dynamic models of interest. Our immediate task is to think about how to -->
+
 <!-- use that capability. -->
 
 -   Likelihood-based inference (meaning statistical tools based on the
@@ -263,17 +276,20 @@ We have so far used fixed parameter values. What about estimation?
 
 ## Naive Likelihood Maximizaiton
 
-In other areas of statistics and machine learning, if we have some type of *objective function* that we want to maximize (or minimize), we can use numeric solvers to find the maximum (or minimum).
-For instance, the Nelder-Mead, BFGS, or other gradient descent algorithms.
-**This famously doesn't work well with the particle filter.**. 
+In other areas of statistics and machine learning, if we have some type
+of *objective function* that we want to maximize (or minimize), we can
+use numeric solvers to find the maximum (or minimum). For instance, the
+Nelder-Mead, BFGS, or other gradient descent algorithms. **This famously
+doesn't work well with the particle filter.**.
 
-Some problems: 
+Some problems:
 
-- Evaluation is very slow. 
-- Evaluation is stochastic.
-- Likelihood surface is multi-modal (many local maximums).
+-   Evaluation is very slow.
+-   Evaluation is stochastic.
+-   Likelihood surface is multi-modal (many local maximums).
 
-We will explore this idea by looking at *slices* of the likelihood surface. 
+We will explore this idea by looking at *slices* of the likelihood
+surface.
 
 # Geometry of the likelihood function
 
@@ -315,6 +331,7 @@ We will explore this idea by looking at *slices* of the likelihood surface.
 <!-- 1.  What is the difference between a likelihood slice and a profile? -->
 
 <!-- 2.  What is the consequence of this difference for the statistical -->
+
 <!--     interpretation of these plots? -->
 
 <!-- 3.  How should you decide whether to compute a profile or a slice? -->
@@ -436,7 +453,6 @@ bake(file="pfilter-grid1.rds",{
   lik_grid |> arrange(Beta,Gamma) -> lik_grid
 })-> lik_grid
 ```
-
 
 ## Two-dimensional likelihood slice: Figure
 

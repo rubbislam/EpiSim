@@ -3905,8 +3905,8 @@ Object.defineProperty(e,"__esModule",{value:!0}),e.mhchemParser=void 0;var r=fun
 <span class="menu-text">Forecast</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./derivatives.html"> 
-<span class="menu-text">Derivatives</span></a>
+    <a class="nav-link" href="./extensions.html"> 
+<span class="menu-text">Extensions</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -3985,7 +3985,7 @@ Object.defineProperty(e,"__esModule",{value:!0}),e.mhchemParser=void 0;var r=fun
 <li><p><a href="iterated.html">Iterated filtering: theory and practice.</a></p></li>
 <li><p><a href="Bayesian.html">Bayesian statistics and PMCMC in pomp.</a></p></li>
 <li><p><a href="forecast.html">Epidemic forecasting with pomp.</a></p></li>
-<li><p><a href="derivatives.html">Derivative packages from pomp.</a></p></li>
+<li><p><a href="extensions.html">Derivative packages from pomp.</a></p></li>
 </ol>
 </section>
 <section id="stochastic-sirseir-simulator" class="level2">
@@ -4091,7 +4091,7 @@ function goBack() {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -55,7 +55,7 @@ Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tu
 
 6.  [Epidemic forecasting with pomp.](forecast.html)
 
-7.  [Derivative packages from pomp.](derivatives.html)
+7.  [Derivative packages from pomp.](extensions.html)
 
 ## Stochastic SIR/SEIR simulator
 
