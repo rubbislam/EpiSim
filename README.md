@@ -16,18 +16,16 @@ These scripts help students understand, digest, explore, and modify the models, 
 
 ### Reqauired software
 
-The codes require, at a minimum, [**R**](https://cran.r-project.org/) version 4.2 and [**pomp**](https://kingaa.github.io/pomp/) version 5.2
+The codes require, at a minimum, [**R**](https://cran.r-project.org/) version 4.2 and [**pomp**](https://kingaa.github.io/pomp/) version 6.3.
 Windows users must also have the appropriate version of [**Rtools**](https://cran.r-project.org/bin/windows/Rtools/) installed.
 
 Several other packages are required to perform data manipulation, visualization, and analyses:
 
 - tidyverse
-- reshape2
 - ggplot2
-- cowplot
 - foreach
-- doFuture / doParallel
-- microbenchmark
+- doParallel
+- doRNG
 
 ------------------------------------------------------------------------
 

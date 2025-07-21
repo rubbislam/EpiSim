@@ -41,24 +41,27 @@ source("../_includes/setup.R", local = knitr::knit_global())
 ```{r load-packages, echo=FALSE}
 library(tidyverse)
 library(pomp)
+library(panelPomp)
 library(ggplot2)
 library(reshape2)
 ```
 
 # `pomp` extensions
 
-## Package Extensions 
+## Package Extensions
 
-Mathematically, POMP models are very versatile, and many of the ideas useful to the models described so far are also applicable in more general settings.
-This gives rise to a few useful extensions of the `pomp` package, which we try to describe here.
+Mathematically, POMP models are very versatile, and many of the ideas
+useful to the models described so far are also applicable in more
+general settings. This gives rise to a few useful extensions of the
+`pomp` package, which we try to describe here.
 
 \vspace{6mm}
 
-- Meta-population data and models 
-   - `panelPomp`
-   - `spatPomp`
-- Genomic / phylogenetic data 
-   - `phylopomp`
+-   Meta-population data and models
+    -   `panelPomp`
+    -   `spatPomp`
+-   Genomic / phylogenetic data
+    -   `phylopomp`
 
 Each of these packages extend the `pomp` package to other useful cases.
 
@@ -80,39 +83,171 @@ Each of these packages extend the `pomp` package to other useful cases.
 
 ## Meta-population packages: Examples
 
-Both packages require `pomp` to be installed, and the internal workings of both packages actually use many of the `pomp` functions. Thus, familiarity with `pomp` is a prerequisite.
+Both packages require `pomp` to be installed, and the internal workings
+of both packages actually use many of the `pomp` functions. Thus,
+familiarity with `pomp` is a prerequisite.
 
+-   `panelPomp`:
+    -   We have *panel* or *longitudinal* data.
+    -   Several independent yet related systems. Information from all
+        systems is useful, not just one location.
+    -   Simultaneously allows for features shared by each system as well
+        as system unique features.
+    -   Example: endemic COVID-19 measured in 3 locations: New York,
+        London, Atlanta.
+-   `spatPomp`:
+    -   The name comes from the idea that we have spatially explicit
+        POMP models.
+    -   The data at multiple locations are thought of as
+        location-specific measurements from the same system. That is,
+        the dynamic systems underlying the data are connected.
+    -   Example: Modeling early stages of COVID-19 in China. Here, we
+        might have measurements for many cities, but at first cases were
+        only found in Wuhan.
 
-- `panelPomp`:
-   - We have *panel* or *longitudinal* data. 
-   - Several independent yet related systems. Information from all systems is useful, not just one location.
-   - Simultaneously allows for features shared by each system as well as system unique features. 
-   - Example: Late-stage COVID-19 measured in 3 locations: New York, London, Atlanta. Same disease in all places, but we can treat each as an (approximately) independent system. They may share features (recover rate, vaccine efficacy, etc.) that we want to estimate using all data, but may also have unique features at each place (reporting rate, contact rate, etc.)
-- `spatPomp`: 
-   - The name comes from the idea that we have spatially explicit POMP models. 
-   - The data at multiple locations are thought of as location-specific measurements from the same system. That is, the dynamic systems underlying the data are connected. 
-   - Also allows for both shared and unique features for each location. 
-   - Example: Modeling early stages of COVID-19 in China. Here, we might have measurements for many cities, but at first cases were only found in Wuhan; thus, the model may include details of how the disease spread from Wuhan to other cities.
+# PanelPomp
 
+## PanelPomp: a collection of POMP models
 
+A `panelPomp` model is really just a collection of `pomp` models. This
+is also how they are built:
 
-## Background: genomic sequences & phylogenetic tree
+```{r ppompBuild, echo=TRUE, eval=FALSE}
+library(panelPomp)
+
+mod1 <- pomp(..., params = c('p1' = 0.1, 'p2' = 1.2, 'p3' = 0.9))
+mod2 <- pomp(..., params = c('p1' = 0.1, 'p2' = 1.1, 'p3' = 0.6))
+mod3 <- pomp(..., params = c('p1' = 0.1, 'p2' = 1.5, 'p3' = 0.75))
+
+ppomp <- panelPomp(
+  object = list(mod1, mod2, mod3),
+  shared = c("p1" = 0.1), # Shared-value parameters
+  specific = c("p2", "p3") # Unit-Specific parameters
+)
+```
+
+## Measles Example
+
+We can build off of the measles example by looking at UK measles from
+multiple cities, and building an SEIR model for the data. There is built
+in models and data in `panelPomp`
+
+```{r}
+measSIR <- panelMeasles(
+  units = c("Consett", "London", "Hastings"),
+  first_year = 1948,
+  last_year = 1948
+  )
+```
+
+## Measles Example: Figure
+
+```{r plotMeas, eval=FALSE, echo=TRUE}
+plot(measSIR)
+```
+
+```{r plotMeasEval, fig.height=3, echo=FALSE, fig.width=7}
+df <- sapply(measSIR@unit_objects, function(x) x@data) |> data.frame()
+df$time <- measSIR@unit_objects$Consett@times |> lubridate::date_decimal()
+df_long <- tidyr::pivot_longer(
+  data = df, cols = -time, names_to = 'units', values_to = 'cases'
+)
+ggplot(df_long, aes(x = time, y = cases)) +
+  geom_line() + 
+  facet_wrap(~units, nrow = 1, scales = 'free') + 
+  theme_classic() + 
+  scale_x_datetime(date_labels = '%b %Y') + 
+  theme(axis.text.x = element_text(angle = -45, hjust = 0), axis.title.x = element_blank())
+```
+
+## panelPomp: parameters
+
+Parameter names in `panelPomp` have the following conventions. If the
+parameter is shared, it just is called by the name. If it is
+unit-specific, the name of the unit follows the name of the parameter:
+`<param>[<unit>]`.
+
+```{r}
+coef(measSIR)
+```
+
+## panelPomp: shared vs unit-specific
+
+A key feature of `panelPomp` objects is which parameters are shared,
+which are unit-specific. If parameters are shared, that means they have
+the same value for all units. We can inspect and modify which parameters
+are which using the functions `shared` and `specific`:
+
+```{r}
+shared(measSIR)
+shared(measSIR) <- c(shared(measSIR), 'alpha' = 1)
+shared(measSIR)
+```
+
+## panelPomp Functions
+
+`panelPomp` is the easiest extension: If you can build one `pomp`, you
+can build multiple into a single `panelPomp` object. Existing functions
+and algorithms are similar as well!
+
+```{r ppompPfilter, fig.height=3}
+pfilter(measSIR, Np = 1000) |> plot(unit = 'Hastings')
+```
+
+## panelPomp: iterated filtering
+
+We need a new algorithm for conducting maximum likelihood, either the
+panel iterated filter (PIF), or marginalized panel iterated filter
+(MPIF). We don't even need to change the code!
+
+```{r ppompMif2, eval=FALSE}
+mif2Out <- mif2(
+  measSIR, rw.sd = rw_sd(rho = 0.02, R_0 = 0.02), 
+  Nmif = 10, Np = 200, cooling.fraction.50 = 0.5, 
+  block = TRUE  # block = TRUE does MPIF, usually best + faster.
+  )
+```
+
+# Phylopomp
+
+## Phylodynamic package: phylopomp
+
+The spreading of infectious diseases can be considered as the mutation
+accumulation in genomic sequences in hosts and the transmission of such
+virus from host to host. Therefore, when the viral genomic samples are
+collected from hosts, one can traceback a partially observed ancestral
+history and reconstruct it as a tree, called genealogy or phylogeny.
+
+\vspace{6mm}
+
+With `phylopomp`, we can simulate these partially observed ancestral
+history from a board class of epidemiological models, and infer the
+transmission dynamics given a genealogy/phylogeny based on `pomp`.
+
+## phylopomp: genomic sequences & phylogenetic tree
 
 \begin{center}
-  \includegraphics[height=7cm]{../graphics/nextstrain_geneal.png}
+  \includegraphics[width=\linewidth]{../graphics/nextstrain_geneal.png}
 \end{center}
 
-## Background: phylogenetics & phylodynamics
+## phylopomp: phylogenetics & phylodynamics
 
 \begin{center}
-  \includegraphics[height=7cm]{../graphics/phylogen_phylodyn.pdf}
+  \includegraphics[width=\linewidth]{../graphics/phylogen_phylodyn.pdf}
 \end{center}
 
 The goal of `phylopomp` is to infer the partially observed
 epidemiological dynamics, formulated by compartmental models, using the
 genealogy/phylogeny, reconstructed from sampled genomic sequences.
 
-## Installation
+## phylopomp: genealogy and events
+
+\begin{center}
+  \includegraphics[width=.7\linewidth]{../graphics/MGP_events.pdf}
+\end{center}
+
+
+## phylopomp: installation
 
 The github repo for `phylopomp` is on
 \url{https://github.com/kingaa/phylopomp/}.
@@ -131,7 +266,7 @@ packageVersion("phylopomp")
 library(phylopomp)
 ```
 
-## Simulation and inference
+## phylopomp: simulation and inference
 
 -   The first useful function of `phylopomp` is to build customized
     models and simulate genealogies from it. Pre-defined models are
@@ -142,47 +277,138 @@ library(phylopomp)
     This function is currently under development, while a few models are
     available: `lbdp`, `moran`, `sir`, and `seir`.
 
-## Example: simulation, pre-defined model {.allowframebreaks}
+## Example: simulation with pre-defined models in phylopomp {.allowframebreaks}
 
-```{r sim-sir, fig.width=6, fig.height=4, dpi=300}
-#| out-height: 55%
+::::: columns
+::: {.column width="40%"}
+```{r sim-sir-1, eval=FALSE, purl=FALSE}
 set.seed(1234)
-simulate("SIR",Beta=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
-  simulate(Beta=5,gamma=2,time=5,psi=3) -> model.sir # update params
+simulate(
+  "SIR",time=2,
+  Beta=2,gamma=1,psi=2,
+  S0=1000,I0=5
+)|>
+  # update params
+  simulate(
+    time=5,
+    Beta=5,gamma=2,psi=3
+  ) -> model.sir
 plot(model.sir)
 ```
+:::
+
+::: {.column width="60%"}
+<!-- \vspace{-10mm} -->
+
+```{r sim-sir-2, fig.width=6, fig.height=4, dpi=300, echo=FALSE}
+#| out-height: 70%
+#| fig-cap: "Simulated genealogy from an SIR model."
+set.seed(1234)
+simulate(
+  "SIR",time=2,
+  Beta=2,gamma=1,psi=2,
+  S0=1000,I0=5
+)|>
+  simulate(
+    Beta=5,gamma=2,time=5,psi=3
+  ) -> model.sir # update params
+plot(model.sir)
+```
+:::
+:::::
 
 \framebreak
 
-```{r sim-seir1, fig.width=6, fig.height=4, dpi=300}
-#| out-height: 55%
+::::: columns
+::: {.column width="40%"}
+```{r sim-seir1-1, eval=FALSE, purl=FALSE}
+set.seed(1234)
+simulate(
+  "SEIR",time=2,
+  Beta=2,sigma=2,
+  gamma=1,psi=2,
+  S0=1000,I0=5
+) |>
+  simulate(
+    time=5,
+    Beta=5,gamma=2,
+    psi=3
+  ) -> model.seir
+plot(model.seir)
+```
+:::
+
+::: {.column width="60%"}
+<!-- \vspace{-10mm} -->
+
+```{r sim-seir1-2, fig.width=6, fig.height=4, dpi=300, echo=FALSE}
+#| out-height: 70%
+#| fig-cap: "Simulated genealogy from an SEIR model."
 set.seed(1234)
 simulate("SEIR",Beta=2,sigma=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
   simulate(Beta=5,gamma=2,time=5,psi=3) -> model.seir
 plot(model.seir)
 ```
+:::
+:::::
 
 \framebreak
 
-```{r sim-seir2, fig.width=6, fig.height=4, dpi=300}
-#| out-height: 65%
+::::: columns
+::: {.column width="30%"}
+```{r sim-seir2-1, eval=FALSE, purl=FALSE}
+# show E/I transitions
+model.seir |>
+  plot(obscure=FALSE)
+```
+:::
+
+::: {.column width="70%"}
+<!-- \vspace{-10mm} -->
+
+```{r sim-seir2-2, fig.width=6, fig.height=4, dpi=300,echo=FALSE}
+#| out-height: 70%
+#| fig-cap: "Simulated genealogy with colors."
 plot(model.seir, obscure=FALSE)       # show E and I transitions
 ```
+:::
+:::::
 
 \framebreak
 
-```{r sim-seir3, fig.width=6, fig.height=4, dpi=300}
-#| out-height: 70%
-lineages(model.seir, obscure=FALSE) |> plot()
+::::: columns
+::: {.column width="30%"}
+```{r sim-seir3-1, eval=FALSE, purl=FALSE}
+model.seir |>
+  lineages( 
+    obscure=FALSE
+  ) |> 
+  plot()
 ```
+:::
 
-## Example: inference, pre-defined model {.allowframebreaks}
+::: {.column width="70%"}
+<!-- \vspace{-10mm} -->
+
+```{r sim-seir3-2, fig.width=6, fig.height=4, dpi=300, echo=FALSE}
+#| out-height: 80%
+#| fig-cap: "Lineages Through Time (LTT)."
+model.seir |>
+  lineages( 
+    obscure=FALSE
+  ) |> 
+  plot()
+```
+:::
+:::::
+
+## Example: inference with pre-defined models in phylopomp {.allowframebreaks}
 
 ```{r infer-sir}
 library(pomp)
 set.seed(1234)
 # simulate a geneal object from an SIR model
-simulate("SIR",Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5,time=10) -> x
+simulate("SIR",time=10,Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
 # build a pomp object
 x |>
   sir_pomp(
