@@ -44,6 +44,9 @@ read_csv("data/Measles_Consett_1948.csv") |>
     statenames=c("S","I","R","H"),
     paramnames=c("Beta","Gamma","Eta","Rho","k","N"),
     params=c(Beta=15,Gamma=0.5,Rho=0.5,k=10,Eta=0.06,N=38000)
+    # partrans=parameter_trans(
+    #   log=c("Beta", "gamma", "k"),logit=c("Rho","Eta")
+    # )
   ) -> measSIR
 
 invisible(gc())
