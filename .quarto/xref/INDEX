@@ -413,5 +413,8 @@
   },
   "derivatives.qmd": {
     "derivatives.html": "50eebf03"
+  },
+  "extensions.qmd": {
+    "extensions.html": "1ffa1c5e"
   }
 }

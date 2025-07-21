@@ -1,4 +1,0 @@
-params <-
-list(prefix = "bootstrap")
-
-

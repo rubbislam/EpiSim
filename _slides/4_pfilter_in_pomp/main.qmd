@@ -1,0 +1,779 @@
+---
+title: "Lesson 4: Particle Filtering in POMP"
+author:
+  - Spencer J. Fox
+  - Qianying (Ruby) Lin
+  - Jesse Wheeler
+format: 
+  beamer:
+    classoption: "t"
+    # fontsize: "10pt"
+    link-citations: true
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    include-in-header: "../_includes/header.tex"
+    # beameroptions:
+    #   - setbeamertemplate: "footline[frame number]"
+    #   - setbeamertemplate: "navigation symbols{}"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options: 
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r prelims,echo=FALSE,cache=FALSE}
+library(tidyverse)
+library(pomp)
+library(foreach)
+library(doParallel)
+library(doRNG)
+library(iterators)
+options(stringsAsFactors=FALSE)
+set.seed(1350254336)
+```
+
+# Sequential Monte Carlo
+
+## Particle filtering in pomp {.allowframebreaks}
+
+Recall the measles-outbreak example and the stochastic SIR model that we
+construct in the previous lesson, we can using the `pfilter` function to
+compute the likelihood using particle filtering method, given the
+parameters chosen by looking at simulations. `R` code to build the model
+is available [here](model_measSIR.R). We can execute this code by
+sourcing the file and check the parameters:
+
+```{r model-construct,purl=TRUE}
+source("scripts/model_measSIR.R")
+measSIR@params
+```
+
+\framebreak
+
+The particle filtering method relies heavily on the state process and
+the measurement model. Therefore, it is necessary to make sure that the
+basic particle filter is working.
+
+1.  Check the `rprocess` and the `rmeasure` by simulation, as shown in
+    Lesson 2:
+
+```{r pf-diagnostic-1, fig.height=1.5, fig.width=8}
+measSIR |>
+  simulate(nsim=20,format="data.frame",include.data=TRUE) |>
+  ggplot(aes(x=week,y=reports,group=.id,color=.id=="data")) +
+  geom_line() + guides(color="none")
+```
+
+\framebreak
+
+In pomp, we can compute the likelihood using the particle filtering
+method, implemented by function `pfilter`. The argument `Np` assigns the
+number of particles used:
+
+```{r pfilter-1,cache=TRUE}
+library(pomp)
+pf <- measSIR |> pfilter(Np=5000)
+logLik(pf)
+```
+
+\framebreak
+
+2.  A diagnostic plot to check the `rprocess` and the `dmeasure`:
+
+::::: columns
+::: {.column width="40%"}
+```{r pf-diagnostic-2-1, eval=FALSE,purl=FALSE}
+plot(pf)
+```
+
+-   The data, `reports`;
+
+-   The **effective sample size** of the particle filter, `ess`;
+
+-   The log-likelihood of each observation conditioned on the preceding
+    ones, `cond.logLik`.
+:::
+
+::: {.column width="60%"}
+<!-- \vspace{-10mm} -->
+
+```{r pf-diagnostic-2-2, echo=FALSE, fig.width=4, fig.height=3.5}
+plot(pf)
+```
+:::
+:::::
+
+\framebreak
+
+3.  The Monte Carlo variability of the likelihood:
+
+-   The `pfilter` function provides a single Monte-Carlo approximation
+    of the log-likelihood for a fixed parameter value. That is, there is
+    some randomness in the parameter estimate.
+-   Like all Monte Carlo evaluations, it makes sense to obtain multiple
+    estimates to check the variance of the Monte Carlo algorithm.
+-   Because each call to `pfilter` is an independent Monte Carlo, we can
+    leverage parallel computing to redo the evaluation multiple times.
+
+\framebreak
+
+```{r pf-diagnostic-3,cache=TRUE}
+cores <- parallel::detectCores()
+registerDoParallel(cores-1)  # MacOS / Linux
+registerDoRNG(seed = 123456)
+# cl <- makePSOCKcluster(cores-1)  # Windows
+# registerDoParallel(cl)  # Windows
+foreach (
+  i=1:10, .combine=c
+) %dopar% {
+    measSIR |> pfilter(Np=5000)
+} -> pf
+# stopCluster(cl)  # Windows
+logLik(pf) -> ll
+logmeanexp(ll,se=TRUE)
+```
+
+Note that registerDoRNG sets random seed for parallel computing,
+converting `%dopar%` loops into `%doRNG%` loops.
+
+<!-- Here, we'll get some practical experience with the particle filter, and -->
+
+<!-- the likelihood function, in the context of our measles-outbreak case -->
+
+<!-- study. Here, we repeat the construction of the SIR model [we looked at -->
+
+<!-- earlier](https://kingaa.github.io/sbied/stochsim/), using the parameters -->
+
+<!-- chosen by looking at simulations. `R` code to build the model is -->
+
+<!-- available [for download](./model.R). We can execute this code by -->
+
+<!-- sourcing the relevant file: -->
+
+<!-- ```{r model-construct,purl=TRUE} -->
+
+<!--   source("https://kingaa.github.io/sbied/pfilter/model.R") -->
+
+<!-- ``` -->
+
+<!-- In pomp, the basic particle filter is implemented in the command -->
+
+<!-- `pfilter`. We must choose the number of particles to use by setting the -->
+
+<!-- `Np` argument. -->
+
+<!-- ```{r pfilter-1,cache=TRUE} -->
+
+<!--   library(pomp) -->
+
+<!--   measSIR |> -->
+
+<!--     pfilter(Np=5000) -> pf -->
+
+<!--   logLik(pf) -->
+
+<!-- ``` -->
+
+<!-- We can run a few particle filters to get an estimate of the Monte Carlo -->
+
+<!-- variability: -->
+
+<!-- ```{r pfilter-3,cache=TRUE} -->
+
+<!--   plan(multisession) -->
+
+<!--   foreach ( -->
+
+<!--     i=1:10, -->
+
+<!--     .combine=c, -->
+
+<!--     .options.future=list(seed=652643293) -->
+
+<!--   ) %dofuture% { -->
+
+<!--     measSIR |> pfilter(Np=5000) -->
+
+<!--   } -> pf -->
+
+<!--   logLik(pf) -> ll -->
+
+<!--   logmeanexp(ll,se=TRUE) -->
+
+<!-- ``` -->
+
+<!-- Note that we set the parallel RNG seed in the `foreach` call. -->
+
+## `pfilter` in `pomp`: Summary
+
+What have we done?
+
+-   After building a model, giving it parameters, we can approximate the
+    log-likelihood using `pfilter`.
+-   There are tools to check things are working properly. For instance,
+    `plot` simulations to check `rprocess` and `rmeas` components are
+    working.
+-   Plotting `pfiltered` objects helps us check how good the Monte-Carlo
+    approximation is.
+-   We can use parallel computing to do multiple `pfilter` evaluations,
+    and combine results to get a single estimate.
+
+We have so far used fixed parameter values. What about estimation?
+
+# Likelihood-based inference
+
+# Parameter estimates and uncertainty quantification
+
+## Review of likelihood-based inference
+
+<!-- For now, let us suppose that software exists to evaluate and maximize -->
+
+<!-- the likelihood function, up to a tolerable numerical error, for the -->
+
+<!-- dynamic models of interest. Our immediate task is to think about how to -->
+
+<!-- use that capability. -->
+
+-   Likelihood-based inference (meaning statistical tools based on the
+    likelihood function) provides tools for parameter estimation,
+    standard errors, hypothesis tests and diagnosing model
+    misspecification.
+-   Likelihood-based inference often (but not always) has favorable
+    theoretical properties. Here, we are not especially concerned with
+    the underlying theory of likelihood-based inference. On any
+    practical problem, we can check the properties of a statistical
+    procedure by simulation experiments.
+
+## The maximum likelihood estimate (MLE)
+
+-   A maximum likelihood estimate (MLE) is \begin{equation*}
+     \hat\theta = \argmax_{\theta} \loglik(\theta),
+        \end{equation*} where $\argmax_{\theta} g(\theta)$ means a value
+    of argument $\theta$ at which the maximum of the function $g$ is
+    attained, so
+    $g\left(\argmax_{\theta} g(\theta)\right) = \max_\theta g(\theta)$.
+-   If there are many values of $\theta$ giving the same maximum value
+    of the likelihood, then an MLE still exists but is not unique.
+-   Note that $\argmax_{\theta} \lik(\theta)$ and
+    $\argmax_{\theta} \loglik(\theta)$ are the same. Why?
+
+## Naive Likelihood Maximizaiton
+
+In other areas of statistics and machine learning, if we have some type
+of *objective function* that we want to maximize (or minimize), we can
+use numeric solvers to find the maximum (or minimum). For instance, the
+Nelder-Mead, BFGS, or other gradient descent algorithms. **This famously
+doesn't work well with the particle filter.**.
+
+Some problems:
+
+-   Evaluation is very slow.
+-   Evaluation is stochastic.
+-   Likelihood surface is multi-modal (many local maximums).
+
+We will explore this idea by looking at *slices* of the likelihood
+surface.
+
+# Geometry of the likelihood function
+
+## The likelihood surface
+
+-   It is extremely useful to visualize the geometric surface defined by
+    the likelihood function.
+-   If $\Theta$ is two-dimensional, then the surface $\loglik(\theta)$
+    has features like a landscape.
+-   Local maxima of $\loglik(\theta)$ are peaks.
+-   Local minima are valleys.
+-   Peaks may be separated by a valley or may be joined by a ridge. If
+    you go along the ridge, you may be able to go from one peak to the
+    other without losing much elevation. Narrow ridges can be easy to
+    fall off, and hard to get back on to.
+-   In higher dimensions, one can still think of peaks and valleys and
+    ridges. However, as the dimension increases it quickly becomes hard
+    to imagine the surface.
+
+## Exploring the likelihood surface: slices
+
+-   To get an idea of what the likelihood surface looks like in the
+    neighborhood of a point in parameter space, we can construct some
+    likelihood *slices*.
+
+-   A likelihood slice is a cross-section through the likelihood
+    surface.
+
+-   We'll make slices for our Consett measles POMP model, in the $\beta$
+    and $\mu_{IR}$ directions.
+
+-   Both slices will pass through our current candidate parameter
+    vector, stored in the `pomp` model object.
+
+\vfill
+
+<!-- **Questions**: -->
+
+<!-- 1.  What is the difference between a likelihood slice and a profile? -->
+
+<!-- 2.  What is the consequence of this difference for the statistical -->
+
+<!--     interpretation of these plots? -->
+
+<!-- 3.  How should you decide whether to compute a profile or a slice? -->
+
+<!-- \vspace{3mm} -->
+
+<!-- [Worked solution to the Exercise](./Q_slice.html) -->
+
+## Slicing the measles SIR likelihood {.allowframebreaks}
+
+-   We first construct a data frame to explore the parameter slice, with
+    $40\times 3+40\times 3=240$ rows:
+
+```{r like-slice1,purl=FALSE}
+slice_design(
+  center = coef(measSIR),
+  Beta = rep(seq(from=5,to=30,length=40),each=3),
+  Gamma = rep(seq(from=0.2,to=2,length=40),each=3)
+) -> param_slice
+
+dim(param_slice)
+```
+
+\framebreak
+
+-   We compute the likelihoods $3$ times for each combination (i.e.,
+    row) in `param_slice`:
+
+```{r like-slice2,eval=FALSE,purl=FALSE}
+library(iterators)
+# Doesn't need to happen again, but included as reminder. 
+registerDoParallel(cores-1)  # For MacOS / Linux
+registerDoRNG(seed = 654321)
+
+# cl <- makePSOCKcluster(cores-1)  # Windows
+# registerDoParallel(cl)  # Windows
+foreach (theta=iter(param_slice,"row"), .combine=rbind) %dopar% {
+  measSIR |> pfilter(params=theta,Np=5000) -> pf
+  theta$loglik <- logLik(pf)
+  theta
+} -> lik_slice
+# stopCluster(cl)  # Windows
+```
+
+```{r like-slice-eval,include=FALSE,purl=TRUE}
+## What is this 'bake' function?
+## See https://kingaa.github.io/sbied/misc/bake.html
+## for an explanation.
+bake(file="like-slice.rds",{
+  <<like-slice1>>
+  <<like-slice2>>
+}) -> lik_slice
+```
+
+\framebreak
+
+```{r like-slice-plot,echo=FALSE}
+#| fig-width: 6
+#| fig-height: 3
+#| out-width: 5in
+#| out-height: 2in
+lik_slice |>
+  pivot_longer(c(Beta,Gamma)) |>
+  filter(name==slice) |>
+  ggplot(aes(x=value,y=loglik,color=name)) +
+  geom_point() +
+  facet_grid(
+    ~tolower(name),scales="free_x",
+    labeller=label_parsed
+  ) +
+  guides(color="none") + labs(x="parameter value",color="")
+```
+
+-   Slices offer a very limited perspective on the geometry of the
+    likelihood surface.
+-   When there are only one or two unknown parameters, we can evaluate
+    the likelihood at a grid of points and visualize the surface
+    directly.
+
+## Two-dimensional likelihood slice {.allowframebreaks}
+
+-   We first construct the parameters grid data frame `param_grid`, with
+    $40\times 3 \times 40\times 3=14,400$ rows:
+
+```{r pfilter-grid1a,purl=FALSE}
+expand.grid(
+  Beta = rep(seq(from=10,to=30,length=40), each=3),
+  Gamma = rep(seq(from=0.4,to=1.5,length=40), each=3),
+  Rho = 0.5, k=10, Eta=0.06, N=38000
+) -> param_grid
+
+dim(param_grid)
+```
+
+\framebreak
+
+-   We then compute likelihoods for each of the combinations:
+
+```{r pfilter-grid1b,eval=FALSE,purl=FALSE}
+# Doesn't need to happen again, but included as reminder. 
+registerDoParallel(cores-1)  # For MacOS / Linux
+registerDoRNG(seed = 111111)
+
+# cl <- makePSOCKcluster(cores-1)  # Windows
+# registerDoParallel(cl)  # Windows
+foreach (theta=iter(param_grid,"row"), .combine=rbind,
+  .options.future=list(seed=421776444)) %dopar% {
+  measSIR |> pfilter(params=theta,Np=5000) -> pf
+  theta$loglik <- logLik(pf)
+  theta
+} -> lik_grid
+# stopCluster(cl)  # Windows
+```
+
+```{r pfilter-grid1-eval,include=FALSE,purl=TRUE}
+bake(file="pfilter-grid1.rds",{
+  <<pfilter-grid1a>>
+  <<pfilter-grid1b>>
+  lik_grid |> arrange(Beta,Gamma) -> lik_grid
+})-> lik_grid
+```
+
+## Two-dimensional likelihood slice: Figure
+
+```{r pfilter-grid1-plot,echo=FALSE,purl=TRUE}
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 4.8in
+#| out-height: 3in
+lik_grid |>
+  group_by(Beta,Gamma) |>
+  summarize(loglik=logmeanexp(loglik)) |>
+  ungroup() |>
+  mutate(loglik=ifelse(loglik>max(loglik)-25,loglik,NA)) |>
+  ggplot(aes(x=Beta,y=Gamma,z=loglik,fill=loglik))+
+  geom_tile(color=NA)+
+  scale_fill_gradient()+
+  labs(x=expression(beta),y=expression(gamma))
+```
+
+## Two-dimensional likelihood: Discussion
+
+In the above, all points with log-likelihoods less than 25 units below
+the maximum are shown in grey.
+
+-   Notice some features of the log-likelihood surface, and its estimate
+    from the particle filter, that can cause difficulties for numerical
+    methods:
+
+    1.  The surface is wedge-shaped, so its curvature varies
+        considerably. By contrast, asymptotic theory predicts a
+        parabolic surface that has constant curvature.
+    2.  Monte Carlo noise in the likelihood evaluation makes it hard to
+        pick out exactly where the likelihood is maximized.
+        Nevertheless, the major features of the likelihood surface are
+        evident despite the noise.
+
+-   Wedge-shaped relationships between parameters, and nonlinear
+    relationships, are common features of epidemiological dynamic
+    models.
+
+# Parameter Uncertainty
+
+## Standard errors for the MLE
+
+-   Parameter estimates are not very useful without some measure of
+    their uncertainty.
+-   Usually, this means obtaining a confidence interval, or in practice
+    an interval close to a true confidence interval which should
+    formally be called an approximate confidence interval. In practice,
+    the word "approximate" is often dropped!
+
+There are three main approaches to estimating the statistical
+uncertainty in an MLE.
+
+1.  The Fisher information.
+
+2.  Profile likelihood estimation.
+
+3.  A simulation study, also known as a bootstrap.
+
+## Fisher information
+
+-   A computationally quick approach when one has access to satisfactory
+    numerical second derivatives of the log-likelihood.
+-   The approximation is satisfactory only when $\hat\theta$ is well
+    approximated by a normal distribution.
+-   Neither of the two requirements above are typically met for POMP
+    models.
+-   A review of standard errors via Fisher information is provided as a
+    [supplement](fisherSE.html).
+
+## Profile likelihood estimation
+
+This approach is generally preferable to the Fisher information for POMP
+models.
+
+We will explain this method below and put it into practice in the [next
+lesson](https://kingaa.github.io/sbied/mif/).
+
+## The bootstrap
+
+-   If done carefully and well, this can be the best approach.
+-   A confidence interval is a claim about reproducibility. You claim,
+    so far as your model is correct, that on 95% of realizations from
+    the model, a 95% confidence interval you have constructed will cover
+    the true value of the parameter.
+-   A simulation study can check this claim fairly directly, but
+    requires the most effort.
+-   The simulation study takes time for you to develop and debug, time
+    for you to explain, and time for the reader to understand and check
+    what you have done. We usually carry out simulation studies to check
+    our main conclusions only.
+-   Further discussion of bootstrap methods for POMP models is provided
+    as a [supplement](bootstrap.html).
+
+## Confidence intervals via the profile likelihood {.allowframebreaks}
+
+-   Let's consider the problem of obtaining a confidence interval for
+    the first component of $\theta$. We'll write $$\theta=(\phi,\psi).$$
+-   The **profile log-likelihood function** of $\phi$ is defined to be
+    \begin{equation*}
+      \profileloglik{{}}(\phi) = \max_{\psi}\loglik(\phi,\psi).
+    \end{equation*} In general, the profile likelihood of one parameter
+    is constructed by maximizing the likelihood function over all other
+    parameters.
+-   Note that,
+    $\max_{\phi}\profileloglik{{}}(\phi) = \max_{\theta}\loglik(\theta)$
+    and that maximizing the profile likelihood
+    $\profileloglik{{}}(\phi)$ gives the MLE, $\hat{\theta}$. Why?
+-   An approximate 95% confidence interval for $\phi$ is given by
+    \begin{equation*}
+      \big\{\phi : \loglik(\hat\theta) - \profileloglik{{}}(\phi) < 1.92\big\}.
+    \end{equation*}
+-   This is known as a profile likelihood confidence interval. The
+    cutoff $1.92$ is derived using [Wilks'
+    theorem](https://en.wikipedia.org/wiki/Likelihood-ratio_test#Distribution:_Wilks.27s_theorem),
+    which we will discuss in more detail when we develop likelihood
+    ratio tests.
+-   Although the asymptotic justification of Wilks' theorem is the same
+    limit that justifies the Fisher information standard errors, profile
+    likelihood confidence intervals tend to work better than Fisher
+    information confidence intervals when $N$ is not so
+    large---particularly when the log-likelihood function is not close
+    to quadratic near its maximum.
+
+# Exercises
+
+## Cost of a particle-filter calculation
+
+-   How much computer processing time does a particle filter take?
+-   How does this scale with the number of particles?
+
+Form a conjecture based upon your understanding of the algorithm. Test
+your conjecture by running a sequence of particle filter operations,
+with increasing numbers of particles (`Np`), measuring the time taken
+for each one using `system.time`. Plot and interpret your results.
+
+\vfill
+
+[Worked solution to the Exercise](./expense.html)
+
+## log-likelihood estimation {.allowframebreaks}
+
+Here are some desiderata for a Monte Carlo log-likelihood approximation:
+
+-   It should have low Monte Carlo bias and variance.
+-   It should be presented together with estimates of the bias and
+    variance so that we know the extent of Monte Carlo uncertainty in
+    our results.
+-   It should be computed in a length of time appropriate for the
+    circumstances.
+
+Set up a likelihood evaluation for the measles model, choosing the
+numbers of particles and replications so that your evaluation takes
+approximately one minute on your machine.
+
+-   Provide a Monte Carlo standard error for your estimate.
+-   Comment on the bias of your estimate.
+-   Use doFuture to take advantage of multiple cores on your computer to
+    improve your estimate.
+
+## Exercises
+
+1.  **One-dimensional likelihood slice**: Compute several likelihood
+    slices in the $\eta$ direction.
+
+2.  **Two-dimensional likelihood slice**: Compute a slice of the
+    likelihood in the $\beta$-$\eta$ plane.
+
+# More on likelihood-based inference
+
+# Maximizing the likelihood
+
+## Maximizing the particle filter likelihood
+
+-   Likelihood maximization is key to profile intervals, likelihood
+    ratio tests and AIC as well as the computation of the MLE.
+-   An initial approach to likelihood maximization might be to stick the
+    particle filter log-likelihood estimate into a standard numerical
+    optimizer, such as the Nelder-Mead algorithm.
+-   In practice this approach is unsatisfactory on all but the smallest
+    POMP models. Standard numerical optimizers are not designed to
+    maximize noisy and computationally expensive Monte Carlo functions.
+-   Further investigation into this approach is available as a
+    [supplement](pf-in-Nelder-Mead.html).
+-   We'll present an *iterated filtering algorithm* for maximizing the
+    likelihood in a way that takes advantage of the structure of POMP
+    models and the particle filter.
+-   First, let's think a bit about some practical considerations in
+    interpreting the MLE for a POMP.
+
+## Likelihood-based model selection and model diagnostics
+
+-   For nested hypotheses, we can carry out model selection by
+    likelihood ratio tests.
+-   For non-nested hypotheses, likelihoods can be compared using
+    Akaike's information criterion (AIC) or related methods.
+
+# Likelihood ratio test
+
+## Likelihood ratio tests for nested hypotheses {.allowframebreaks}
+
+-   The whole parameter space on which the model is defined is
+    $\Theta\subset\R^D$.
+-   Suppose we have two **nested** hypotheses \begin{equation*}
+      \begin{aligned}
+        H^{\langle 0\rangle} &: \theta\in \Theta^{\langle 0\rangle}, \\
+        H^{\langle 1\rangle} &: \theta\in \Theta^{\langle 1\rangle},
+      \end{aligned}
+    \end{equation*} defined via two nested parameter subspaces,
+    $\Theta^{\langle 0\rangle}\subset \Theta^{\langle 1\rangle}$, with
+    respective dimensions
+    $D^{\langle 0\rangle}< D^{\langle 1\rangle}\le D$.
+-   We consider the log-likelihood maximized over each of the
+    hypotheses, $$
+      \begin{aligned}
+        \ell^{\langle 0\rangle} &= \sup_{\theta\in \Theta^{\langle 0\rangle}} \ell(\theta), \\
+        \ell^{\langle 1\rangle} &= \sup_{\theta\in \Theta^{\langle 1\rangle}} \ell(\theta).
+      \end{aligned}
+    $$
+-   **Wilks approximation**: under the hypothesis
+    $H^{\langle 0\rangle}$, $$
+      \ell^{\langle 1\rangle} - \ell^{\langle 0\rangle} \approx \tfrac{1}{2}\,\chi^2_{D^{\langle 1\rangle}- D^{\langle 0\rangle}},
+    $$ where $\chi^2_d$ is a chi-squared random variable on $d$ degrees
+    of freedom and $\approx$ means "is approximately distributed as".
+-   The Wilks approximation can be used to construct a hypothesis test
+    of the null hypothesis $H^{\langle 0\rangle}$ against the
+    alternative $H^{\langle 1\rangle}$.
+-   This is called a **likelihood ratio test** since a difference of
+    log-likelihoods corresponds to a ratio of likelihoods.
+-   When the data are IID, $N\to\infty$, and the hypotheses satisfy
+    suitable regularity conditions, this approximation can be derived
+    mathematically and is known as **Wilks' theorem**.
+-   The chi-squared approximation to the likelihood ratio statistic may
+    be useful, and can be assessed empirically by a simulation study,
+    even in situations that do not formally satisfy any known theorem.
+
+## Wilks' theorem and profile likelihood {.allowframebreaks}
+
+-   Suppose we have an MLE, written $\hat\theta=(\hat\phi,\hat\psi)$,
+    and a profile log-likelihood for $\phi$, given by
+    $\profileloglik{{}}(\phi)$.
+-   Consider the likelihood ratio test for the nested hypotheses
+    \begin{equation*}
+      \begin{aligned}
+        H^{\langle 0\rangle} &: \phi = \phi_0, \\
+        H^{\langle 1\rangle} &: \text{$\phi$ unconstrained}.
+      \end{aligned}
+    \end{equation*}
+-   We can compute the 95%-ile for a chi-squared distribution with one
+    degree of freedom:
+    `qchisq(0.95,df=1)`$=`r mysignif(qchisq(0.95,df=1),4)`$.
+-   Wilks' theorem then gives us a hypothesis test with approximate size
+    $5\%$ that rejects $H^{\langle 0\rangle}$ if
+    $\profileloglik{{}}(\hat\phi)-\profileloglik{{}}(\phi_0)<3.84/2$.
+-   It follows that, with probability $95\%$, the true value of $\phi$
+    falls in the set \begin{equation*}
+      \big\{\phi: \profileloglik{{}}(\hat\phi)-\profileloglik{{}}(\phi)<1.92\big\}.
+    \end{equation*} So, we have constructed a profile likelihood
+    confidence interval, consisting of the set of points on the profile
+    likelihood within $1.92$ log units of the maximum.
+-   This is an example of [a general duality between confidence
+    intervals and hypothesis
+    tests](https://www.stat.nus.edu.sg/~wloh/lecture17.pdf).
+
+# Information criteria
+
+## Akaike's information criterion (AIC) {.allowframebreaks}
+
+-   Likelihood ratio tests provide an approach to model selection for
+    nested hypotheses, but what do we do when models are not nested?
+-   A more general approach is to compare likelihoods of different
+    models by penalizing the likelihood of each model by a measure of
+    its complexity.
+-   Akaike's information criterion **AIC** is given by \begin{equation*}
+      \mathrm{AIC} = -2\,\loglik(\hat{\theta}) + 2\,D
+    \end{equation*} "Minus twice the maximized log-likelihood plus twice
+    the number of parameters."
+-   We are invited to select the model with the lowest AIC score.
+-   AIC was derived as an approach to minimizing prediction error.
+    Increasing the number of parameters leads to additional
+    **overfitting** which can decrease predictive skill of the fitted
+    model.
+-   Viewed as a hypothesis test, AIC may have weak statistical
+    properties. It can be a mistake to interpret AIC by making a claim
+    that the favored model has been shown to provide a superior
+    explanation of the data. However, viewed as a way to select a model
+    with reasonable predictive skill from a range of possibilities, it
+    is often useful.
+-   AIC does not penalize model complexity beyond the consequence of
+    reduced predictive skill due to overfitting. One can penalize
+    complexity by incorporating a more severe penalty than the $2D$ term
+    above, such as via
+    [BIC](https://en.wikipedia.org/wiki/Bayesian_information_criterion).
+-   A practical approach is to use AIC, while taking care to view it as
+    a procedure to select a reasonable predictive model and not as a
+    formal hypothesis test.
+
+## License, acknowledgments, and links
+
+-   This lesson is prepared for the [Simulation-based Inference for
+    Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/)
+    module at the Summer Institute in Statistics and Modeling in
+    Infectious Diseases,
+    [SISMID](https://sph.emory.edu/SISMID/index.html).
+
+-   The materials build on [previous versions of this course and related
+    courses](../acknowledge.html).
+
+-   Licensed under the [Creative Commons Attribution-NonCommercial
+    license](https://creativecommons.org/licenses/by-nc/4.0/). Please
+    share and remix non-commercially, mentioning its origin.
+    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+
+-   Produced with R version `r getRversion()` and pomp version
+    `r packageVersion("pomp")`.
+
+-   Compiled on 2024-07-24.
+
+\vfill
+
+[Back to Lesson](index.html)
+
+[`R` code for this lesson](./main.R)

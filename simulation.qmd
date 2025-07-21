@@ -15,8 +15,7 @@ params:
 
 |   |   |
 |---------------------|---------------------------------------------------|
-| Lecture materials 1 | [zip](slides/1_stochsim.zip) |
-| Lecture materials 2 | [zip](slides/2_stochsim.zip) |
+| Lecture materials | [zip](_slides/2_Stochastic/2_Stochastic.zip) |
 | Reference Recording (2020) | [Video (98 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RBA4OQ_OdJj5CEJSjRGxut) |
 
 <!-- | Quiz                              | [PDF](slides/stochsim/quiz.pdf)| -->

@@ -196,42 +196,24 @@ MathJax = {
 <tbody>
 <tr class="odd">
 <td>Lecture materials 1</td>
-<td><a href="slides/3_likelihood.zip">zip</a></td>
+<td><a href="_slides/3_likelihood/3_likelihood.zip">zip</a></td>
 </tr>
 <tr class="even">
 <td>Lecture materials 2</td>
-<td><a href="slides/4_pfilter.zip">zip</a></td>
+<td><a href="_slides/4_pfilter_in_pomp/4_pfilter_in_pomp.zip">zip</a></td>
 </tr>
 <tr class="odd">
 <td>Reference Recording (2020,2021)</td>
 <td><a href="https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8">Video (112 min)</a></td>
 </tr>
-<tr class="even">
-<td>Supplement: Deterministic latent process models and their role in benchmarking POMP models</td>
-<td><a href="slides/pfilter/deterministic.html">HTML</a></td>
-</tr>
-<tr class="odd">
-<td>Supplement: Monte Carlo Methods</td>
-<td><a href="slides/pfilter/monteCarlo.pdf">PDF</a></td>
-</tr>
-<tr class="even">
-<td>Supplement: Likelihood by direct simulation: Consett measles example</td>
-<td><a href="slides/pfilter/directSimulation.html">HTML</a></td>
-</tr>
-<tr class="odd">
-<td>Supplement: Standard errors via the observed Fisher information</td>
-<td><a href="slides/pfilter/fisherSE.html">HTML</a></td>
-</tr>
-<tr class="even">
-<td>Supplement: Bootstrap methods</td>
-<td><a href="slides/pfilter/bootstrap.html">HTML</a></td>
-</tr>
-<tr class="odd">
-<td>Supplement: Direct maximization of the particle filter likelihood</td>
-<td><a href="slides/pfilter/pf-in-Nelder-Mead.html">HTML</a></td>
-</tr>
 </tbody>
 </table>
+<!-- | Supplement: Deterministic latent process models and their role in benchmarking POMP models | [HTML](_slides/pfilter/deterministic.html) | -->
+<!-- | Supplement: Monte Carlo Methods | [PDF](_slides/pfilter/monteCarlo.pdf) | -->
+<!-- | Supplement: Likelihood by direct simulation: Consett measles example | [HTML](_slides/pfilter/directSimulation.html) | -->
+<!-- | Supplement: Standard errors via the observed Fisher information | [HTML](_slides/pfilter/fisherSE.html) | -->
+<!-- | Supplement: Bootstrap methods | [HTML](_slides/pfilter/bootstrap.html) | -->
+<!-- | Supplement: Direct maximization of the particle filter likelihood | [HTML](_slides/pfilter/pf-in-Nelder-Mead.html) | -->
 <!-- | Worked solution to Exercise 3.1 | [HTML](slides/pfilter/Q_slice.html) | -->
 <!-- | Worked solution to Exercise 3.2 | [HTML](slides/pfilter/expense.html) | -->
 <!-- | Worked solution to Exercise 3.3 | [HTML](slides/pfilter/loglikest.html) | -->
@@ -337,7 +319,7 @@ function goBack() {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

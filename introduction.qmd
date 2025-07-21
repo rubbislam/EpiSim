@@ -15,17 +15,17 @@ params:
 
 In the first lesson, we have three goals:
 
-1. help students understand the motivations for simulation-based inference in the study of
-epidemiological and ecological systems;
+1.  help students understand the motivations for simulation-based inference in the study of epidemiological and ecological systems;
 
-2. introduce the class of partially observed Markov process (POMP) models; and 
+2.  introduce the class of partially observed Markov process (POMP) models; and
 
-3. introduce the pomp R package.
+3.  introduce the pomp R package.
 
-| &nbsp;                               | &nbsp;                                                                                     |
-|--------------------------------------|--------------------------------------------------------------------------------------------|
-| Lecture materials                       | [zip](slides/0_intro.zip)                                                               |
+|   |   |
+|----------------------|--------------------------------------------------|
+| Lecture materials | [zip](_slides/1_Introduction/1_Introduction.zip) |
 | Reference Recording (2020,2021,2022) | [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) |
+
 <!-- | Another example (Ricker model)       | [HTML](slides/intro/ricker.html)                                                           |  -->
 
 <iframe width="0" height="0">
@@ -35,4 +35,3 @@ epidemiological and ecological systems;
 <iframe data-external="1" width="560" height="315" src="https://www.youtube-nocookie.com/embed/videoseries?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 
 </iframe>
-
