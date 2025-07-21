@@ -212,18 +212,17 @@ mif2Out <- mif2(
 
 ## Phylodynamic package: phylopomp
 
-The spreading of infectious diseases can be considered as
-the mutation accumulation in genomic sequences in hosts and 
-the transmission of such virus from host to host.
-Therefore, when the viral genomic samples are collected from hosts,
-one can traceback a partially observed ancestral history and
-reconstruct it as a tree, called genealogy or phylogeny.
+The spreading of infectious diseases can be considered as the mutation
+accumulation in genomic sequences in hosts and the transmission of such
+virus from host to host. Therefore, when the viral genomic samples are
+collected from hosts, one can traceback a partially observed ancestral
+history and reconstruct it as a tree, called genealogy or phylogeny.
 
 \vspace{6mm}
 
-With `phylopomp`, we can simulate these partially observed ancestral history
-from a board class of epidemiological models, 
-and infer the transmission dynamics given a genealogy/phylogeny based on `pomp`.
+With `phylopomp`, we can simulate these partially observed ancestral
+history from a board class of epidemiological models, and infer the
+transmission dynamics given a genealogy/phylogeny based on `pomp`.
 
 ## phylopomp: genomic sequences & phylogenetic tree
 
@@ -240,6 +239,13 @@ and infer the transmission dynamics given a genealogy/phylogeny based on `pomp`.
 The goal of `phylopomp` is to infer the partially observed
 epidemiological dynamics, formulated by compartmental models, using the
 genealogy/phylogeny, reconstructed from sampled genomic sequences.
+
+## phylopomp: genealogy and events
+
+\begin{center}
+  \includegraphics[width=.7\linewidth]{../graphics/MGP_events.pdf}
+\end{center}
+
 
 ## phylopomp: installation
 
@@ -345,7 +351,6 @@ plot(model.seir)
 ```
 :::
 :::::
-
 
 \framebreak
 
