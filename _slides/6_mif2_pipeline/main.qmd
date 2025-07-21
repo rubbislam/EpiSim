@@ -47,8 +47,6 @@ set.seed(1350254336)
 
 # Iterated filtering in practice
 
-# An example problem
-
 ## Applying IF2 to the Consett measles outbreak
 
 We are going to look at an example of Iterated Filtering (IF2) in practice.
@@ -253,6 +251,8 @@ foreach(i=1:20,.combine=c) %dopar% {
 } -> mifs_local
 ```
 
+The output object `mifs_local` is a list with 20 elements. It contains a lot of information that we might want to look at, like 20 distinct parameter estimates, and particle trajectories for each run (called `traces`).
+
 ```{r local_search_eval,echo=FALSE}
 ## What is this 'bake' function?
 ## See https://kingaa.github.io/sbied/pfilter/bake.html
@@ -296,6 +296,10 @@ mifs_local |>
     2.  the stochastic nature of this Monte Carlo algorithm.
 
 -   We see movement in the parameters, though variability remains.
+
+\vspace{3mm}
+
+Now we want to continue this search, but increase the effort. 
 
 ## Estimating the likelihood {.allowframebreaks}
 
@@ -357,8 +361,6 @@ read_csv("measles_params.csv") |>
 ```
 
 and move on to a more thorough exploration of the likelihood surface.
-
-# Searching for the MLE
 
 # A global search
 
@@ -497,7 +499,8 @@ pairs(~loglik+Beta+Eta+Rho, data=all, pch=16, cex=0.3,
 
 \framebreak
 
-The projections of the estimates give us \``poor man`s profiles'':
+Let's look at the top results for a single parameter, $\eta$. 
+The projections of the estimates give us \``poor man`s profiles''.
 
 ```{r pairs_global2, fig.width=8, fig.height=6, dpi=300}
 #| out-height: 80%
@@ -542,13 +545,6 @@ uncertainty in an MLE.
     approximated by a normal distribution.
 -   **Neither of the two requirements above are typically met for POMP models.**
 
-## Profile likelihood estimation
-
-This approach is generally preferable to the Fisher information for POMP
-models.
-
-We will explain this method below and put it into practice.
-
 ## The bootstrap
 
 -   If done carefully and well, this can be the best approach.
@@ -592,6 +588,8 @@ We will explain this method below and put it into practice.
 
 ## Profile likelihood over $\eta$ {.allowframebreaks}
 
+
+- This approach is generally preferable to the Fisher information for POMP, and requires less computing than the bootstrap.
 -   The curvature displayed in the upper envelope of the above plot suggests that there is indeed information in the data with respect to the susceptible fraction, $\eta$.
 -   To solidify this evidence, we compute a profile likelihood over this parameter.
 -   Recall that this means determining, for each value of $\eta$, the best likelihood that the model can achieve.
@@ -854,230 +852,20 @@ The data appear to be consistent with reporting efficiencies in the `r signif(10
 
 ## The investigation continues\dots.
 
+# Model Validation
+
+## Validating our model
+
+Now we have estimated parameters and obtained confidence intervals for a fixed dataset, fixed model.
+How do we know if our model is good? We call this *model validation*. 
+
+- The most common approach is take our best estimates, simulate data using these parameters, and compare simulations to the real data. 
+- We can also treat parameter estimates like *model predicitons*; do estimates match what we know about the data? 
+- Finally, we can compare the log-likelihood / AIC to a **benchmark**. As a strictly proper scoring rule, log-likelihood can be compared across models (on the same dataset). If we can't beat a simple alternative model, then maybe our model isn't very good... [@Wheeler24]
+
 # Making predictions
 
-## Parameter estimates as model predictions {.allowframebreaks}
-
--   The estimated parameters are one kind of model prediction.
--   When we can estimate parameters using other data, we can test these predictions.
--   In the case of a highly contagious, immunizing childhood infection such as measles, we can obtain an estimate of the reporting efficiency, $\rho$ by simply regressing cumulative cases on cumulative births [@Anderson1991] over many years.
--   When we do this for Consett, we see that the reporting efficiency is roughly 60%.
--   Since such a value makes the outbreak data quite unlikely, the prediction does not appear to be borne out.
--   We can conclude that one or more of our model assumptions is inconsistent with the data.
--   Let's revisit our assumption that the infectious period is known to be 0.5\~wk.
--   Indeed, it would not be surprising were we to find that the *effective* infectious period, at the population scale, were somewhat shorter than the *clinical* infectious period.
--   For example, confinement of patients should reduce contact rates, and might therefore curtail the effective infectious period.
--   To investigate this, we'll relax our assumption about the value of $\gamma$.
-
-# Searching in another direction
-
-## Another global search {.allowframebreaks}
-
-We will estimate the model under the assumption that $\rho=0.6$, but without making assumptions about the duration of the infectious period. As before, we'll construct a random design of starting parameters.
-
-```{r exp_global_search1}
-freeze(seed=55266255,
-  runif_design(
-    lower=c(Beta=5,Gamma=0.2,Eta=0),
-    upper=c(Beta=80,Gamma=5,Eta=0.99),
-    nseq=1000
-  )) |>
-  mutate(
-    Rho=0.6, k=10, N=38000
-  ) -> guesses
-```
-
-\framebreak
-
--   For each of these starting points, we'll run a series of IF2 computations.
--   Since we have gained some experience applying `mif2` to this model and these data, we have some expectation about how much computation is required.
--   In the following, we'll use a lot more computational power than we have so far.
-
-\framebreak
-
-For each of the starting points, we'll first perform 100 IF2 iterations:
-
-```{r exp_global_search2a,eval=FALSE,purl=FALSE}
-measSIR |>
-  mif2(params=guess, Np=2000, Nmif=100,
-    cooling.fraction.50=0.5,
-    rw.sd=rw_sd(Beta=0.02,Gamma=0.02,Eta=ivp(0.02))) -> mf
-```
-
-We use random perturbations of the same magnitude as before, taking care to transform the parameters we are estimating.
-
-\framebreak
-
-We adopt a *simulated tempering* approach (following a metallurgical analogy), in which we increase the size of the random perturbations some amount (i.e., "reheat"), and then continue cooling.
-
-```{r exp_global_search2b,eval=FALSE,purl=FALSE}
-mf |>
-  mif2(
-    Nmif=100,rw.sd=rw_sd(Beta=0.01,Gamma=0.01,Eta=ivp(0.01))
-  ) |>
-  mif2(
-    Nmif=100,
-    rw.sd=rw_sd(Beta=0.005,Gamma=0.005,Eta=ivp(0.005))
-  ) -> mf
-```
-
-\framebreak
-
-We wrap the above in a `foreach` loop as before and take care to evaluate the likelihood at each end-point using `pfilter`.
-
-See the [`R` code for this lesson](./main.R) to see exactly how this is done.
-
-```{r exp_global_search_eval,include=FALSE}
-bake(file="global_search2.rds",
-  dependson=guesses,{
-    registerDoRNG(610408)
-    foreach(
-      guess=iter(guesses,"row"), .combine=rbind) %dopar% {
-      <<exp_global_search2a>>
-      <<exp_global_search2b>>
-      replicate(
-        10,
-        mf |> pfilter(Np=5000) |> logLik()
-      ) |> logmeanexp(se=TRUE) -> ll
-      mf |> coef() |> bind_rows() |>
-        bind_cols(loglik=ll[1],loglik.se=ll[2])
-    } -> results
-    attr(results,"ncpu") <- parallel::detectCores()
-    results
-  }) |>
-  filter(is.finite(loglik)) -> results
-t_expglob <- attr(results,"system.time")
-ncpu_expglob <- attr(results,"ncpu")
-```
-
-```{r include=FALSE,cache=FALSE}
-read_csv("measles_params.csv") |>
-  bind_rows(results) |>
-  filter(is.finite(loglik)) |>
-  arrange(-loglik) |>
-  write_csv("measles_params.csv")
-```
-
-The computations above required `r round(t_expglob["elapsed"]/60,1)` minutes on `r ncpu_expglob` processors.
-
-```{r another-search, fig.width=8, fig.height=6, dpi=300}
-#| out-height: 80%
-read_csv("measles_params.csv") |>
-  filter(loglik>max(loglik)-20) -> all
-
-pairs(~loglik+Rho+Gamma+Beta+Eta,data=all,pch=16,cex=0.3,
-  col=if_else(round(all$Rho,3)==0.6,1,4))
-```
-
-```{r poorman-gamma2, fig.width=8, fig.height=6, dpi=300}
-#| out-height: 80%
-results |>
-  filter(loglik>max(loglik)-20,loglik.se<1) |>
-  ggplot(aes(x=Gamma,y=loglik))+
-  geom_point()+
-  geom_hline(
-    color="red",
-    yintercept=max(results$loglik)-0.5*qchisq(df=1,p=0.95)
-  )
-```
-
-## Profile over infectious period {.allowframebreaks}
-
-To make inferences about $\gamma$, we can again compute a profile likelihood. As before, we bound the region we will search:
-
-```{r gamma_profile1a}
-read_csv("measles_params.csv") |>
-  filter(
-    loglik>max(loglik)-20,
-    loglik.se<2,
-    abs(Rho-0.6)<0.01
-  ) |>
-  sapply(range) -> box
-```
-
-\framebreak
-
-```{r gamma_profile1b}
-freeze(seed=610408798,
-  profile_design(
-    Gamma=seq(0.2,2,by=0.1),
-    lower=box[1,c("Beta","Eta")],
-    upper=box[2,c("Beta","Eta")],
-    nprof=100, type="runif"
-  )) |>
-  mutate(
-    N=38000,
-    Rho=0.6,
-    k=10
-  ) -> guesses
-```
-
-\framebreak
-
-\AddToHookNext{env/Highlighting/begin}{\small}
-
-```{r gamma_profile2,eval=FALSE,purl=FALSE}
-foreach(guess=iter(guesses,"row"), .combine=rbind
-) %dopar% {
-  measSIR |>
-    mif2(params=guess, Np=2000, Nmif=100, cooling.fraction.50=0.5,
-      rw.sd=rw_sd(Beta=0.02,Eta=ivp(0.02))
-    ) |>
-    mif2(Nmif=100) |>
-    mif2(Nmif=100,rw.sd=rw_sd(Beta=0.01,Eta=ivp(0.01))) |>
-    mif2(Nmif=100,rw.sd=rw_sd(Beta=0.005,Eta=ivp(0.005))) -> mf
-  replicate(10,mf |> pfilter(Np=5000) |> logLik()) |>
-    logmeanexp(se=TRUE) -> ll
-  mf |> coef() |> bind_rows() |>
-    bind_cols(loglik=ll[1],loglik.se=ll[2])
-} -> results
-```
-
-```{r gamma_profile_eval,include=FALSE}
-bake(file="gamma_profile1.rds",
-  dependson=guesses,{
-    <<gamma_profile2>>
-    attr(results,"ncpu") <- parallel::detectCores()
-    results
-  }) |>
-  filter(is.finite(loglik)) -> results
-t_muIR <- attr(results,"system.time")
-ncpu_muIR <- attr(results,"ncpu")
-```
-
-```{r include=FALSE,cache=FALSE}
-read_csv("measles_params.csv") |>
-  bind_rows(results) |>
-  filter(is.finite(loglik)) |>
-  arrange(-loglik) |>
-  write_csv("measles_params.csv")
-```
-
-## Infectious period profile {.allowframebreaks}
-
-```{r gamma_profile_plot, fig.height=4, fig.width=6, dpi=300}
-#| out-height: 80%
-results |>
-  group_by(round(Gamma,2)) |>
-  filter(rank(-loglik)<=1) |>
-  ungroup() |>
-  ggplot(aes(x=Gamma,y=loglik))+
-  geom_point() + xlab(expression(gamma)) +
-  geom_hline(
-    color="red",
-    yintercept=max(results$loglik)-0.5*qchisq(df=1,p=0.95)
-  )
-```
-
-\framebreak
-
--   This suggests that $\rho=0.6$ is consistent only with smaller values of $\gamma$, and hence *longer* infectious periods than are possible if the duration of shedding is actually less than one week.
--   Thus the model is incapable of reconciling both an infectious period of less than one week and a reporting rate of 60%.
--   *What structural changes to the model might we make to improve its ability to explain the data?*
-
-## Visualizing predictions {.allowframebreaks}
-
-After all these analyses, we would like to visualize how exactly the model with the MLEs matches the data. We can do it by plotting the simulations with 95% the prediction interval.
+## Visualizing Simulations {.allowframebreaks} 
 
 ```{r}
 read_csv("measles_params.csv") |>
@@ -1110,6 +898,15 @@ sims |>
   theme_bw() + guides(color="none",fill="none")
 ```
 
+## Parameter estimates as model predictions 
+
+-   The estimated parameters are one kind of model prediction.
+-   When we can estimate parameters using other data, we can test these predictions.
+-   In the case of a highly contagious, immunizing childhood infection such as measles, we can obtain an estimate of the reporting efficiency, $\rho$ by simply regressing cumulative cases on cumulative births [@Anderson1991] over many years.
+-   When we do this for Consett, we see that the reporting efficiency is roughly 60%.
+-   Since such a value makes the outbreak data quite unlikely, the prediction does not appear to be borne out.
+-   We can conclude that one or more of our model assumptions is inconsistent with the data.
+
 # Exercises
 
 ## Exercises
@@ -1117,8 +914,9 @@ sims |>
 There are three main exercises for trying to use `mif2` to fit a model. The fourth exercise is included to give you some practice at understanding and debugging POMP models. 
 
 - Exercise 1: Fitting SEIR Model.
-- Exercise 2: Fitting all parameters of SIR model (e.g., $k$, $\gamma$, $\eta$)
-- Exercise 3: Construct a profile.
+- Exercise 2: Revisit the assumption that $\gamma = 2$.
+- Exercise 3: Fitting all parameters of SIR model (e.g., $k$, $\gamma$, $\eta$)
+- Exercise 4: Construct a profile.
 
 More details below.
 
@@ -1128,11 +926,20 @@ In this exercise, you will estimate the parameters and likelihood of the SEIR mo
 Purely for the sake of simplicity, you may assume that the values of $\gamma$ and $k$ are known. 
 
 1.  First, conduct a local search and compute the likelihood at the end of each `mif2` run. Use only as many parallel `mif2` computations as you have processors on your computer (or perhaps somewhat fewer). 
-Track the time used and compute the amount of time used per cpu per IF2 iteration per 1000 particles. (Recall that one particle filter computation is roughly equal to a IF2 iteration in computational complexity if they both use the same number of particles.)
-2.  Using the expense estimates you generated in Step\~(\@ref(it:zero)), choose a number of IF2 iterations so that you can do a very crude "global search" that will complete in two or three minutes. Do not reduce `Np` drastically, as we don\`t want to degrade the performance of the individual IF2 computations. Run your global search with these settings. This serves to debug your global search code.
+Track the time used and compute the amount of time used per cpu per IF2 iteration per 1000 particles. (Recall that one particle filter computation is equal to a IF2 iteration in computational complexity if they both use the same number of particles.)
+2.  Using the expense estimates you generated in Step~1, choose a number of IF2 iterations so that you can do a very crude "global search" that will complete in two or three minutes. Do not reduce `Np` drastically, as we don\`t want to degrade the performance of the individual IF2 computations. Run your global search with these settings. This serves to debug your global search code.
 3.  Now we want a computation that gives us some results we can begin to interpret, but that is still as quick as possible. Choose `Nmif` and the number of random starts so that you can obtain the beginnings of a global search of the parameter space in one hour or less. Run your global search with these settings and plot the results.
 4.  (At Home) Now we want to increase computing for final or near-final results. You may want to tune your settings (`Nmif`, `Np`, `rw.sd`, `cooling.fraction.50`) at this point, based on what you found at run-level 2. Decide how much time in the next 18 hours is available to you for a computation. Choose the number of starting guesses so that you can obtain as thorough a global search as possible within this period. Run your global search and identify a maximum likelihood estimate.
 5.  How does the SEIR model compare with the SIR model? Discuss the overall quality of the fit as well as important differences in how the two models are explaining the data.
+
+## Searching in another direction {.allowframebreaks}
+
+-   Revisit the assumption that the infectious period is known to be 0.5\~wk.
+-   Indeed, it would not be surprising were we to find that the *effective* infectious period, at the population scale, were somewhat shorter than the *clinical* infectious period.
+-   For example, confinement of patients should reduce contact rates, and might therefore curtail the effective infectious period.
+-   To investigate this, relax our assumption about the value of $\gamma$.
+
+You can estimate the model under the assumption that $\rho=0.6$, but without making assumptions about the duration of the infectious period. 
 
 ## Exercise: Fitting all parameters of the SIR model
 
