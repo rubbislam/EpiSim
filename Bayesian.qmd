@@ -13,8 +13,8 @@ params:
   prefix: bayesian
 ---
 
-|                   |                            |
-|-------------------|----------------------------|
-| Lecture materials | [zip](_slides/7_Bayesian analysis and PMCMC.zip) |
+|                   |                                                        |
+|-------------------|--------------------------------------------------------|
+| Lecture materials | [zip](_slides/7_Bayesian/7_Bayesian%20analysis%20and%20PMCMC.zip) |
 
 <!-- | **R** script for Bayesian inference | [**R**](slides/bayes/main.R)| -->
