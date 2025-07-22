@@ -15,8 +15,8 @@ params:
 
 In this lesson, we aim to introduce three main derivative packages: [panelPomp](https://panelpomp-org.github.io/about.html), [spatPomp](https://spatpomp-org.github.io/spatPomp/), and [phylopomp](https://github.com/kingaa/phylopomp).
 
-|                   |                                 |
-|-------------------|---------------------------------|
+|                   |                                |
+|-------------------|--------------------------------|
 | Lecture materials | [zip](slides/9_extensions.zip) |
 
 <!-- | **Data** for the lesson.          | [data](slides/workflow/Measles_Consett_1948.csv)| -->

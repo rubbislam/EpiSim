@@ -67,7 +67,7 @@ Students completing this lesson will:
 
 A general framework of epidemiological inference includes three layers:
 
-::: columns
+::::: columns
 ::: {.column width="50%"}
 -   The input: a model of interest and the given data
 -   A method for inference
@@ -76,13 +76,11 @@ A general framework of epidemiological inference includes three layers:
 :::
 
 ::: {.column width="50%"}
-```{=tex}
 \begin{center}
   \includegraphics[height=4.5cm]{../graphics/lec3_overview}
 \end{center}
-```
 :::
-:::
+:::::
 
 \framebreak
 
@@ -136,7 +134,7 @@ In this lesson, we focus on the likelihood-based method because
 
 \framebreak
 
-::: columns
+::::: columns
 ::: {.column width="50%"}
 -   Goal: fit the model to the data and conduct statistical inferences,
     such as parameter estimation.
@@ -147,13 +145,11 @@ In this lesson, we focus on the likelihood-based method because
 :::
 
 ::: {.column width="50%"}
-```{=tex}
 \begin{center}
   \includegraphics[height=4.5cm]{../graphics/lec3_procedure}
 \end{center}
-```
 :::
-:::
+:::::
 
 \vfill
 
@@ -163,27 +159,25 @@ in both theory and in `pomp`.
 
 ## Definition of the likelihood function {.allowframebreaks}
 
--   How likely the data are drawn from a distribution or sampled from a model?
+-   How likely the data are drawn from a distribution or sampled from a
+    model?
 
 \vfill
 
-```{=tex}
 \begin{center}
     \includegraphics[height=5.5cm]{../graphics/likely_graph.pdf}
   \end{center}
-```
-
 
 \framebreak
 
-- Notations:
+-   Notations:
     -   $y_{1:N}^*$: the data, a sequence of $N$ observations
     -   $f_{Y_{1:N}}(y_{1:N};\theta)$: the statistical model, a
         probability distribution for each value of a parameter vector
         $\theta$
     -   $Y_{1:N} \sim f_{Y_{1:N}}(y_{1:N};\theta)$: a random variable
         drawn from distribution $f_{Y_{1:N}}(y_{1:N};\theta)$
--   The likelihood function is used to measure the ``how likely'':
+-   The likelihood function is used to measure the \`\`how likely'':
     $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta).$$
 -   The log-likelihood function:
     $$\loglik(\theta)= \log \lik(\theta) = \log f_{Y_{1:N}}(y^*_{1:N};\theta).$$
@@ -272,11 +266,10 @@ implicit likelihood functions!
 Recall the following schematic diagram, showing dependence among
 variables in a POMP model.
 
-```{=tex}
 \begin{center}
     \includegraphics[height=5.5cm]{../graphics/lec3ll.png}
   \end{center}
-```
+
 \framebreak
 
 Recall the following definitions and properties:
@@ -301,9 +294,10 @@ Recall the following definitions and properties:
         $X_{0:N}=(X_0,\dots,X_N)$.
 
 -   The **one-step transition density**,
-    $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the **measurement density**,
-    $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the **initial density**,
-    $f_{X_0}(x_0;\theta)$, specify the entire joint density via
+    $f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)$, together with the
+    **measurement density**, $f_{Y_n|X_n}(y_n|x_n;\theta)$ and the
+    **initial density**, $f_{X_0}(x_0;\theta)$, specify the entire joint
+    density via
 
     $$\begin{split}
               &f_{X_{0:N},Y_{1:N}}(x_{0:N},y_{1:N};\theta)\\
@@ -311,7 +305,7 @@ Recall the following definitions and properties:
       \end{split}$$
 
 -   **The marginal density for sequence of measurements**: $Y_{1:N}$,
-    evaluated at the data, $y_{1:N}^*$, is 
+    evaluated at the data, $y_{1:N}^*$, is
     $$\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta)=\int\!f_{X_{0:N},Y_{1:N}}(x_{0:N},y^*_{1:N};\theta)\, dx_{0:N}.$$
 
 ## Special case: deterministic latent process
@@ -327,7 +321,7 @@ Recall the following definitions and properties:
     then the log-likelihood contains a sum of squares which is exactly
     the criterion that nonlinear least squares regression seeks to
     minimize.
-<!-- -   More details on deterministic latent process models are given as a -->
+    <!-- -   More details on deterministic latent process models are given as a -->
     <!-- [supplement](deterministic.html). -->
 
 ## General case: stochastic unobserved state process
@@ -362,9 +356,7 @@ integration](monteCarlo.pdf) by first proposing an intuitive and a
 simpler method. This simple method usually **does NOT work** on anything
 but **very short** time series.
 
-
-
-1. Let's rewrite the likelihood integral using an equivalent
+1.  Let's rewrite the likelihood integral using an equivalent
     factorization. As an exercise, you could check how the equivalence
     of @eq-L1 and @eq-L2 follows algebraically from the Markov property
     and the definition of conditional density.
@@ -376,35 +368,41 @@ $$
     \end{aligned}
 $$ {#eq-L2}
 
-2. Notice, using the representation in @eq-L2, that the likelihood can
+2.  Notice, using the representation in @eq-L2, that the likelihood can
     be written as an expectation, \begin{equation*}
-     \lik(\theta) = \E \left[ \prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X_n; \theta) \right],
-        \end{equation*} where the expectation is taken with
+      \lik(\theta) = \E \left[ \prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X_n; \theta) \right],
+         \end{equation*} where the expectation is taken with
     $X_{0:N}\sim f_{X_{0:N}}(x_{0:N};\theta)$.
-3. Now, using a [law of large
+3.  Now, using a [law of large
     numbers](https://en.wikipedia.org/wiki/Law_of_large_numbers), we can
     approximate an expectation by the average of a Monte Carlo sample.
     Thus, $$
-     \lik(\theta) \approx \frac{1}{J} \sum_{j=1}^{J}\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X^j_n; \theta),
-    $$ where $\{X^j_{0:N}, j=1,\dots,J\}$ is a Monte Carlo sample of
+      \lik(\theta) \approx \frac{1}{J} \sum_{j=1}^{J}\prod_{n=1}^{N}\!f_{Y_n|X_n}({y^*_n}| X^j_n; \theta),
+     $$ where $\{X^j_{0:N}, j=1,\dots,J\}$ is a Monte Carlo sample of
     size $J$ drawn from $f_{X_{0:N}}(x_{0:N};\theta)$.
 
-\framebreak   
-
+\framebreak
 
 \begin{center}
     \includegraphics[height=7cm]{../graphics/directsim_graph.pdf}
 \end{center}
 
 <!-- In conclusion, we can generate trajectories by simulation and all we need to do -->
+
 <!-- to get a Monte Carlo estimate  of the likelihood is to evaluate the measurement -->
+
 <!-- density of the data at each trajectory and average.  -->
+
 <!-- In the context of the **plug-and-play** framework, our algorithm depends on  -->
+
 <!-- `rprocess` for simulation but does not require `dprocess` for evaluation. -->
+
 <!-- However, this naive approach scales poorly with dimension:   -->
 
 <!--   -   it requires a Monte Carlo effort that scales exponentially with the -->
+
 <!--     length of the time series, and so is infeasible on anything but a -->
+
 <!--     short data set; -->
 
 <!--   -   due to stochasticity, once a simulated trajectory diverges from the data, it will seldom come back;  -->
@@ -419,10 +417,10 @@ $$ {#eq-L2}
 
 ## Sequential Monte Carlo: The particle filter {.allowframebreaks}
 
-Fortunately, we can compute the likelihood for a POMP model by a
-much more efficient algorithm than direct Monte Carlo integration:
+Fortunately, we can compute the likelihood for a POMP model by a much
+more efficient algorithm than direct Monte Carlo integration:
 
-1. We proceed by factorizing the likelihood in a different way:
+1.  We proceed by factorizing the likelihood in a different way:
 
 $$
   \begin{aligned}
@@ -433,22 +431,20 @@ $$ with the understanding that $f_{X_1|Y_{1:0}}=f_{X_1}$.
 
 \framebreak
 
-2. The Markov property leads to the **prediction formula:** 
-$$
-  \begin{aligned}
-      &f_{X_n|Y_{1:n-1}}(x_n|y^*_{1:n-1}; \theta) \\
-      &\quad = \int \! \textcolor{red}{f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)}\, f_{X_{n-1}|Y_{1:n-1}}(x_{n-1}| y^*_{1:n-1}; \theta) \, dx_{n-1}.
-  \end{aligned}
-$$
+2.  The Markov property leads to the **prediction formula:** $$
+      \begin{aligned}
+       &f_{X_n|Y_{1:n-1}}(x_n|y^*_{1:n-1}; \theta) \\
+       &\quad = \int \! \textcolor{red}{f_{X_n|X_{n-1}}(x_n|x_{n-1};\theta)}\, f_{X_{n-1}|Y_{1:n-1}}(x_{n-1}| y^*_{1:n-1}; \theta) \, dx_{n-1}.
+      \end{aligned}
+    $$
 
-3. Bayes' theorem gives the **filtering formula:** 
-$$
-    \begin{aligned}
-        &f_{X_n|Y_{1:n}}(x_n|y^*_{1:n}; \theta)\\
-        &\quad = f_{X_n|Y_n,Y_{1:n-1}}(x_n|y^*_n,y^*_{1:n-1}; \theta) \\
-        &\quad =\frac{\textcolor{red}{f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)}{\int \textcolor{red}{f_{Y_n|X_n}(y^*_{n}|u_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(u_{n}|y^*_{1:n-1};\theta)\, du_n}.
-    \end{aligned}
-$$
+3.  Bayes' theorem gives the **filtering formula:** $$
+     \begin{aligned}
+         &f_{X_n|Y_{1:n}}(x_n|y^*_{1:n}; \theta)\\
+         &\quad = f_{X_n|Y_n,Y_{1:n-1}}(x_n|y^*_n,y^*_{1:n-1}; \theta) \\
+         &\quad =\frac{\textcolor{red}{f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)}{\int \textcolor{red}{f_{Y_n|X_n}(y^*_{n}|u_{n};\theta)}\,f_{X_n|Y_{1:n-1}}(u_{n}|y^*_{1:n-1};\theta)\, du_n}.
+     \end{aligned}
+    $$
 
 \framebreak
 
@@ -478,32 +474,59 @@ $$
 <!-- \vspace{-1cm} -->
 
 <!-- 1.  Suppose $X_{n-1,j}^{F}$, $j=1,\dots,J$ is a set of $J$ points drawn -->
+
 <!--     from the filtering distribution at time $t_{n-1}$. -->
+
 <!-- 2.  We obtain a sample $X_{n,j}^{P}$ of points drawn from the prediction -->
+
 <!--     distribution at time $t_n$ by simply simulating the process model: -->
+
 <!-- $$ -->
+
 <!--     X_{n,j}^{P} \sim \mathrm{process}(X_{n-1,j}^{F},\theta), \qquad j=1,\dots,J. -->
+
 <!-- $$ -->
+
 <!-- 3.  Having obtained $x_{n,j}^{P}$, we obtain a sample of points from the -->
+
 <!--     filtering distribution at time $t_n$ by *resampling* from -->
+
 <!--     $\big\{X_{n,j}^{P},j\in 1:J\big\}$ with weights  -->
+
 <!-- $$ -->
+
 <!--     w_{n,j}=f_{Y_n|X_n}(y^*_{n}|X^P_{n,j};\theta). -->
+
 <!-- $$ -->
+
 <!-- 4.  The Monte Carlo principle tells us that the conditional likelihood -->
+
 <!-- $$ -->
+
 <!--     \begin{aligned} -->
+
 <!--       \lik_n(\theta) &= f_{Y_n|Y_{1:n-1}}(y^*_n|y^*_{1:n-1};\theta)\\ -->
+
 <!--       &= \int f_{Y_n|X_n}(y^*_{n}|x_{n};\theta)\,f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)\, dx_n -->
+
 <!--     \end{aligned} -->
+
 <!-- $$ -->
+
 <!--   is approximated by -->
+
 <!-- $$ -->
+
 <!--   \hat{\lik}_n(\theta)\approx\frac{1}{J}\,\sum_j\,f_{Y_n|X_n}(y^*_{n}|X_{n,j}^{P};\theta) -->
+
 <!-- $$ -->
+
 <!--     since $X_{n,j}^{P}$ is approximately a draw from -->
+
 <!--     $f_{X_n|Y_{1:n-1}}(x_{n}|y^*_{1:n-1};\theta)$. -->
+
 <!-- 5.  We can iterate this procedure through the data, one step at a time, -->
+
 <!--     alternately simulating and resampling, until we reach $n=N$. -->
 
 \begin{center}
@@ -512,35 +535,34 @@ $$
 
 \vfill
 
-The full log-likelihood then has approximation 
-$$
+The full log-likelihood then has approximation $$
     \loglik(\theta) = \log{{\lik}(\theta)} = \sum_n \log{{\lik}_n(\theta)} \approx \sum_n\log\hat{\lik}_n(\theta).
 $$
 
 ## Sequential Monte Carlo: conclusion
 
-::: columns
+::::: columns
 ::: {.column width="40%"}
-
 -   It can be shown that the particle filter provides an unbiased
-    estimate of the likelihood (@Kitagawa1987,
-    @Arulampalam2002, @Doucet2001, @King2016).
+    estimate of the likelihood (@Kitagawa1987, @Arulampalam2002,
+    @Doucet2001, @King2016).
 -   This implies a consistent but biased estimate of the log-likelihood.
 :::
 
 ::: {.column width="60%"}
 <!-- \vspace{-10mm} -->
+
 \begin{center}
     \includegraphics[height=6cm]{../graphics/lec3pf.png}
 \end{center}
 :::
-:::
-
+:::::
 
 ## Parallel computing: general
 
-It will be helpful to parallelize most of the computations. 
-Most machines nowadays have multiple cores and using this computational capacity is as simple as:
+It will be helpful to parallelize most of the computations. Most
+machines nowadays have multiple cores and using this computational
+capacity is as simple as:
 
 1.  letting `R` know you plan to use multiple processors;
 2.  using the parallel for loop provided by the `foreach` package; and
@@ -549,42 +571,54 @@ Most machines nowadays have multiple cores and using this computational capacity
 
 For example:
 
-```{r parallel-setup,eval=FALSE,purl=FALSE}
+```{r parallel-setup,purl=FALSE}
 library(foreach)              # load foreach
 library(doParallel)           # load doParallel
 library(doRNG)                # load doRNG
 ```
 
-## Parallel computing: macOS/Linux and Windows
-Note that, the macOS and Linux systems automatically export the global environment to each core, 
-while Windows does not do that.
-The setup to let `foreach` to use `doParallel` backend to run parallel computing will be a bit different.
+To check the number of available cores:
 
-- On macOX/Linus
+```{r detectcores}
+ncores <- detectCores()
+ncores
+```
+
+## Parallel computing: macOS/Linux and Windows
+
+Note that, the macOS and Linux systems automatically export the global
+environment to each core, while Windows does not do that. The setup to
+let `foreach` to use `doParallel` backend to run parallel computing will
+be a bit different.
+
+-   On macOX/Linus
+
 ```{r setup-mac, eval=FALSE}
-registerDoParallel(cores=8)         # the number of cores
+registerDoParallel(cores=ncores)
 # codes to run parallel computing
 ```
 
-- On Windows
+-   On Windows
+
 ```{r setup-win, eval=FALSE}
-cl <- makePSOCKcluster(8)
+cl <- makePSOCKcluster(ncores)
 registerDoParallel(cl)
 # codes to run parallel computing
 stopCluster(cl)
 ```
 
-## Parallel computing: Exercise
+## Exercise
 
-The following codes (also see the `/scripts/exercise_parallel_*.R` script) is an example of setting up a parallel computing scheme.
+The following codes (also see the `/scripts/exercise_parallel_*.R`
+script) is an example of setting up a parallel computing scheme.
 
 ```{r eval=FALSE}
 library(foreach)
 library(doParallel)
 library(doRNG)
 source("model_measSIR.R")
-registerDoParallel(cores=8)
-# cl <- makePSOCKcluster(8)
+registerDoParallel(cores=detectCores())
+# cl <- makePSOCKcluster(detectCores())
 # registerDoParallel(cl)
 foreach(i=1:20, .combine="c", .packages="pomp", 
         .options.RNG = 1234) %dorng% {
@@ -597,6 +631,7 @@ pfs |> logLik() |> logmeanexp(se=TRUE)
 # References
 
 ## References
+
 \small
 
 ::: {#refs}
@@ -604,13 +639,22 @@ pfs |> logLik() |> logmeanexp(se=TRUE)
 
 ## License, acknowledgments, and links
 
--   This lesson is prepared for the [Simulation-based Inference for Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/) module at the Summer Institute in Statistics and Modeling in Infectious Diseases, [SISMID](https://sph.emory.edu/SISMID/index.html).
+-   This lesson is prepared for the [Simulation-based Inference for
+    Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/)
+    module at the Summer Institute in Statistics and Modeling in
+    Infectious Diseases,
+    [SISMID](https://sph.emory.edu/SISMID/index.html).
 
--   The materials build on [previous versions of this course and related courses](../acknowledge.html).
+-   The materials build on [previous versions of this course and related
+    courses](../acknowledge.html).
 
--   Licensed under the [Creative Commons Attribution-NonCommercial license](https://creativecommons.org/licenses/by-nc/4.0/). Please share and remix non-commercially, mentioning its origin. \includegraphics[height=12pt]{../graphics/cc-by-nc}
+-   Licensed under the [Creative Commons Attribution-NonCommercial
+    license](https://creativecommons.org/licenses/by-nc/4.0/). Please
+    share and remix non-commercially, mentioning its origin.
+    \includegraphics[height=12pt]{../graphics/cc-by-nc}
 
--   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
+-   Produced with R version `r getRversion()` and pomp version
+    `r packageVersion("pomp")`.
 
 -   Compiled on 2024-07-24.
 

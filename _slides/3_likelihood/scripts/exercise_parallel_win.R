@@ -1,7 +1,7 @@
 library(foreach)
 library(doParallel)
 library(doRNG)                 # load doRNG for random number generation
-cl <- makePSOCKcluster(8)
+cl <- makePSOCKcluster(detectCores())
 registerDoParallel(cl)
 
 ## -------- load model -------- ##

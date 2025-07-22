@@ -780,7 +780,7 @@ simulate(
   "SEIR",time=2,
   Beta=2,sigma=2,
   gamma=1,psi=2,
-  S0=1000,I0=5
+  S0=1000,E0=0,I0=5
 ) |>
   simulate(
     time=5,
@@ -798,8 +798,17 @@ plot(model.seir)
 #| out-height: 70%
 #| fig-cap: "Simulated genealogy from an SEIR model."
 set.seed(1234)
-phylopomp::simulate("SEIR",Beta=2,sigma=2,gamma=1,psi=2,S0=1000,I0=5,time=2) |>
-  phylopomp::simulate(Beta=5,gamma=2,time=5,psi=3) -> model.seir
+phylopomp::simulate(
+  "SEIR",time=2,
+  Beta=2,sigma=2,
+  gamma=1,psi=2,
+  S0=1000,E0=0,I0=5
+) |>
+  phylopomp::simulate(
+    time=5,
+    Beta=5,gamma=2,
+    psi=3
+  ) -> model.seir
 plot(model.seir)
 ```
 :::
@@ -814,6 +823,11 @@ plot(model.seir)
 model.seir |>
   plot(obscure=FALSE)
 ```
+
+\vspace{6mm}
+
+The compartments E and I are colored in blue and brown.
+
 :::
 
 ::: {.column width="70%"}
@@ -857,26 +871,41 @@ model.seir |>
 
 ## Example: inference with pre-defined models in phylopomp {.allowframebreaks}
 
-```{r infer-sir}
+```{r infer-sir-1, eval=FALSE}
 library(pomp)
 library(phylopomp)
 set.seed(1234)
 # simulate a geneal object from an SIR model
-phylopomp::simulate("SIR",time=10,Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
-# build a pomp object
-x |>
+simulate("SIR",time=10,
+  Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
+x |>        # build a pomp object
   sir_pomp(
     Beta=3,gamma=1,psi=2,omega=1,
     S0=100,I0=5,R0=0
   ) -> po
 po |> pfilter(Np=5000) -> pf
+pf |> logLik()
+```
 
+```{r infer-sir-2, echo=FALSE, purl=FALSE}
+library(pomp)
+library(phylopomp)
+set.seed(1234)
+# simulate a geneal object from an SIR model
+phylopomp::simulate("SIR",time=10,
+  Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5) -> x
+x |>        # build a pomp object
+  sir_pomp(
+    Beta=3,gamma=1,psi=2,omega=1,
+    S0=100,I0=5,R0=0
+  ) -> po
+po |> pfilter(Np=5000) -> pf
 pf |> logLik()
 ```
 
 \framebreak
 
-```{r infer-seir}
+```{r infer-seir-1, eval=FALSE}
 set.seed(1234)
 simulate("SEIRS",      # simulate a genealogy from an SEIR model
   Beta=4,sigma=1,gamma=1,psi=1,omega=1,
@@ -891,6 +920,20 @@ G |>
 pf |> logLik() |> logmeanexp(se=TRUE)
 ```
 
+```{r infer-seir-2, echo=FALSE, purl=FALSE}
+set.seed(1234)
+phylopomp::simulate("SEIRS",      # simulate a genealogy from an SEIR model
+  Beta=4,sigma=1,gamma=1,psi=1,omega=1,
+  S0=100,E0=3,I0=5,R0=100, time=5
+) -> G
+G |>
+  seirs_pomp(
+    Beta=4,sigma=1,gamma=1,psi=1,omega=1,
+    S0=100,E0=3,I0=5,R0=100
+  ) |> pfilter(Np=1000) |> 
+  replicate(n=20) |> concat() -> pf
+pf |> logLik() |> logmeanexp(se=TRUE)
+```
 
 # References
 

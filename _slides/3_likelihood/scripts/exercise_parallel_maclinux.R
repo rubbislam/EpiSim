@@ -1,7 +1,7 @@
 library(foreach)
 library(doParallel)
 library(doRNG)                 # load doRNG for random number generation
-registerDoParallel(cores=8)
+registerDoParallel(cores=detectCores())
 
 ## -------- load model -------- ##
 source("model_measSIR.R")

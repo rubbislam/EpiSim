@@ -276,15 +276,15 @@ The following codes run `mif2` for 20 replicates within a parallel computing sch
 library(foreach)
 library(doParallel)
 library(doRNG)
-registerDoParallel(cores=8)
+registerDoParallel(cores=detectCores())
+po <- measSIR |> pomp(paramnames=c("Beta","Rho","Eta"),
+  partrans=parameter_trans(log="Beta",logit=c("Rho","Eta")))
+
 foreach(
   i=1:20,.combine=c, .packages="pomp", .options.RNG=482947940
 ) %dorng% {
-  measSIR |>
-    mif2(Np=2000, Nmif=50, cooling.fraction.50=0.5,
-      rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02)),
-      partrans=parameter_trans(log="Beta",logit=c("Rho","Eta")),
-      paramnames=c("Beta","Rho","Eta"))
+  po |> mif2(Np=2000, Nmif=50, cooling.fraction.50=0.5,
+      rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02)))
 } -> mifs_local
 ```
 
@@ -337,7 +337,7 @@ results |> filter(loglik==max(loglik))
 
 -   Produced with R version `r getRversion()` and pomp version `r packageVersion("pomp")`.
 
--   Compiled on 2025-07-21.
+-   Compiled on 2025-07-23.
 
 \vfill
 

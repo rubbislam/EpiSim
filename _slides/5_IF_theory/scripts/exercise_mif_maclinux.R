@@ -1,7 +1,8 @@
 library(foreach)
 library(doParallel)
 library(doRNG)
-registerDoParallel(cores=8)       # number of cores
+
+registerDoParallel(cores=detectCores())
 
 ## -------- load model -------- ##
 source("model_measSIR.R")
@@ -34,20 +35,26 @@ plot(mf)
 
 ## ------- 2. mif in parallel ------- ##
 
+## put transformation outside
+## to avoid compilation within the foreach loop
+measSIR |>
+  pomp(
+    partrans=parameter_trans(
+      log="Beta",logit=c("Rho","Eta")
+    ),
+    paramnames=c("Beta","Rho","Eta")
+  ) -> po
+
 foreach(
   i=1:20,
   .combine=c,                         # concatenate all results
   .packages = "pomp",
   .options.RNG = 482947940            # set random seed
 ) %dorng% {
-  measSIR |>
+  po |>
     mif2(
       Np=2000, Nmif=50, cooling.fraction.50=0.5,
-      rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02)),
-      partrans=parameter_trans(
-        log="Beta",logit=c("Rho","Eta")
-      ),
-      paramnames=c("Beta","Rho","Eta")
+      rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02))
     )
 } -> mifs_local
 
