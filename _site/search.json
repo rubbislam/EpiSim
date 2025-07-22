@@ -70,8 +70,8 @@
     "text": "Lecture materials\nzip"
   },
   {
-    "objectID": "derivatives.html",
-    "href": "derivatives.html",
+    "objectID": "extensions.html",
+    "href": "extensions.html",
     "title": "Derivative packages from pomp",
     "section": "",
     "text": "In this lesson, we aim to introduce three main derivative packages: panelPomp, spatPomp, and phylopomp.\n\n\n\n \n \n\n\n\n\nLecture materials\nzip"
@@ -131,12 +131,5 @@
     "title": "Likelihood-based inference for POMP models",
     "section": "",
     "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (112 min)"
-  },
-  {
-    "objectID": "extensions.html",
-    "href": "extensions.html",
-    "title": "Derivative packages from pomp",
-    "section": "",
-    "text": "In this lesson, we aim to introduce three main derivative packages: panelPomp, spatPomp, and phylopomp.\n\n\n\n \n \n\n\n\n\nLecture materials\nzip"
   }
 ]
