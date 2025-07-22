@@ -384,7 +384,7 @@ $$ {#eq-L2}
 \framebreak
 
 \begin{center}
-    \includegraphics[height=7cm]{../graphics/directsim_graph.pdf}
+    \includegraphics[width=\linewidth]{../graphics/directsim_graph.pdf}
 \end{center}
 
 <!-- In conclusion, we can generate trajectories by simulation and all we need to do -->
@@ -530,7 +530,7 @@ $$ with the understanding that $f_{X_1|Y_{1:0}}=f_{X_1}$.
 <!--     alternately simulating and resampling, until we reach $n=N$. -->
 
 \begin{center}
-    \includegraphics[height=6cm]{../graphics/pfilter_graph.pdf}
+    \includegraphics[width=\linewidth]{../graphics/pfilter_graph.pdf}
 \end{center}
 
 \vfill
@@ -656,7 +656,7 @@ pfs |> logLik() |> logmeanexp(se=TRUE)
 -   Produced with R version `r getRversion()` and pomp version
     `r packageVersion("pomp")`.
 
--   Compiled on 2024-07-24.
+-   Compiled on 2025-07-23.
 
 \vfill
 

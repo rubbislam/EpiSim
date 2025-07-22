@@ -676,6 +676,9 @@ With `phylopomp`, we can simulate these partially observed ancestral
 history from a board class of epidemiological models, and infer the
 transmission dynamics given a genealogy/phylogeny based on `pomp`.
 
+\vspace{6mm}
+The mathematical theories and algorithm are discussed in @King2025.
+
 ## phylopomp: genomic sequences & phylogenetic tree
 
 \begin{center}
@@ -932,6 +935,79 @@ G |>
     S0=100,E0=3,I0=5,R0=100
   ) |> pfilter(Np=1000) |> 
   replicate(n=20) |> concat() -> pf
+pf |> logLik() |> logmeanexp(se=TRUE)
+```
+
+## Exercise 1: simulate a genealogy from other pre-defined models {.allowframebreaks}
+
+Run the following code to simulate genealogies from two other pre-defined models and to infer the dynamics from a tree simulated from an SEIR model.
+Please also see the exercise script `scripts/exercise_phylopomp.r`.
+
+```{r phylopomp-exercise-1-1, eval=FALSE}
+library(phylopomp)
+# simulate from a two-strain SIR model
+??siir              # check the model setting
+
+simulate(
+  "SIIR",Beta1=2,Beta2=50,gamma=1,psi1=2,psi2=1,
+  S0=300,I1_0=20,I2_0=2,time=5
+) -> model.siir
+
+model.siir |> plot(obscure=FALSE)
+model.siir |> lineages(obscure=FALSE) |> plot()
+```
+
+\framebreak
+
+```{r phylopomp-exercise-1-2, eval=FALSE}
+# simulate from a two-class SIR model with super-spreader
+??si2r              # check the model setting
+
+simulate(
+  "SI2R", Beta=5,mu=2,gamma=1,psi1=1,psi2=2,sigma12=1,sigma21=3,
+  S0=500,I0=10,time=5
+) -> model.si2r
+
+model.si2r |> plot(obscure=FALSE)
+model.si2r |> lineages(obscure=FALSE) |> plot()
+```
+
+## Exercise 2: fit a model to a tree simulated from a different model {.allowframebreaks}
+
+```{r phylopomp-exercise-2-1, eval=FALSE}
+library(pomp)
+simulate("SEIRS",
+  Beta=4,sigma=1,gamma=1,psi=1,omega=1,
+  S0=100,E0=3,I0=5,R0=100, time=5
+) -> G.seir
+plot(G.seir)
+
+G.seir |>
+  sir_pomp(
+    Beta=4,,gamma=1,psi=1,
+    S0=100,I0=5,R0=100
+  ) |> pfilter(Np=1000) |> 
+  replicate(n=20) |> concat() -> pf
+pf |> logLik() |> logmeanexp(se=TRUE)
+```
+
+\framebreak
+
+```{r phylopomp-exercise-2-2, eval=FALSE}
+simulate(
+  "SIR",time=10,
+  Beta=3,gamma=1,psi=2,omega=1,S0=100,I0=5
+) -> G.sir
+plot(G.sir)
+
+G.sir |>
+  seirs_pomp(
+    Beta=3,sigma=1,gamma=1,psi=2,omega=1,
+    S0=100,E0=0,I0=5,R0=0
+  ) |> pfilter(Np=1000) |> 
+  replicate(n=20) |> 
+  concat() -> pf
+
 pf |> logLik() |> logmeanexp(se=TRUE)
 ```
 
