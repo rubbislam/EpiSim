@@ -121,7 +121,7 @@ Each of these packages extend the `pomp` package to other useful cases.
 \hfill
 \begin{minipage}{0.48\textwidth}
 \centering
-\includegraphics[width=0.95\linewidth]{spatPomp.png}\\
+\includegraphics[width=0.95\linewidth]{spatPompNetwork.png}\\
 \textbf{spatPomp: data from a single interacting system.}
 \end{minipage}
 
@@ -295,7 +295,19 @@ We usually have larger error than in `pomp`, because there is error for each uni
 - Useful for (approximately) independent systems (e.g., outbreaks within various hospitals, approximately geographically isolated outbreaks of same disease, controlled randomized experiments,...)
 - Very useful if limited data is available, we can pool information from all sources.
 - Allows for estimating shared and unit-specific parameters. 
-- To learn more, see the panelPomp research paper (to appear in the R Journal) [@panelPomp].
+- To learn more, see the panelPomp research paper (to appear in the R Journal) [@panelPomp], or the package website [https://panelpomp-org.github.io/](https://panelpomp-org.github.io/)
+
+## panelPomp: Exercise
+
+Install the `panelPomp` package from CRAN via `install.packages("panelPomp")`. Create one of the prebuilt `panelPomp` models using a constructor function: `panelGompertz()`, `panelMeasles()`, `contacts`, or `panelRandomWalk()`. Our goal is to build some familiarity with `panelPomp` models.
+
+\vspace{4mm}
+
+Check the documentation to learn more about the model (e.g., `?panelGompertz`). How many units does it have by default? How many observations and parameters? Which parameters are shared and which unit specific? Can you change the parameter type? What happens if you `plot` the object?
+
+\vspace{4mm}
+
+Once you feel like you understand the object, try running a particle filter and iterated filter (PIF or MPIF, implemented via `mif2`).
 
 # SpatPOMP
 
