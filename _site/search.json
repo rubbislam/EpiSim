@@ -102,7 +102,7 @@
     "href": "index.html#lessons",
     "title": "Simulation-based Inference for Epidemiological Dynamics",
     "section": "Lessons",
-    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPs: theory and practice.\nIterated filtering: theory and practice.\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
+    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPS: theory.\nLikelihood for POMPs: practice.\nIterated Filtering: theory.\nIterated filtering: practice.\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
   },
   {
     "objectID": "index.html#stochastic-sirseir-simulator",
