@@ -22,7 +22,7 @@ In the first lesson, we have three goals:
 3.  introduce the pomp R package.
 
 |   |   |
-|----------------------|--------------------------------------------------|
+|----------------------|-------------------------------------------------|
 | Lecture materials | [zip](_slides/1_Introduction/1_Introduction.zip) |
 | Reference Recording (2020,2021,2022) | [Video (50 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2Sns4ChQCJy6T7Nz00r5zXV) |
 

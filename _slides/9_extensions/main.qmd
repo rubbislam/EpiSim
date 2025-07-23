@@ -886,7 +886,7 @@ model.seir |>
 
 ## Example: inference with pre-defined models in phylopomp {.allowframebreaks}
 
-```{r infer-sir-1, eval=FALSE}
+```{r infer-sir-1, eval=FALSE, purl=FALSE}
 library(pomp)
 library(phylopomp)
 set.seed(1234)
@@ -902,7 +902,7 @@ po |> pfilter(Np=5000) -> pf
 pf |> logLik()
 ```
 
-```{r infer-sir-2, echo=FALSE, purl=FALSE}
+```{r infer-sir-2, echo=FALSE}
 library(pomp)
 library(phylopomp)
 set.seed(1234)
@@ -920,7 +920,7 @@ pf |> logLik()
 
 \framebreak
 
-```{r infer-seir-1, eval=FALSE}
+```{r infer-seir-1, eval=FALSE, purl=FALSE}
 set.seed(1234)
 simulate("SEIRS",      # simulate a genealogy from an SEIR model
   Beta=4,sigma=1,gamma=1,psi=1,omega=1,
@@ -935,7 +935,7 @@ G |>
 pf |> logLik() |> logmeanexp(se=TRUE)
 ```
 
-```{r infer-seir-2, echo=FALSE, purl=FALSE}
+```{r infer-seir-2, echo=FALSE}
 set.seed(1234)
 phylopomp::simulate("SEIRS",      # simulate a genealogy from an SEIR model
   Beta=4,sigma=1,gamma=1,psi=1,omega=1,

@@ -14,7 +14,7 @@ params:
 ---
 
 |   |   |
-|---------------------|---------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | Lecture materials | [zip](_slides/2_Stochastic/2_Stochastic.zip) |
 | Reference Recording (2020) | [Video (98 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RBA4OQ_OdJj5CEJSjRGxut) |
 

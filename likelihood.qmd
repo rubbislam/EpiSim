@@ -14,17 +14,25 @@ params:
 ---
 
 |   |   |
-|---------------------|---------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | Lecture materials 1 | [zip](_slides/3_likelihood/3_likelihood.zip) |
 | Lecture materials 2 | [zip](_slides/4_pfilter_in_pomp/4_pfilter_in_pomp.zip) |
 | Reference Recording (2020,2021) | [Video (112 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2RRi-TRckg7Lud87ZKIJTZ8) |
+
 <!-- | Supplement: Deterministic latent process models and their role in benchmarking POMP models | [HTML](_slides/pfilter/deterministic.html) | -->
+
 <!-- | Supplement: Monte Carlo Methods | [PDF](_slides/pfilter/monteCarlo.pdf) | -->
+
 <!-- | Supplement: Likelihood by direct simulation: Consett measles example | [HTML](_slides/pfilter/directSimulation.html) | -->
+
 <!-- | Supplement: Standard errors via the observed Fisher information | [HTML](_slides/pfilter/fisherSE.html) | -->
+
 <!-- | Supplement: Bootstrap methods | [HTML](_slides/pfilter/bootstrap.html) | -->
+
 <!-- | Supplement: Direct maximization of the particle filter likelihood | [HTML](_slides/pfilter/pf-in-Nelder-Mead.html) | -->
+
 <!-- | Worked solution to Exercise 3.1 | [HTML](slides/pfilter/Q_slice.html) | -->
+
 <!-- | Worked solution to Exercise 3.2 | [HTML](slides/pfilter/expense.html) | -->
 
 <!-- | Worked solution to Exercise 3.3 | [HTML](slides/pfilter/loglikest.html) | -->

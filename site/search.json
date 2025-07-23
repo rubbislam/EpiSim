@@ -1,9 +1,0 @@
-[
-  {
-    "objectID": "likelihood.html",
-    "href": "likelihood.html",
-    "title": "Likelihood-based inference for POMP models",
-    "section": "",
-    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (112 min)\n\n\nSupplement: Deterministic latent process models and their role in benchmarking POMP models\nHTML\n\n\nSupplement: Monte Carlo Methods\nPDF\n\n\nSupplement: Likelihood by direct simulation: Consett measles example\nHTML\n\n\nSupplement: Standard errors via the observed Fisher information\nHTML\n\n\nSupplement: Bootstrap methods\nHTML\n\n\nSupplement: Direct maximization of the particle filter likelihood\nHTML"
-  }
-]
