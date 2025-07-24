@@ -279,7 +279,9 @@ We have so far used fixed parameter values. What about estimation?
 In other areas of statistics and machine learning, if we have some type
 of *objective function* that we want to maximize (or minimize), we can
 use numeric solvers to find the maximum (or minimum). For instance, the
-Nelder-Mead, BFGS, or other gradient descent algorithms. **This famously
+Nelder-Mead, BFGS, or other gradient descent algorithms (using a function like `stats::optim`. 
+
+**This famously
 doesn't work well with the particle filter.**.
 
 Some problems:
@@ -437,8 +439,7 @@ registerDoRNG(seed = 111111)
 
 # cl <- makePSOCKcluster(cores-1)  # Windows
 # registerDoParallel(cl)  # Windows
-foreach (theta=iter(param_grid,"row"), .combine=rbind,
-  .options.future=list(seed=421776444)) %dopar% {
+foreach (theta=iter(param_grid,"row"), .combine=rbind) %dopar% {
   measSIR |> pfilter(params=theta,Np=5000) -> pf
   theta$loglik <- logLik(pf)
   theta
@@ -526,7 +527,7 @@ approximately one minute on your machine.
 
 -   Provide a Monte Carlo standard error for your estimate.
 -   Comment on the bias of your estimate.
--   Use doFuture to take advantage of multiple cores on your computer to
+-   Use `foreach` and `doParallel` to take advantage of multiple cores on your computer to
     improve your estimate.
 
 ## Exercises
