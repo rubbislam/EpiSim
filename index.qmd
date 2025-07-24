@@ -41,25 +41,27 @@ Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tu
 
 ## Lessons
 
-0. [Instructions for preparing your laptop for the course exercises.](instruction.html)
+0.  [Instructions for preparing your laptop for the course exercises.](instruction.html)
 
-1. [Introduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.](introduction.html)
+1.  [Introduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.](introduction.html)
 
-2. [Simulation of stochastic dynamic models.](simulation.html)
+2.  [Simulation of stochastic dynamic models.](simulation.html)
 
-3. [Likelihood for POMPS: theory.](likelihood.html)
+3.  [Likelihood for POMPS: theory.](likelihood.html)
 
-4. [Likelihood for POMPs: practice.](likelihood.html)
+4.  [Likelihood for POMPs: practice.](likelihood.html)
 
-5. [Iterated Filtering: theory.](iterated.html)
+5.  [Iterated Filtering: theory.](iterated.html)
 
-6. [Iterated filtering: practice.](iterated.html)
+6.  [Iterated filtering: practice.](iterated.html)
+      
+      - [Recommended workflow in pomp.](iterated.html)
 
-7. [Bayesian statistics and PMCMC in pomp.](Bayesian.html)
+7.  [Bayesian statistics and PMCMC in pomp.](Bayesian.html)
 
-8. [Epidemic forecasting with pomp.](forecast.html)
+8.  [Epidemic forecasting with pomp.](forecast.html)
 
-9. [Derivative packages from pomp.](extensions.html)
+9.  [Derivative packages from pomp.](extensions.html)
 
 ## Stochastic SIR/SEIR simulator
 
