@@ -11,7 +11,7 @@
     "href": "iterated.html",
     "title": "Iterated filtering: principles and practice",
     "section": "",
-    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (110 min)\n\n\nSupplement: Tuning IF2\nHTML"
+    "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nWorkflow\npdf\n\n\nReference Recording (2020,2021)\nVideo (110 min)"
   },
   {
     "objectID": "instruction.html",
@@ -102,7 +102,7 @@
     "href": "index.html#lessons",
     "title": "Simulation-based Inference for Epidemiological Dynamics",
     "section": "Lessons",
-    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPS: theory.\nLikelihood for POMPs: practice.\nIterated Filtering: theory.\nIterated filtering: practice.\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
+    "text": "Lessons\n\nInstructions for preparing your laptop for the course exercises.\nIntroduction: What is “Simulation-based Inference for Epidemiological Dynamics”? POMPs and pomp.\nSimulation of stochastic dynamic models.\nLikelihood for POMPS: theory.\nLikelihood for POMPs: practice.\nIterated Filtering: theory.\nIterated filtering: practice.\n\nRecommended workflow in pomp.\n\nBayesian statistics and PMCMC in pomp.\nEpidemic forecasting with pomp.\nDerivative packages from pomp."
   },
   {
     "objectID": "index.html#stochastic-sirseir-simulator",
