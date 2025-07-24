@@ -26,11 +26,12 @@ params:
 \newcommand\lik{\mathcal{L}}
 \newcommand\loglik{\ell}
 
------------------------------------
+------------------------------------------------------------------------
 
 ```{r knitr-opts,include=FALSE,purl=FALSE}
 source("../_includes/setup.R", local = knitr::knit_global())
 ```
+
 ```{r prelims,include=FALSE,cache=FALSE}
 library(tidyverse)
 library(pomp)
@@ -46,6 +47,7 @@ source("model_measSIR.R")
 ```
 
 Let's generate a large number of simulated trajectories at some particular point in parameter space.
+
 ```{r bbs-mc-like-2}
 measSIR |>
   simulate(nsim=5000,format="arrays") -> x
@@ -57,31 +59,31 @@ lines(time(measSIR),obs(measSIR,"reports"),lwd=2,col='black')
 ```
 
 We can use the function `dmeasure` to evaluate the log likelihood of the data given the states, the model, and the parameters:
+
 ```{r bbs-mc-like-3,cache=TRUE}
 ell <- dmeasure(measSIR,y=obs(measSIR),x=x$states,times=time(measSIR),log=TRUE,
   params=coef(measSIR))
 dim(ell)
 ```
+
 According to the general equation for likelihood by direct simulation, we should sum up the log likelihoods across time:
+
 ```{r bbs-mc-like-4}
 ell <- apply(ell,1,sum)
 summary(ell)
 summary(exp(ell))
 ```
 
-- The variability in the individual likelihoods is high and therefore the likelihood esitmate is imprecise.
-We will need many simulations to get an estimate of the likelihood sufficiently precise to be of any use in parameter estimation or model selection.
+-   The variability in the individual likelihoods is high and therefore the likelihood esitmate is imprecise. We will need many simulations to get an estimate of the likelihood sufficiently precise to be of any use in parameter estimation or model selection.
 
-- What is the problem?
+-   What is the problem?
 
-	- Essentially, very few of the trajectories pass anywhere near the data and therefore almost all have extremely bad likelihoods.
-Moreover, once a trajectory diverges from the data, it almost never comes back.
-While the calculation is "correct" in that it will converge to the true likelihood as the number of simulations tends to $\infty$, we waste a lot of effort investigating trajectories of very low likelihood.
+    -   Essentially, very few of the trajectories pass anywhere near the data and therefore almost all have extremely bad likelihoods. Moreover, once a trajectory diverges from the data, it almost never comes back. While the calculation is "correct" in that it will converge to the true likelihood as the number of simulations tends to $\infty$, we waste a lot of effort investigating trajectories of very low likelihood.
 
-	- This is a consequence of the fact that we are proposing trajectories in a way that is completely unconditional on the data.
+    -   This is a consequence of the fact that we are proposing trajectories in a way that is completely unconditional on the data.
 
-- The problem will get much worse with longer data sets.
+-   The problem will get much worse with longer data sets.
 
------------------------------------
+------------------------------------------------------------------------
 
 Produced in R version `r getRversion()`.
