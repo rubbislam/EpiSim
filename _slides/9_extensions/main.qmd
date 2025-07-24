@@ -388,12 +388,12 @@ Like the BPF, the IBPF is surprisingly effective at maximizing the likelihood [@
               \item Oral cholera vaccination (OCV) is available, but in limited supply.
               \item A modeling goal is to study the potential impact of various vaccination strategies.
               \item Image credit: UNICEF.
+              \item  This example is from Wheeler et al. 2024. 
              \end{itemize}
     }
          \end{tabular}  \\
 \end{tabular}
 
-This example is from [@Wheeler24]
 
 ## Haiti Data
 
