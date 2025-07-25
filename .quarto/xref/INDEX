@@ -416,5 +416,8 @@
   },
   "extensions.qmd": {
     "extensions.html": "1ffa1c5e"
+  },
+  "covariates.qmd": {
+    "covariates.html": "8d4e7d9d"
   }
 }

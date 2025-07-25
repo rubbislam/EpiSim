@@ -26,8 +26,8 @@ website:
         text: Iterated filtering
       - href: Bayesian.qmd
         text: Bayesian
-      - href: forecast.qmd
-        text: Forecast
+      - href: covariates.qmd
+        text: Covariates
       - href: extensions.qmd
         text: Extensions
 
