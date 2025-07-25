@@ -137,8 +137,8 @@ MathJax = {
 <span class="menu-text">Bayesian</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./forecast.html"> 
-<span class="menu-text">Forecast</span></a>
+    <a class="nav-link" href="./covariates.html"> 
+<span class="menu-text">Covariates</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./extensions.html"> 
@@ -196,7 +196,7 @@ MathJax = {
 <tbody>
 <tr class="odd">
 <td>Lecture materials</td>
-<td><a href="_slides/7_Bayesian/7_Bayesian analysis and PMCMC.zip">zip</a></td>
+<td><a href="_slides/7_Bayesian/7_Bayesian_analysis_and_PMCMC.zip">zip</a></td>
 </tr>
 </tbody>
 </table>
@@ -295,7 +295,7 @@ function goBack() {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/rubbislam\.quarto\.pub\/episim");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
