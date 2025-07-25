@@ -15,7 +15,7 @@ params:
 
 |                   |                              |
 |-------------------|------------------------------|
-| Lecture materials | [zip](slides/8_forecast.zip) |
+| Lecture materials | [zip](slides/8_Covariates/8_Integrating Covariate Data.zip) |
 
 <!-- | **Spanish Flu** data for the lesson | [data](slides/metapop/1918flu_3cities_1wave.csv)| -->
 

@@ -59,7 +59,7 @@ Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tu
 
 7.  [Bayesian statistics and PMCMC in pomp.](Bayesian.html)
 
-8.  [Epidemic forecasting with pomp.](forecast.html)
+8.  [Covariates and epidemic forecasting with pomp.](covariates.html)
 
 9.  [Derivative packages from pomp.](extensions.html)
 
