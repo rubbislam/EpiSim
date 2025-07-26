@@ -15,7 +15,7 @@ params:
 
 |                   |                              |
 |-------------------|------------------------------|
-| Lecture materials | [zip](_slides/8_Covariates/8_Integrating_Covariate_Data.zip) |
+| Lecture materials | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/8_Covariates/8_Integrating_Covariate_Data.zip?download=) |
 
 <!-- | **Spanish Flu** data for the lesson | [data](slides/metapop/1918flu_3cities_1wave.csv)| -->
 

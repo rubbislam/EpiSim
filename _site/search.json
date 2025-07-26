@@ -56,11 +56,11 @@
     "text": "Troubleshooting\n\nLinux and unix users\nIf you have trouble with any of the scripts above, make sure you have the GNU compiler collection (GCC), including gfortran, installed on your computer. Linux distributions typically include this by default but it is not impossible that you have somehow avoided this.\n\n\nMacOS users\nIf the pompTest.R script fails because you cannot load pomp, try installing it from source. The easiest way to do this is to execute\n\ninstall.packages(\"pomp\",repos=\"https://kingaa.github.io/\")\n\nin an R session. You can also use the devtools package. Do\n\ninstall.packages(\"devtools\")\nlibrary(devtools)\ninstall_github(\"kingaa/pomp\")\n\nIf, while trying to install from source, you receive the error,\n\nmake: gfortran-8.2: No such file or directory\n\nor one that otherwise refers to gfortran, then it is likely that you do not have the necessary version of gfortran installed. Have a look at these instructions and contact me at the address above if these don’t work for you.\nSome users have reported receiving an error complaining that\n\n'stdlib.h' file not found\n\nThis indicates that the command-line tools from Xcode have not been properly installed. In a unix terminal, run\n\nxcode-select --install\n\nto correct this problem.\n\n\nWindows users\nYou have probably failed to install the Rtools correctly. Revisit the instructions above.\n\nPre-course instructions for Windows users (Video)\nPre-course instructions for MacOS users (Video)"
   },
   {
-    "objectID": "forecast.html",
-    "href": "forecast.html",
-    "title": "Epidemic forecasting with pomp",
+    "objectID": "extensions.html",
+    "href": "extensions.html",
+    "title": "Derivative packages from pomp",
     "section": "",
-    "text": "Lecture materials\nzip"
+    "text": "In this lesson, we aim to introduce three main derivative packages: panelPomp, spatPomp, and phylopomp.\n\n\n\n \n \n\n\n\n\nLecture materials\nzip"
   },
   {
     "objectID": "Bayesian.html",
@@ -70,11 +70,11 @@
     "text": "Lecture materials\nzip"
   },
   {
-    "objectID": "extensions.html",
-    "href": "extensions.html",
-    "title": "Derivative packages from pomp",
+    "objectID": "covariates.html",
+    "href": "covariates.html",
+    "title": "Epidemic forecasting with pomp",
     "section": "",
-    "text": "In this lesson, we aim to introduce three main derivative packages: panelPomp, spatPomp, and phylopomp.\n\n\n\n \n \n\n\n\n\nLecture materials\nzip"
+    "text": "Lecture materials\nzip"
   },
   {
     "objectID": "index.html",
@@ -131,12 +131,5 @@
     "title": "Likelihood-based inference for POMP models",
     "section": "",
     "text": "Lecture materials 1\nzip\n\n\nLecture materials 2\nzip\n\n\nReference Recording (2020,2021)\nVideo (112 min)"
-  },
-  {
-    "objectID": "covariates.html",
-    "href": "covariates.html",
-    "title": "Epidemic forecasting with pomp",
-    "section": "",
-    "text": "Lecture materials\nzip"
   }
 ]
