@@ -52,10 +52,11 @@ phylopomp::simulate(
 ) -> G.seir
 plot(G.seir)
 
+# tune the parameters to see what happens
 G.seir |>
   sir_pomp(
-    Beta=4,gamma=1,psi=1,
-    S0=100,I0=5,R0=100
+    Beta=4,gamma=2,psi=1,omega=1,
+    S0=100,I0=8,R0=100
   ) -> po
 
 po |> 
