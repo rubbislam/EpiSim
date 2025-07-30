@@ -9,7 +9,7 @@ source("model_measSIR.R")
 
 ## ---- compute likelihood ---- ##
 foreach(
-  i=1:20, .combine=c, .packages="pomp", 
+  i=1:20, .combine=c, .packages="pomp", .export = "measSIR",
   .options.RNG = 1234          # set seed for RNG
 ) %dorng% {
   # codes that you would like to run in parallel

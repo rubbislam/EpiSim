@@ -70,7 +70,7 @@ mifs_local |>
 foreach(
   mf = mifs_local,                 # loop over each object in `mifs_local`
   .combine = rbind,                # row bind all results
-  .package = "pomp",
+  .packages = "pomp",
   .options.RNG = 900242057
 ) %dorng% {
   evals <- replicate(10, logLik(pfilter(mf,Np=5000)))

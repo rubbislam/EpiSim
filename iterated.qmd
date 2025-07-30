@@ -14,11 +14,12 @@ params:
 ---
 
 |   |   |
-|----------------------|--------------------------------------------------|
-| Lecture materials 1 | [zip](_slides/5_IF_theory/5_IF_theory.zip) |
-| Lecture materials 2 | [zip](_slides/6_mif2_pipeline/6_mif2_pipeline.zip) |
-| Workflow | [pdf](_slides/6.5_Workflow/6.5_pomp workflow.pdf) |
+|-----------------------|------------------------------------------------|
+| Lecture materials 1 | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/5_IF_theory/5_IF_theory.zip?download=) |
+| Lecture materials 2 | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/6_mif2_pipeline/6_mif2_pipeline.zip?download=) |
+| Workflow | [pdf](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/6.5_Workflow/6.5_pomp%20workflow.pdf?download=) |
 | Reference Recording (2020,2021) | [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) |
+
 <!-- | Supplement: Tuning IF2 | [HTML](_slides/mif/if2_settings.html) | -->
 
 <!-- | Worked solution to Exercise 4.1 | [HTML](slides/mif/Q_fit_seir.html) | -->

@@ -147,7 +147,7 @@ mf1 <- mifs_local[[1]]
 # Global search of the likelihood surface IV ------------------------------
 
 registerDoRNG(127040)
-foreach(guess=iter(guesses,"row"), .combine=rbind, packages='pomp') %dopar% {
+foreach(guess=iter(guesses,"row"), .combine=rbind, .packages='pomp') %dopar% {
   mf1 |>
     mif2(params=c(guess,fixed_params)) |>
     mif2(Nmif=100) -> mf
@@ -226,7 +226,7 @@ plot(guesses)
 # Profile over \eta VI ----------------------------------------------------
 
 registerDoRNG(830007)
-foreach(guess=iter(guesses,"row"), .combine=rbind, packages='pomp') %dopar% {
+foreach(guess=iter(guesses,"row"), .combine=rbind, .packages='pomp') %dopar% {
   mf1 |>
     mif2(params=c(guess,fixed_params),
          rw.sd=rw_sd(Beta=0.02,Rho=0.02)) |>
@@ -326,7 +326,7 @@ read_csv("measles_params.csv") |>
 # Profile over rho II -----------------------------------------------------
 
 registerDoRNG(210568)
-foreach(guess=iter(guesses,"row"), .combine=rbind, packages='pomp') %dopar% {
+foreach(guess=iter(guesses,"row"), .combine=rbind, .packages='pomp') %dopar% {
   mf1 |>
     mif2(params=guess,
          rw.sd=rw_sd(Beta=0.02,Eta=ivp(0.02))) |>
