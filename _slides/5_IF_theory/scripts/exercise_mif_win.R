@@ -6,7 +6,7 @@ cl <- makePSOCKcluster(detectCores())
 registerDoParallel(cl)
 
 ## -------- load model -------- ##
-source("model_measSIR.R")
+source("scripts/model_measSIR.R")
 
 ## ------ 1. mif basics ------- ##
 measSIR |>
@@ -49,10 +49,11 @@ measSIR |>
 foreach(
   i=1:20,
   .combine=c,                         # concatenate all results
-  .packages = "pomp",
+  .packages = c("pomp"),
+  .export = c("po"),
   .options.RNG = 482947940            # set random seed
 ) %dorng% {
-  measSIR |>
+  po |>
     mif2(
       Np=2000, Nmif=50, cooling.fraction.50=0.5,
       rw.sd=rw_sd(Beta=0.02, Rho=0.02, Eta=ivp(0.02))
@@ -68,12 +69,12 @@ mifs_local |>
   facet_wrap(~name,scales="free_y")
 
 ## ------- 3. likelihood after mif ------- ##
+registerDoRNG(900242057)
 foreach(
   mf = mifs_local,                 # loop over each object in `mifs_local`
   .combine = rbind,                # row bind all results
-  .packages = "pomp",
-  .options.RNG = 900242057
-) %dorng% {
+  .packages = c("pomp","dplyr")
+) %dopar% {
   evals <- replicate(10, logLik(pfilter(mf,Np=5000)))
   ll <- logmeanexp(evals,se=TRUE)
   mf |> coef() |> bind_rows() |>
