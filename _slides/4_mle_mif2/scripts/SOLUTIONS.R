@@ -1,5 +1,5 @@
 ## =============================================================================
-##  Lecture B: Iterated filtering (mif2) -- SOLUTIONS
+##  Lecture 4: Iterated filtering (mif2) -- SOLUTIONS
 ##
 ##  Try scripts/EXERCISES.R first. Open 4_mle_mif2.Rproj before running this.
 ##  Works on macOS, Linux and Windows.

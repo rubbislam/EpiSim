@@ -1,5 +1,5 @@
 ## =============================================================================
-##  Lecture B: Iterated filtering (mif2) -- EXERCISES
+##  Lecture 4: Iterated filtering (mif2) -- EXERCISES
 ##
 ##  SISMID: Simulation-based Inference for Epidemiological Dynamics
 ##

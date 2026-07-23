@@ -1,5 +1,5 @@
 ## =============================================================================
-##  Lecture A: The particle filter -- EXERCISES
+##  Lecture 3: The particle filter -- EXERCISES
 ##
 ##  SISMID: Simulation-based Inference for Epidemiological Dynamics
 ##

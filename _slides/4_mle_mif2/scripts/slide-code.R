@@ -1,9 +1,7 @@
 ## =============================================================================
-##  Lecture B -- slide code: finding the MLE with iterated filtering (mif2)
+##  Lecture 4 -- slide code: finding the MLE with iterated filtering (mif2)
 ##
-##  The key runnable code BEHIND the slides -- not the polished figure scripts
-##  in figures/, which exist for illustration only. Open 4_mle_mif2.Rproj first,
-##  then run this top to bottom.
+##  Open 4_mle_mif2.Rproj first, then run this top to bottom.
 ## =============================================================================
 
 library(tidyverse)

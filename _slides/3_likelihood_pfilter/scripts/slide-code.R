@@ -1,9 +1,7 @@
 ## =============================================================================
-##  Lecture A -- slide code: the likelihood, and the particle filter
+##  Lecture 3 -- slide code: the likelihood, and the particle filter
 ##
-##  The key runnable code BEHIND the slides -- not the polished figure scripts
-##  in figures/, which exist for illustration only. Open
-##  3_likelihood_pfilter.Rproj first, then run this top to bottom.
+##  Open 3_likelihood_pfilter.Rproj first, then run this top to bottom.
 ## =============================================================================
 
 library(tidyverse)

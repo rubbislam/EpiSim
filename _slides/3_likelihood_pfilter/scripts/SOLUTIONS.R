@@ -1,5 +1,5 @@
 ## =============================================================================
-##  Lecture A: The particle filter -- SOLUTIONS
+##  Lecture 3: The particle filter -- SOLUTIONS
 ##
 ##  Try scripts/EXERCISES.R first. Open 3_likelihood_pfilter.Rproj before running this.
 ##  Works on macOS, Linux and Windows.
