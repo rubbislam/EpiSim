@@ -16,8 +16,7 @@ params:
 |   |   |
 |-----------------------|------------------------------------------------|
 | Lecture materials 1 | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/4_mle_mif2/4_mle_mif2.zip?download=) |
-| Lecture materials 2 | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/6_mif2_pipeline/6_mif2_pipeline.zip?download=) |
-| Workflow | [pdf](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/6.5_Workflow/6.5_pomp%20workflow.pdf?download=) |
+| Lecture materials 2 | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/5_workflow/5_workflow.zip?download=) |
 | Reference Recording (2020,2021) | [Video (110 min)](https://www.youtube.com/playlist?list=PLluGwj6FGt2S9cNE-rD3CZJY6X_KydOMi) |
 
 <!-- | Supplement: Tuning IF2 | [HTML](_slides/mif/if2_settings.html) | -->
