@@ -1,0 +1,592 @@
+---
+title: "Lecture 3: The likelihood of a POMP, and computing it with the particle filter"
+author:
+  - Qianying (Ruby) Lin
+  - Jesse Wheeler
+  - Spencer J. Fox
+format:
+  beamer:
+    classoption: "t"
+    link-citations: true
+    keep_tex: true
+    slide_level: 2
+    section-titles: false
+    aspectratio: 169
+    include-in-header: "../_includes/header.tex"
+    header-includes: |
+       \setbeamertemplate{navigation symbols}{}
+       \setbeamertemplate{footline}[page number]
+    hyperrefoptions:
+      - linktoc=all
+  html:
+    toc: false
+  pdf:
+    toc: false
+editor_options:
+  chunk_output_type: console
+bibliography: ["../sbied.bib"]
+editor:
+  markdown:
+    wrap: 72
+---
+
+```{r knitr_opts,include=FALSE,cache=FALSE,purl=FALSE}
+source("../_includes/setup.R", local = knitr::knit_global())
+```
+
+```{r prelims,echo=FALSE,cache=FALSE,purl=FALSE}
+library(tidyverse)
+library(pomp)
+library(foreach)
+library(doParallel)
+library(doRNG)
+options(stringsAsFactors=FALSE)
+set.seed(1350254336)
+```
+
+# Where we are
+
+## Objectives
+
+By the end of this lecture you will be able to:
+
+1.  Say what the likelihood of a POMP model *is*, in plain language.
+2.  Explain why we cannot just simulate our way to it.
+3.  Run `pfilter` on your own laptop and get a log-likelihood for a fixed
+    set of parameters.
+4.  Explain why that number is **random**, and what to do about it.
+5.  Read the filter's diagnostics, and know when you have enough particles.
+
+\vfill
+
+This lecture is deliberately light on formulas. The ideas here are
+geometric, and we are going to look at them rather than derive them.
+
+## The shape of the whole module
+
+::::: columns
+::: {.column width="52%"}
+-   We have a **model** and we have **data**.
+-   We need a **method** that connects them.
+-   Everything we want (parameter estimates, uncertainty, forecasts,
+    model comparison) comes out the other side.
+
+\vspace{3mm}
+
+This session is about the method. Specifically: about **scoring** a set
+of parameters.
+:::
+
+::: {.column width="48%"}
+\begin{center}
+  \includegraphics[height=4.5cm]{../graphics/lec3_overview}
+\end{center}
+:::
+:::::
+
+## The question, in one picture
+
+\begin{center}
+  \includegraphics[height=5.2cm]{figures/likely_graph.pdf}
+\end{center}
+
+\vfill
+
+Two models. One dataset. **Which model is doing a better job?**
+
+Each shaded band is a model **simulated many times**. We turn that question
+into a *number*, the **likelihood**, and for stochastic models like these
+the only way to compute it is by **simulating**.
+
+## The likelihood, in one sentence
+
+> **The likelihood is the probability that this model, with these
+> parameters, would have produced exactly the data we actually saw.**
+
+\vfill
+
+-   Bigger is better.
+-   A single likelihood means nothing on its own. It only means
+    something **compared to another one**.
+-   We work with the **log**-likelihood, because the numbers involved
+    are astronomically small.
+
+\vfill
+
+That is the whole definition. Everything from here is about how to
+*compute* it.
+
+# What we see, and what we don't
+
+## The problem: most of the epidemic is invisible
+
+\begin{center}
+  \includegraphics[height=5.5cm]{../graphics/lec3ll.png}
+\end{center}
+
+We observe the top row. We never see the bottom row: who is
+susceptible, who is infected.
+
+## The problem: most of the epidemic is invisible
+
+\begin{center}
+  \includegraphics[width=.9\textwidth]{figures/fig-data-vs-hidden.png}
+\end{center}
+
+\vfill
+
+We have 42 numbers. Underneath them is an entire epidemic we never
+observed, and *many different* hidden epidemics are consistent with
+the same 42 numbers.
+
+## So the likelihood is a hard sum
+
+To score one parameter set honestly, we would have to ask:
+
+\vspace{2mm}
+
+> *Across **every possible** hidden epidemic, weighted by how likely
+> each one is: how plausible are my 42 numbers?*
+
+\vspace{4mm}
+
+-   That is a sum over an enormous space of possibilities.
+-   For our measles model there is **no formula** for it.
+-   But notice: we can **simulate** hidden epidemics all day long.
+
+\vfill
+
+\begin{center}
+\textbf{Simulating forward is easy. Scoring backward is hard.}\\
+That asymmetry is the reason this module exists.
+\end{center}
+
+# Attempt 1: just simulate a lot
+
+## The obvious idea
+
+If we can simulate epidemics, why not simulate a *lot* of them and see
+which ones look like the data?
+
+\begin{center}
+  \includegraphics[height=4.2cm]{figures/directsim_graph.pdf}
+\end{center}
+
+Simulate many trajectories, score each one against the data, average.
+This is a perfectly correct method. It is also useless.
+
+## Why it fails
+
+\begin{center}
+  \includegraphics[width=\textwidth]{figures/fig-direct-sim-fails.png}
+\end{center}
+
+## Why it fails
+
+-   A simulation that drifts away from the data **never comes back**.
+    Nothing pulls it home.
+-   Over 42 weeks, essentially every trajectory drifts away.
+-   So almost all the simulations contribute nothing, and the answer is
+    decided by a **handful of lucky ones**.
+
+\vfill
+
+The method is not *wrong*. It is just spending all its effort on
+epidemics that stopped resembling the data weeks ago.
+
+\vfill
+
+\begin{center}
+\textbf{We need to stop bad trajectories early, not after 42 weeks.}
+\end{center}
+
+# The particle filter
+
+## The fix: don't let bad guesses run
+
+The particle filter changes one thing. Instead of letting a simulation
+run to the end, it checks in **at every observation**:
+
+\vspace{2mm}
+
+1.  **Predict**: let every particle take one step forward.
+2.  **Weight**: the data arrive. Particles that predicted well score
+    highly.
+3.  **Resample**: kill the bad ones, clone the good ones.
+
+\vspace{2mm}
+
+Then repeat, 42 times.
+
+\vfill
+
+\begin{center}
+  \includegraphics[width=0.92\textwidth]{figures/pfilter_graph.pdf}
+\end{center}
+
+## One week of the particle filter, on real data
+
+\begin{center}
+  \includegraphics[width=.8\textwidth]{figures/fig-pfilter-one-week.png}
+\end{center}
+
+\vfill
+
+Direct simulation lets bad trajectories run for 42 weeks. The particle
+filter kills them **every single week** and clones the survivors.
+
+## What the algorithm needs from you
+
+::::: columns
+::: {.column width="45%"}
+The particle filter only ever asks your model two things:
+
+-   *"Take a step forward."* (`rprocess`)
+-   *"How well does this state explain this week's data?"*
+    (`dmeasure`)
+
+\vspace{3mm}
+
+It never asks for a formula. That is why it works on models we cannot
+write down.
+:::
+
+::: {.column width="55%"}
+\begin{center}
+  \includegraphics[height=5.2cm]{../graphics/lec3pf.png}
+\end{center}
+:::
+:::::
+
+## Doing it in `pomp`
+
+```{r pfilter-demo,eval=FALSE}
+source("scripts/model_measSIR.R")
+
+pf <- measSIR |> pfilter(Np=1000)
+logLik(pf)
+```
+
+\vfill
+
+That is the whole thing. `Np` is the number of particles.
+
+\vfill
+
+\begin{center}
+\textbf{Exercises 1 and 2.} \quad Open \texttt{3\_likelihood\_pfilter.Rproj}, then
+\texttt{scripts/EXERCISES.R}.
+\end{center}
+
+\vspace{2mm}
+
+Look at the model against the data, then compute your first
+log-likelihood.
+
+# The answer is a random number
+
+## Run it twice, get two answers
+
+The particle filter is a **Monte Carlo** algorithm. It does not return
+the likelihood. It returns a *random estimate* of it.
+
+\vspace{3mm}
+
+```{r rerun-demo,eval=FALSE}
+replicate(5, logLik(measSIR |> pfilter(Np=1000)))
+```
+
+\vspace{3mm}
+
+Five runs, five different numbers. So: how many particles do we need,
+and how wrong are we if we skimp?
+
+## Too few particles doesn't just add noise
+
+\begin{center}
+  \includegraphics[width=0.87\textwidth]{figures/fig-loglik-is-random.png}
+\end{center}
+
+\vfill
+
+\begin{center}
+\textbf{In practice:} escalate \texttt{Np} = 2000, then 5000, then 10000.
+\end{center}
+
+## Too few particles doesn't just add noise
+
+-   More particles makes the cloud **tighter**; that much is
+    expected.
+-   More particles also moves the cloud **up**.
+
+\vfill
+
+With too few particles you do not get a noisy answer. You get a
+**confidently wrong** one, biased low.
+
+\vfill
+
+Practical rule: if adding particles keeps raising your log-likelihood,
+you did not have enough particles.
+
+## Where does the noise come from? A quick diagnostic
+
+`pomp` gives you `plot(pf)`. Its key panel is the **effective sample
+size**: at each week, how many of your particles are really contributing?
+
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{figures/fig-ess-collapse.png}
+\end{center}
+
+## Where does the noise come from? A quick diagnostic
+
+-   Where ESS is high, hundreds or thousands of particles agree; that
+    week's contribution to the likelihood is solid.
+-   Where ESS **crashes**, the whole week rests on a few hundred
+    particles. That is where your estimate is fragile, and where the
+    run-to-run noise is born.
+-   Here the filter struggles at the **early rise** and at the **crash to
+    zero**, not at the big mid-epidemic jump, which it handles fine.
+
+\vfill
+
+This is a *filter* health check: it tells you whether you have enough
+particles, and where. Using it to criticize the *model* comes later, in
+the workflow.
+
+\vfill
+
+\begin{center}
+\textbf{Exercises 3 and 4.} \quad See the number jump around, then read the
+diagnostic that explains why.
+\end{center}
+
+## Combining repeated runs
+
+Run several filters and combine them, but **not** with `mean()`:
+
+```{r logmeanexp-demo,eval=FALSE}
+pfs |> logLik() |> logmeanexp(se=TRUE)
+```
+
+\vspace{3mm}
+
+Read the name backwards: `log(mean(exp(x)))`.
+
+-   The particle filter is unbiased for the **likelihood**.
+-   It is *not* unbiased for the **log**-likelihood.
+-   So we average on the likelihood scale, then take the log.
+
+\vspace{3mm}
+
+`logmeanexp` does this without overflowing, and gives you a standard
+error.
+
+## Each run is independent, so parallelize
+
+```{r parallel-demo,eval=FALSE}
+library(foreach); library(doParallel); library(doRNG)
+
+cl <- makePSOCKcluster(detectCores()-1)
+registerDoParallel(cl)
+registerDoRNG(1234)
+
+foreach(i=1:20, .combine=c, .packages="pomp", .export="measSIR") %dopar% {
+  measSIR |> pfilter(Np=5000)
+} -> pfs
+
+stopCluster(cl)
+```
+
+\vfill
+
+`makePSOCKcluster` works on macOS, Linux **and** Windows.
+`registerDoRNG` makes the parallel random numbers reproducible.
+
+\vfill
+
+\begin{center}
+\textbf{Exercises 5 and 6.} \quad Parallel evaluation, and what accuracy
+costs you.
+\end{center}
+
+# Exercises
+
+## The exercises at a glance
+
+Everything builds to one idea: **the likelihood is a number we can compute,
+and it is random.**
+
+\vspace{1mm}
+
+1.  **Look before you compute.** Simulate 20 outbreaks. Do they resemble the
+    data?
+2.  **Your first likelihood.** One `pfilter`, one log-likelihood.
+3.  **Run it again.** The same line returns a *different* number. Why?
+4.  **Read the diagnostics.** Effective sample size week by week: where does
+    the filter struggle?
+5.  **Run many, in parallel.** Combine 20 estimates with `logmeanexp` and a
+    standard error.
+6.  **What accuracy costs.** Time `pfilter` against `Np`: the price of
+    precision.
+7.  **(stretch) A likelihood slice.** Vary `Eta`, watch the likelihood move:
+    a first look at the surface.
+
+# Where that leaves us
+
+## Where we've got to
+
+We can now **score any fixed set of parameters**:
+
+-   the particle filter turns a parameter vector into a log-likelihood;
+-   it only asks the model to simulate and to weigh, so it works even on
+    models we cannot write down;
+-   the answer is random, so we repeat and combine with `logmeanexp`;
+-   more particles buys accuracy, not just precision.
+
+\vfill
+
+But a score for *one* parameter set is not the answer. We want the set that
+fits the data **best**: the maximum-likelihood estimate.
+
+\vfill
+
+\begin{center}
+\textbf{After the break: which parameters maximize the likelihood, and the
+algorithm that finds them.}
+\end{center}
+
+## If you want to go deeper
+
+You do not need any of this to do the exercises. It is here for the people
+who want the theory we skipped.
+
+\vspace{3mm}
+
+-   **The `pomp` package**, and the framework behind everything in this
+    module: @King2016.
+-   **The particle filter**: @Arulampalam2002 is the standard tutorial;
+    @Kitagawa1987 is the original; @Doucet2001 is the reference volume.
+-   **The likelihood**, as a general tool for inference: @Pawitan2001.
+-   **Iterated filtering**, which is the next session: @Ionides2015.
+
+\vfill
+
+\begin{center}
+The maths we skipped is all in these, and the key formulas are in the
+supplement at the end of this deck.
+\end{center}
+
+# References
+
+## References {.allowframebreaks}
+
+\small
+
+::: {#refs}
+:::
+
+## License, acknowledgments, and links
+
+-   This lesson is prepared for the [Simulation-based Inference for
+    Epidemiological Dynamics](https://rubbislam.quarto.pub/episim/)
+    module at the Summer Institute in Statistics and Modeling in
+    Infectious Diseases,
+    [SISMID](https://sph.emory.edu/SISMID/index.html).
+
+-   The materials build on [previous versions of this course and related
+    courses](../acknowledge.html).
+
+-   Licensed under the [Creative Commons Attribution-NonCommercial
+    license](https://creativecommons.org/licenses/by-nc/4.0/). Please
+    share and remix non-commercially, mentioning its origin.
+    \includegraphics[height=12pt]{../graphics/cc-by-nc}
+
+-   Produced with R version `r getRversion()` and pomp version
+    `r packageVersion("pomp")`.
+
+\vfill
+
+[`R` code for this lesson](./scripts/EXERCISES.R)
+
+# Supplement: the theory we skipped
+
+## The likelihood of a POMP
+
+For reference: the same ideas as the lecture's pictures, written as the
+formulas from the original *likelihood* lesson. None of this is needed for
+the exercises.
+
+The data are $N$ observations $y^*_{1:N}$; the model is a density
+$f_{Y_{1:N}}(y_{1:N};\theta)$. The **likelihood** evaluates it at the data,
+and the **log-likelihood** is its log:
+$$
+\lik(\theta) = f_{Y_{1:N}}(y^*_{1:N};\theta),
+\qquad
+\loglik(\theta) = \log \lik(\theta).
+$$
+
+The Markov structure factors the joint density of states and observations
+into an **initial**, a **transition**, and a **measurement** density:
+$$
+f_{X_{0:N},\,Y_{1:N}}(x_{0:N},y_{1:N};\theta)
+= f_{X_0}(x_0;\theta)\!\prod_{n=1}^N\!
+   f_{X_n\mid X_{n-1}}(x_n\mid x_{n-1};\theta)\,
+   f_{Y_n\mid X_n}(y_n\mid x_n;\theta).
+$$
+
+## The likelihood is an integral, and simulating it directly fails
+
+The likelihood marginalizes over **every possible hidden path** $x_{0:N}$, a
+high-dimensional integral with no closed form:
+$$
+\lik(\theta) = \int f_{X_0}(x_0;\theta)\!\prod_{n=1}^{N}\!
+   f_{Y_n\mid X_n}(y^*_n\mid x_n;\theta)\,
+   f_{X_n\mid X_{n-1}}(x_n\mid x_{n-1};\theta)\, dx_{0:N}.
+$$
+
+Write it as an **expectation** over unconditional simulations
+$X_{0:N}\sim f_{X_{0:N}}$, then approximate by an average over $J$ of them:
+$$
+\lik(\theta)
+= \expect{\prod_{n=1}^{N} f_{Y_n\mid X_n}(y^*_n\mid X_n;\theta)}
+\approx \frac{1}{J}\sum_{j=1}^{J}\prod_{n=1}^{N}
+        f_{Y_n\mid X_n}(y^*_n\mid X^j_n;\theta).
+$$
+
+Correct, but simulated paths drift off the data, so the effort needed to
+keep any near it grows explosively with $N$. That is why we filter instead.
+
+## The particle filter {.allowframebreaks}
+
+Factor the likelihood **one observation at a time**:
+$$
+\lik(\theta)=\prod_{n=1}^N \int
+   f_{Y_n\mid X_n}(y^*_n\mid x_n;\theta)\,
+   f_{X_n\mid Y_{1:n-1}}(x_n\mid y^*_{1:n-1};\theta)\, dx_n.
+$$
+
+Two steps carry the particle cloud from one observation to the next.
+**Prediction** pushes it forward through the dynamics; **filtering**
+reweights it by the new observation, via Bayes:
+$$
+f_{X_n\mid Y_{1:n-1}}
+= \int f_{X_n\mid X_{n-1}}\, f_{X_{n-1}\mid Y_{1:n-1}}\, dx_{n-1},
+$$
+$$
+f_{X_n\mid Y_{1:n}}
+= \frac{f_{Y_n\mid X_n}(y^*_n\mid x_n;\theta)\; f_{X_n\mid Y_{1:n-1}}}
+       {\displaystyle\int f_{Y_n\mid X_n}(y^*_n\mid u_n;\theta)\;
+        f_{X_n\mid Y_{1:n-1}}\, du_n}.
+$$
+
+The filter estimates each factor by Monte Carlo, so the log-likelihood is a
+sum of per-observation pieces:
+$$
+\loglik(\theta) = \sum_{n=1}^N \log \lik_n(\theta)
+  \approx \sum_{n=1}^N \log \hat{\lik}_n(\theta).
+$$
+
+The estimate $\hat{\lik}(\theta)$ is **unbiased** for $\lik(\theta)$; taking
+logs makes $\log\hat{\lik}(\theta)$ a consistent but **downward-biased**
+estimate of $\loglik(\theta)$, which is why too few particles read low.

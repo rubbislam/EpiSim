@@ -4,7 +4,6 @@ author: Qianying (Ruby) Lin, Spencer J. Fox, Jesse Wheeler
 toc: true
 format:
   html:
-    embed-resources: true
     code-background: true
     include-after-body:
         - _slides/_includes/main_bottom.html
@@ -65,7 +64,7 @@ Students new to **R** should complete a [tutorial](https://kingaa.github.io/R_Tu
 
 ## Stochastic SIR/SEIR simulator
 
-For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/stochastic-sir/) developed for this course.
+For an interactive exploration of the stochastic SIR model, you can access the dedicated [shiny app](https://spncrfx.shinyapps.io/pomp-motivation/) developed for this course.
 This application allows you to simulate and analyze the dynamics of disease spread using the stochastic SIR/SEIR framework.
 
 ## Acknowledgements

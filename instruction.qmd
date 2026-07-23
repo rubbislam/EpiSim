@@ -4,7 +4,6 @@ author: Aaron A. King, Edward L. Ionides
 toc: true
 format:
   html:
-    embed-resources: true
     code-background: true
     include-after-body:
         - _slides/_includes/lesson_bottom.html
