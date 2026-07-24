@@ -17,7 +17,7 @@ In this lesson, we aim to introduce three main derivative packages: [panelPomp](
 
 |                   |                                              |
 |-------------------|----------------------------------------------|
-| `panelPomp` and `spatPomp` | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/9_panel_spat/9_panel_spat.zip?download=) |
+| `panelPomp` and `spatPomp` | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/9_panel_and_spat/9_panel_spat.zip?download=) |
 | `phylopomp`       | [zip](https://github.com/rubbislam/EpiSim/raw/refs/heads/main/_slides/10_phylopomp/10_phylopomp.zip?download=) |
 
 <!-- | **Data** for the lesson.          | [data](slides/workflow/Measles_Consett_1948.csv)| -->
