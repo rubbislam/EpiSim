@@ -61,3 +61,4 @@ G |>
   replicate(n = 8) |> concat() -> pf
 
 logmeanexp(sapply(pf, logLik), se = TRUE)
+
